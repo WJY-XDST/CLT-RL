@@ -45,14 +45,16 @@ class CommandsCfg:
     heading_command = False
     ranges_lin_vel_x = (0.3, 0.8)  # [m/s], forward-only training commands
     ranges_ang_vel_yaw = (0.0, 0.0)  # [rad/s]
-    ranges_height = (0.1, 0.25)  # [m]
+    # Keep height fixed during the first standing/straight-line stage.  The
+    # range can be widened after the basic policy no longer saturates actions.
+    ranges_height = (0.18, 0.18)  # [m]
     ranges_heading = (-3.14, 3.14)
     # Environment control steps. With 48 rollout steps per PPO iteration these
-    # are 500 standing-only iterations and a 1500-iteration motion ramp.
-    standing_only_steps = 24_000
-    motion_ramp_steps = 72_000
+    # are 1000 standing-only iterations and a 2000-iteration motion ramp.
+    standing_only_steps = 48_000
+    motion_ramp_steps = 96_000
     # Explicit zero-speed population retained after motion is introduced.
-    standing_env_fraction = 0.25
+    standing_env_fraction = 0.40
 
 
 @configclass
@@ -80,7 +82,7 @@ class RewardsCfg:
     collision_clip_multiplier = 10.0
     safety_penalty_clip_multiplier = 10.0
     base_height = 1.0
-    nominal_state = -0.1
+    nominal_state = -0.5
     lin_vel_z = -2.0
     ang_vel_xy = -0.05
     orientation = -10.0
@@ -89,6 +91,7 @@ class RewardsCfg:
     torques = -0.0001
     action_rate = -0.01
     action_smooth = -0.01
+    action_saturation = -0.2
     collision = -2.0
     dof_pos_limits = -1.0
     leg_length_below_min = -200.0
@@ -100,6 +103,8 @@ class RewardsCfg:
     # parameters
     tracking_sigma = 0.25
     base_height_target = 0.18
+    theta_asymmetry_deadband = 0.05  # [rad]
+    action_saturation_threshold = 0.8
     max_contact_force = 100.0
 
 

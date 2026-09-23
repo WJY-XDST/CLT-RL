@@ -24,7 +24,7 @@ class WheelLeggedVMCFlatPPORunnerCfg(RslRlOnPolicyRunnerCfg):
     # actions within the range assumed by the VMC action scaling.
     clip_actions = 1.0
     policy = RslRlPpoActorCriticCfg(
-        init_noise_std=0.5,
+        init_noise_std=0.3,
         actor_hidden_dims=[128, 64, 32],
         critic_hidden_dims=[256, 128, 64],
         activation="elu",

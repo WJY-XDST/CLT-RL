@@ -154,6 +154,7 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
                 "torques",
                 "action_rate",
                 "action_smooth",
+                "action_saturation",
                 "collision",
                 "dof_pos_limits",
                 "leg_length_below_min",
@@ -451,12 +452,17 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
         else:
             r_base_height = torch.sqrt(base_height_error)
 
-        # nominal state (left/right theta0 symmetry)
-        theta_diff = torch.square(self._theta0[:, 0] - self._theta0[:, 1])
+        # Nominal state: tolerate the small asymmetry required by the real
+        # mass distribution, and penalize only excessive left/right leg-angle
+        # disagreement.
+        theta_diff = torch.abs(self._theta0[:, 0] - self._theta0[:, 1])
+        theta_asymmetry = torch.relu(
+            theta_diff - self.cfg.rewards.theta_asymmetry_deadband
+        )
         if self.cfg.rewards.nominal_state < 0:
-            r_nominal = theta_diff
+            r_nominal = torch.square(theta_asymmetry)
         else:
-            r_nominal = torch.exp(-theta_diff / 0.1)
+            r_nominal = torch.exp(-torch.square(theta_asymmetry) / 0.1)
 
         # motion penalties
         r_lin_vel_z = torch.square(root_lin_vel_b[:, 2])
@@ -483,6 +489,13 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
             ),
             dim=1,
         )
+        # Rate/smoothness costs do not penalize a constant saturated action.
+        # Apply a soft cost only outside the normal [-0.8, 0.8] working range.
+        action_excess = torch.relu(
+            torch.abs(self._actions)
+            - self.cfg.rewards.action_saturation_threshold
+        )
+        r_action_saturation = torch.sum(torch.square(action_excess), dim=1)
 
         # collision penalty on leg links + base
         contact_force_norm = torch.norm(
@@ -541,6 +554,9 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
             "action_rate": r_action_rate * self.cfg.rewards.action_rate * self.step_dt,
             "action_smooth": r_action_smooth
             * self.cfg.rewards.action_smooth
+            * self.step_dt,
+            "action_saturation": r_action_saturation
+            * self.cfg.rewards.action_saturation
             * self.step_dt,
             "collision": r_collision * self.cfg.rewards.collision * self.step_dt,
             "dof_pos_limits": r_dof_pos_limits

@@ -32,6 +32,7 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
         # DirectRLEnv exposes Gymnasium spaces in Isaac Lab 2.3 rather than
         # the deprecated ``num_actions`` attribute.
         self._action_dim = int(self.single_action_space.shape[0])
+        self._validate_configuration()
 
         # Isaac Sim's articulation order can differ from the URDF/action order.
         # Keep each lookup in the requested logical order and map torque columns
@@ -165,6 +166,41 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
 
         # base height from terrain (flat ground at z=0)
         self._base_height = self._robot.data.root_pos_w[:, 2]
+
+    def _validate_configuration(self):
+        """Fail early when coupled command/action settings become inconsistent."""
+        if self._action_dim != 6:
+            raise ValueError(f"WheelLeggedVMC expects 6 actions, got {self._action_dim}.")
+
+        mapped_l0_min = self.cfg.l0_offset - self.cfg.action_scale_l0
+        mapped_l0_max = self.cfg.l0_offset + self.cfg.action_scale_l0
+        if (
+            abs(mapped_l0_min - self.cfg.l0_ref_min) > 1.0e-6
+            or abs(mapped_l0_max - self.cfg.l0_ref_max) > 1.0e-6
+        ):
+            raise ValueError(
+                "Leg-length action map must cover the physical range exactly: "
+                f"mapped=[{mapped_l0_min:.6f}, {mapped_l0_max:.6f}], "
+                f"limits=[{self.cfg.l0_ref_min:.6f}, {self.cfg.l0_ref_max:.6f}]."
+            )
+
+        max_command_speed = float(self.cfg.commands.ranges_lin_vel_x[1])
+        max_wheel_speed = self.cfg.wheel_radius * self.cfg.action_scale_vel
+        if max_command_speed > max_wheel_speed + 1.0e-6:
+            raise ValueError(
+                "Forward command exceeds the ideal wheel-speed action range: "
+                f"command={max_command_speed:.3f} m/s, "
+                f"reachable={max_wheel_speed:.3f} m/s."
+            )
+
+        saturation_indices = tuple(self.cfg.rewards.action_saturation_indices)
+        if not saturation_indices or any(
+            index < 0 or index >= self._action_dim for index in saturation_indices
+        ):
+            raise ValueError(
+                "Invalid action_saturation_indices: "
+                f"{self.cfg.rewards.action_saturation_indices}."
+            )
 
     def _setup_scene(self):
         self._robot = Articulation(self.cfg.robot)
@@ -395,8 +431,11 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
                 self._theta0_dot * self.cfg.obs_scales.dof_vel,
                 self._L0 * self.cfg.obs_scales.l0,
                 self._L0_dot * self.cfg.obs_scales.l0_dot,
-                self._robot.data.joint_pos[:, self._wheel_joint_ids]
-                * self.cfg.obs_scales.dof_pos,
+                # Wheel joint angles are continuous and unbounded, so they are
+                # not a stationary policy input. Preserve the 27-D interface
+                # while exposing the missing measured planar body velocity.
+                self._robot.data.root_lin_vel_b[:, :2]
+                * self.cfg.obs_scales.lin_vel,
                 self._robot.data.joint_vel[:, self._wheel_joint_ids]
                 * self.cfg.obs_scales.dof_vel,
                 self._actions,
@@ -427,7 +466,6 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
         joint_vel = self._robot.data.joint_vel
         joint_acc = self._robot.data.joint_acc
         torque = self._robot.data.applied_torque
-        default_joint_pos = self._robot.data.default_joint_pos
         contact_forces = self._contact_sensor.data.net_forces_w
 
         # velocity tracking (exponential reward)
@@ -490,9 +528,13 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
             dim=1,
         )
         # Rate/smoothness costs do not penalize a constant saturated action.
-        # Apply a soft cost only outside the normal [-0.8, 0.8] working range.
+        # Apply this soft cost to the leg-angle targets only. Wheel actions
+        # legitimately approach +/-1 when tracking the upper speed range.
+        saturation_actions = self._actions[
+            :, list(self.cfg.rewards.action_saturation_indices)
+        ]
         action_excess = torch.relu(
-            torch.abs(self._actions)
+            torch.abs(saturation_actions)
             - self.cfg.rewards.action_saturation_threshold
         )
         r_action_saturation = torch.sum(torch.square(action_excess), dim=1)
@@ -718,11 +760,11 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
         self.extras["log"] = dict()
         self.extras["log"].update(extras)
         extras = dict()
-        extras["Episode_Termination/unsafe_contact_or_orientation"] = torch.count_nonzero(
-            self.reset_terminated[env_ids]
+        extras["Episode_Termination/unsafe_contact_or_orientation"] = torch.mean(
+            self.reset_terminated[env_ids].float()
         ).item()
-        extras["Episode_Termination/time_out"] = torch.count_nonzero(
-            self.reset_time_outs[env_ids]
+        extras["Episode_Termination/time_out"] = torch.mean(
+            self.reset_time_outs[env_ids].float()
         ).item()
         self.extras["log"].update(extras)
 

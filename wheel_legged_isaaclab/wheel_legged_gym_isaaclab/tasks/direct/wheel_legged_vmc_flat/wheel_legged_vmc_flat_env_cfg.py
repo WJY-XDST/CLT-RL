@@ -105,6 +105,9 @@ class RewardsCfg:
     base_height_target = 0.18
     theta_asymmetry_deadband = 0.05  # [rad]
     action_saturation_threshold = 0.8
+    # Only the virtual-leg angle commands should normally remain away from
+    # saturation. Wheel actions must be free to approach +/-1 at high speed.
+    action_saturation_indices = (0, 3)
     max_contact_force = 100.0
 
 
@@ -145,11 +148,18 @@ class WheelLeggedVMCFlatEnvCfg(DirectRLEnvCfg):
     action_scale_theta = 0.2  # [rad] per action unit
     theta0_ref_min = -0.2  # [rad], hard VMC target bound
     theta0_ref_max = 0.2  # [rad], hard VMC target bound
-    action_scale_l0 = 0.1  # [m] per action unit
-    action_scale_vel = 10.0  # [rad/s] per action unit
-    l0_offset = 0.175  # [m], target virtual leg length at zero action
+    # Map the complete normalized interval [-1, 1] exactly onto the safe
+    # virtual-leg range [0.12, 0.25] m. This avoids dead action regions caused
+    # by applying a wider affine map and then clipping it.
+    action_scale_l0 = 0.065  # [m] per action unit
+    l0_offset = 0.185  # [m], midpoint of the safe virtual-leg range
     l0_ref_min = 0.12  # [m], hard lower bound for the VMC reference
     l0_ref_max = 0.25  # [m], hard upper bound for the VMC reference
+    # A 0.0675 m wheel needs 11.85 rad/s for the maximum 0.8 m/s command.
+    # Keep some control margin instead of making the fastest command
+    # unreachable at action=1.
+    wheel_radius = 0.0675  # [m]
+    action_scale_vel = 15.0  # [rad/s] per action unit
     feedforward_force = 40.0  # [N]
     kp_theta = 50.0  # [N*m/rad]
     kd_theta = 3.0  # [N*m*s/rad]

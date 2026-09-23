@@ -171,6 +171,18 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         print(f"[INFO]: Loading model checkpoint from: {resume_path}")
         # load previously trained model
         runner.load(resume_path)
+        # The environment curriculum is driven by control steps, whereas the
+        # checkpoint stores PPO iterations. Keep both clocks aligned so a
+        # resumed run does not silently return to the standing-only phase.
+        if hasattr(env.unwrapped, "common_step_counter"):
+            curriculum_step = int(runner.current_learning_iteration) * int(
+                agent_cfg.num_steps_per_env
+            )
+            env.unwrapped.common_step_counter = curriculum_step
+            print(
+                "[INFO]: Restored environment curriculum step to "
+                f"{curriculum_step} from iteration {runner.current_learning_iteration}."
+            )
 
     # dump the configuration into log-directory
     dump_yaml(os.path.join(log_dir, "params", "env.yaml"), env_cfg)

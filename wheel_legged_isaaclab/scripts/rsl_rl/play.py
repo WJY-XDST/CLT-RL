@@ -164,15 +164,19 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     # 1 and 4 (left/right l0) after policy inference.
     fixed_leg_action = None
     if args_cli.fixed_leg_length is not None:
-        if not hasattr(env_cfg, "l0_offset") or not hasattr(env_cfg, "action_scale_l0"):
+        required_leg_cfg = ("l0_offset", "action_scale_l0", "l0_ref_min", "l0_ref_max")
+        if not all(hasattr(env_cfg, name) for name in required_leg_cfg):
             raise ValueError("--fixed_leg_length is supported only by WheelLeggedVMC tasks.")
+        if not env_cfg.l0_ref_min <= args_cli.fixed_leg_length <= env_cfg.l0_ref_max:
+            raise ValueError(
+                f"Requested leg length {args_cli.fixed_leg_length:.3f} m is outside the physical range "
+                f"[{env_cfg.l0_ref_min:.3f}, {env_cfg.l0_ref_max:.3f}] m."
+            )
         fixed_leg_action = (args_cli.fixed_leg_length - env_cfg.l0_offset) / env_cfg.action_scale_l0
         if not -1.0 <= fixed_leg_action <= 1.0:
-            min_length = env_cfg.l0_offset - env_cfg.action_scale_l0
-            max_length = env_cfg.l0_offset + env_cfg.action_scale_l0
             raise ValueError(
-                f"Requested leg length {args_cli.fixed_leg_length:.3f} m is outside the policy action range "
-                f"[{min_length:.3f}, {max_length:.3f}] m."
+                "The requested physical leg length cannot be represented by the normalized action map; "
+                "check l0_offset/action_scale_l0 against l0_ref_min/l0_ref_max."
             )
         print(
             "[INFO] Fixing both virtual-leg targets at "
@@ -285,7 +289,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                         f"ang_vel={obs_values[0:3]}, gravity={obs_values[3:6]}, "
                         f"command={obs_values[6:9]}, theta0={obs_values[9:11]}, "
                         f"theta0_dot={obs_values[11:13]}, leg_length={obs_values[13:15]}, "
-                        f"leg_length_dot={obs_values[15:17]}, wheel_pos={obs_values[17:19]}, "
+                        f"leg_length_dot={obs_values[15:17]}, lin_vel_xy={obs_values[17:19]}, "
                         f"wheel_vel={obs_values[19:21]}, last_action={obs_values[21:27]}",
                         flush=True,
                     )

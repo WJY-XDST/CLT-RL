@@ -1,0 +1,21 @@
+[package]
+# Note: The package name is used for the python package (folder name) and the
+#       extension. This is not the same as the task name.
+name = "wheel_legged_gym_isaaclab"
+title = "Wheel-Legged-Gym (Isaac Lab)"
+version = "0.1.0"
+description = "Wheel-legged robot RL environments (VMC control) migrated to Isaac Lab."
+keywords = ["wheel-legged", "locomotion", "VMC", "isaaclab", "reinforcement-learning"]
+author = "Wheel-Legged-Gym Isaac Lab Migration"
+maintainer = "Wheel-Legged-Gym Isaac Lab Migration"
+repository = "https://github.com/"
+
+# Note: This is the name of the folder that contains the extension
+#       It is used to resolve the extension in the python environment
+#       and in the setup.py file.
+isaac_lab_ext_path = "wheel_legged_gym_isaaclab"
+
+[dependencies]
+# NOTE: The dependencies are installed by the isaaclab.sh script
+#       They are not required for the extension to run
+isaaclab = "2.3.0"

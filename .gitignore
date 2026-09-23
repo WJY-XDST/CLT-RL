@@ -1,0 +1,13 @@
+cat > .gitignore << 'EOF'
+# 大目录，不传
+downloads/
+isaacsim-5.1.0/
+IsaacLab/
+
+# 缓存和临时文件
+__pycache__/
+*.pyc
+.vscode/
+.~lock.*
+*.egg-info/
+EOF

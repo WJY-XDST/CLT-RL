@@ -1,0 +1,25 @@
+{
+    "folders": [
+        {
+            "name": "Wheel-Legged RL",
+            "path": "wheel_legged_isaaclab"
+        },
+        {
+            "name": "Isaac Lab v2.3.1",
+            "path": "IsaacLab"
+        }
+    ],
+    "settings": {
+        "python.defaultInterpreterPath": "/home/aaa/studyRL/src/CLT-RL/isaacsim-5.1.0/kit/python/bin/python3",
+        "python.analysis.extraPaths": [
+            "/home/aaa/studyRL/src/CLT-RL/IsaacLab/source/isaaclab",
+            "/home/aaa/studyRL/src/CLT-RL/IsaacLab/source/isaaclab_assets",
+            "/home/aaa/studyRL/src/CLT-RL/IsaacLab/source/isaaclab_mimic",
+            "/home/aaa/studyRL/src/CLT-RL/IsaacLab/source/isaaclab_rl",
+            "/home/aaa/studyRL/src/CLT-RL/IsaacLab/source/isaaclab_tasks",
+            "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab",
+            "/home/aaa/studyRL/src/CLT-RL/isaacsim-5.1.0/kit/python/lib/python3.11/site-packages"
+        ],
+        "terminal.integrated.cwd": "/home/aaa/studyRL/src/CLT-RL"
+    }
+}

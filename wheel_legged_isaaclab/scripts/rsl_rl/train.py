@@ -170,7 +170,9 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     if agent_cfg.resume:
         print(f"[INFO]: Loading model checkpoint from: {resume_path}")
         # load previously trained model
-        runner.load(resume_path)
+        runner.load(resume_path, load_optimizer=not args_cli.reset_optimizer)
+        if args_cli.reset_optimizer:
+            print("[INFO]: Loaded policy weights with a fresh optimizer state.")
         # The environment curriculum is driven by control steps, whereas the
         # checkpoint stores PPO iterations. Keep both clocks aligned so a
         # resumed run does not silently return to the standing-only phase.

@@ -134,6 +134,7 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
         self._fail_buf = torch.zeros(self.num_envs, device=self.device)
         self._base_contact_buf = torch.zeros(self.num_envs, device=self.device)
         self._pitch_fail_buf = torch.zeros(self.num_envs, device=self.device)
+        self._roll_fail_buf = torch.zeros(self.num_envs, device=self.device)
         self._leg_contact_buf = torch.zeros(self.num_envs, device=self.device)
 
         # episode reward sums for logging
@@ -141,7 +142,7 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
             key: torch.zeros(self.num_envs, dtype=torch.float, device=self.device)
             for key in [
                 "track_lin_vel",
-                "track_lin_vel_enhance",
+                "track_lin_vel_precise",
                 "lin_vel_error_sq",
                 "track_ang_vel",
                 "yaw_rate_error",
@@ -184,12 +185,41 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
                 f"limits=[{self.cfg.l0_ref_min:.6f}, {self.cfg.l0_ref_max:.6f}]."
             )
 
-        max_command_speed = float(self.cfg.commands.ranges_lin_vel_x[1])
+        standing_fraction = float(self.cfg.commands.standing_env_fraction)
+        transition_fraction = float(self.cfg.commands.transition_env_fraction)
+        if not 0.0 <= standing_fraction < 1.0:
+            raise ValueError(
+                "standing_env_fraction must satisfy 0 <= value < 1, "
+                f"got {standing_fraction}."
+            )
+        if transition_fraction < 0.0 or standing_fraction + transition_fraction > 1.0:
+            raise ValueError(
+                "Command population fractions must satisfy "
+                "standing_env_fraction + transition_env_fraction <= 1, "
+                f"got {standing_fraction + transition_fraction}."
+            )
+
+        transition_min, transition_max = self.cfg.commands.ranges_transition_lin_vel_x
+        main_min, main_max = self.cfg.commands.ranges_lin_vel_x
+        fixed_evaluation_command = main_min == main_max
+        if not fixed_evaluation_command and not (
+            transition_min <= 0.0 <= transition_max <= main_min <= main_max
+        ):
+            raise ValueError(
+                "Linear-velocity ranges must satisfy "
+                "transition_min <= 0 <= transition_max <= main_min <= main_max, "
+                f"got transition={self.cfg.commands.ranges_transition_lin_vel_x}, "
+                f"main={self.cfg.commands.ranges_lin_vel_x}."
+            )
+
+        max_command_speed = float(
+            max(abs(transition_min), abs(transition_max), abs(main_min), abs(main_max))
+        )
         max_wheel_speed = self.cfg.wheel_radius * self.cfg.action_scale_vel
         if max_command_speed > max_wheel_speed + 1.0e-6:
             raise ValueError(
-                "Forward command exceeds the ideal wheel-speed action range: "
-                f"command={max_command_speed:.3f} m/s, "
+                "Linear command magnitude exceeds the ideal wheel-speed action range: "
+                f"command_magnitude={max_command_speed:.3f} m/s, "
                 f"reachable={max_wheel_speed:.3f} m/s."
             )
 
@@ -200,6 +230,14 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
             raise ValueError(
                 "Invalid action_saturation_indices: "
                 f"{self.cfg.rewards.action_saturation_indices}."
+            )
+        if not (
+            0.0 < self.cfg.rewards.tracking_sigma_precise
+            < self.cfg.rewards.tracking_sigma
+        ):
+            raise ValueError(
+                "Velocity tracking sigmas must satisfy "
+                "0 < tracking_sigma_precise < tracking_sigma."
             )
 
     def _setup_scene(self):
@@ -228,6 +266,18 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
         # normalized range.
         self._actions = torch.clamp(actions, -1.0, 1.0)
 
+    def _get_wheel_vel_forward_positive(self) -> torch.Tensor:
+        """Return wheel speeds with positive values meaning forward motion.
+
+        The mirrored URDF hip frames make the raw right-wheel joint axis point
+        opposite to the raw left-wheel joint axis. Canonicalizing the right
+        coordinate here gives the policy one consistent wheel convention.
+        """
+        wheel_vel_raw = self._robot.data.joint_vel[:, self._wheel_joint_ids]
+        return torch.stack(
+            (wheel_vel_raw[:, 0], -wheel_vel_raw[:, 1]), dim=1
+        )
+
     def _apply_action(self):
         """Compute VMC joint torques and apply them as effort targets.
 
@@ -236,8 +286,7 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
         """
         self._update_forward_kinematics()
 
-        dof_pos = self._robot.data.joint_pos
-        dof_vel = self._robot.data.joint_vel
+        wheel_vel = self._get_wheel_vel_forward_positive()
 
         # reference targets from actions
         theta0_ref = (
@@ -295,7 +344,7 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
         )
         # wheel velocity damping control
         torque_wheel = self.cfg.wheel_damping * (
-            wheel_vel_ref - dof_vel[:, self._wheel_joint_ids]
+            wheel_vel_ref - wheel_vel
         )
 
         # map virtual forces/torques to actual joint torques (closed chain)
@@ -308,7 +357,9 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
                 torque_wheel[:, 0].unsqueeze(1),
                 -T1[:, 1].unsqueeze(1),
                 -T2[:, 1].unsqueeze(1),
-                torque_wheel[:, 1].unsqueeze(1),
+                # Convert the canonical forward-positive right-wheel torque
+                # back to its mirrored raw joint coordinate.
+                -torque_wheel[:, 1].unsqueeze(1),
             ),
             dim=1,
         )
@@ -436,8 +487,7 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
                 # while exposing the missing measured planar body velocity.
                 self._robot.data.root_lin_vel_b[:, :2]
                 * self.cfg.obs_scales.lin_vel,
-                self._robot.data.joint_vel[:, self._wheel_joint_ids]
-                * self.cfg.obs_scales.dof_vel,
+                self._get_wheel_vel_forward_positive() * self.cfg.obs_scales.dof_vel,
                 self._actions,
             ),
             dim=-1,
@@ -468,11 +518,18 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
         torque = self._robot.data.applied_torque
         contact_forces = self._contact_sensor.data.net_forces_w
 
-        # velocity tracking (exponential reward)
+        # Command-independent, coarse-to-fine velocity tracking.  Both terms
+        # use the same error for every commanded speed; only their precision
+        # differs, so zero speed is not treated as a separate control mode.
         lin_vel_error = torch.square(self._commands[:, 0] - root_lin_vel_b[:, 0])
         r_track_lin = torch.exp(-lin_vel_error / self.cfg.rewards.tracking_sigma)
-        r_track_lin_enh = (
-            torch.exp(-lin_vel_error / self.cfg.rewards.tracking_sigma / 10) - 1
+        # Zero-centred fine tracking cost.  Subtracting one keeps the optimum
+        # at zero while making every non-zero velocity error negative.  This
+        # avoids the flat positive-reward plateau created when a weighted
+        # exponential reward is capped by the generic per-step reward clip.
+        r_track_lin_precise = (
+            torch.exp(-lin_vel_error / self.cfg.rewards.tracking_sigma_precise)
+            - 1.0
         )
         ang_vel_error = torch.square(self._commands[:, 1] - root_ang_vel_b[:, 2])
         r_track_ang = torch.exp(-ang_vel_error / self.cfg.rewards.tracking_sigma)
@@ -505,7 +562,14 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
         # motion penalties
         r_lin_vel_z = torch.square(root_lin_vel_b[:, 2])
         r_ang_vel_xy = torch.sum(torch.square(root_ang_vel_b[:, :2]), dim=1)
-        r_orientation = torch.sum(torch.square(proj_gravity[:, :2]), dim=1)
+        # Use one orientation objective with anisotropic weighting. Lateral
+        # roll is always undesirable, while some pitch is physically required
+        # for wheel acceleration and braking. This constrains the body rather
+        # than forcing equal leg lengths on uneven terrain.
+        r_orientation = torch.square(proj_gravity[:, 0]) + (
+            self.cfg.rewards.orientation_roll_multiplier
+            * torch.square(proj_gravity[:, 1])
+        )
         r_dof_vel = torch.sum(torch.square(joint_vel[:, self._leg_joint_ids]), dim=1)
         r_dof_acc = torch.sum(torch.square(joint_acc), dim=1)
         r_torques = torch.sum(torch.square(torque), dim=1)
@@ -575,8 +639,8 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
 
         rewards = {
             "track_lin_vel": r_track_lin * self.cfg.rewards.tracking_lin_vel * self.step_dt,
-            "track_lin_vel_enhance": r_track_lin_enh
-            * self.cfg.rewards.tracking_lin_vel_enhance
+            "track_lin_vel_precise": r_track_lin_precise
+            * self.cfg.rewards.tracking_lin_vel_precise
             * self.step_dt,
             "lin_vel_error_sq": lin_vel_error
             * self.cfg.rewards.lin_vel_error_sq
@@ -612,18 +676,11 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
             * self.step_dt,
             "termination": r_termination * self.cfg.rewards.termination,
         }
-        # Keep the usual per-step clip for dense rewards.  Preserve the
-        # increased linear-tracking weight instead of clipping its positive
-        # reward back to one step_dt; allow a wider negative yaw-error range.
-        # The one-off terminal penalty remains exempt.
+        # Keep the usual per-step clip for dense rewards, with wider bounds
+        # only for explicitly identified safety/orientation costs.  The
+        # one-off terminal penalty remains exempt.
         for key, value in rewards.items():
-            if key == "track_lin_vel":
-                rewards[key] = torch.clamp(
-                    value,
-                    min=-self.step_dt,
-                    max=self.cfg.rewards.tracking_lin_vel * self.step_dt,
-                )
-            elif key == "yaw_rate_error":
+            if key == "yaw_rate_error":
                 rewards[key] = torch.clamp(
                     value,
                     min=-self.cfg.rewards.yaw_rate_error_clip_multiplier * self.step_dt,
@@ -699,6 +756,24 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
             self.cfg.body_pitch_terminal_time_s / self.step_dt
         )
 
+        # Treat sustained lateral tilt as unsafe without constraining how the
+        # two legs achieve a level body. The timer tolerates brief roll while
+        # crossing an edge or height discontinuity.
+        body_roll = torch.abs(
+            torch.asin(
+                torch.clamp(
+                    self._robot.data.projected_gravity_b[:, 1], -1.0, 1.0
+                )
+            )
+        )
+        excessive_roll = body_roll > self.cfg.max_body_roll
+        self._roll_fail_buf = torch.where(
+            excessive_roll, self._roll_fail_buf + 1.0, 0.0
+        )
+        roll_died = self._roll_fail_buf >= (
+            self.cfg.body_roll_terminal_time_s / self.step_dt
+        )
+
         # Wheels are allowed to touch the ground; sustained contact by any leg
         # link indicates a collapsed or dragging posture.
         leg_force = torch.norm(
@@ -713,7 +788,13 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
         leg_contact_died = self._leg_contact_buf > (
             self.cfg.leg_contact_terminal_time_s / self.step_dt
         )
-        died = base_contact_died | fallen_died | pitch_died | leg_contact_died
+        died = (
+            base_contact_died
+            | fallen_died
+            | pitch_died
+            | roll_died
+            | leg_contact_died
+        )
 
         time_out = self.episode_length_buf >= self.max_episode_length - 1
         return died, time_out
@@ -747,6 +828,7 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
         self._fail_buf[env_ids] = 0.0
         self._base_contact_buf[env_ids] = 0.0
         self._pitch_fail_buf[env_ids] = 0.0
+        self._roll_fail_buf[env_ids] = 0.0
         self._leg_contact_buf[env_ids] = 0.0
         self._commands[env_ids] = 0.0
         self._resample_commands_for(env_ids)
@@ -802,10 +884,38 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
             )
             moving_ids = env_ids[moving_mask]
             if moving_ids.numel() > 0:
-                progressive_vmax = lin_min + (lin_max - lin_min) * progress
-                self._commands[moving_ids, 0] = lin_min + (
-                    progressive_vmax - lin_min
-                ) * torch.rand(moving_ids.numel(), device=self.device)
+                # At full progress the population is split into explicit
+                # standing, bidirectional low-speed transition, and the main
+                # forward-motion range. This teaches a continuous response
+                # around zero instead of only the disconnected commands 0 and
+                # >= 0.3 m/s.
+                non_standing_fraction = 1.0 - self.cfg.commands.standing_env_fraction
+                transition_share = (
+                    self.cfg.commands.transition_env_fraction / non_standing_fraction
+                )
+                transition_mask = (
+                    torch.rand(moving_ids.numel(), device=self.device) < transition_share
+                )
+                transition_ids = moving_ids[transition_mask]
+                main_ids = moving_ids[~transition_mask]
+
+                if transition_ids.numel() > 0:
+                    transition_min, transition_max = (
+                        self.cfg.commands.ranges_transition_lin_vel_x
+                    )
+                    progressive_transition_min = transition_min * progress
+                    progressive_transition_max = (
+                        transition_max * progress
+                    )
+                    self._commands[transition_ids, 0] = progressive_transition_min + (
+                        progressive_transition_max - progressive_transition_min
+                    ) * torch.rand(transition_ids.numel(), device=self.device)
+
+                if main_ids.numel() > 0:
+                    progressive_vmax = lin_min + (lin_max - lin_min) * progress
+                    self._commands[main_ids, 0] = lin_min + (
+                        progressive_vmax - lin_min
+                    ) * torch.rand(main_ids.numel(), device=self.device)
                 yaw_min, yaw_max = self.cfg.commands.ranges_ang_vel_yaw
                 self._commands[moving_ids, 1] = yaw_min + (yaw_max - yaw_min) * torch.rand(
                     moving_ids.numel(), device=self.device

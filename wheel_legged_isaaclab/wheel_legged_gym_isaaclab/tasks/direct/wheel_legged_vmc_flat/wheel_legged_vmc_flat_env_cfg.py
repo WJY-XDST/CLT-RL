@@ -44,6 +44,10 @@ class CommandsCfg:
     # introduced later after zero-yaw behavior is reliable.
     heading_command = False
     ranges_lin_vel_x = (0.3, 0.8)  # [m/s], forward-only training commands
+    # Bridge the discontinuity between explicit standing and forward motion.
+    # Low-speed reverse samples also prevent a persistent positive wheel-action
+    # bias at the zero-speed command.
+    ranges_transition_lin_vel_x = (-0.3, 0.3)  # [m/s]
     ranges_ang_vel_yaw = (0.0, 0.0)  # [rad/s]
     # Keep height fixed during the first standing/straight-line stage.  The
     # range can be widened after the basic policy no longer saturates actions.
@@ -54,19 +58,26 @@ class CommandsCfg:
     standing_only_steps = 48_000
     motion_ramp_steps = 96_000
     # Explicit zero-speed population retained after motion is introduced.
-    standing_env_fraction = 0.40
+    standing_env_fraction = 0.50
+    # At full curriculum progress, this fraction receives commands from the
+    # bidirectional low-speed transition range. The remaining non-standing
+    # environments receive commands from ranges_lin_vel_x.
+    transition_env_fraction = 0.20
 
 
 @configclass
 class RewardsCfg:
     """Reward scales (mirrors `rewards.scales` in the original project)."""
 
-    tracking_lin_vel = 2.0
-    tracking_lin_vel_enhance = 1.0
+    # Coarse and precise terms share one command-independent objective.  The
+    # broad term keeps a useful learning signal for large errors, while the
+    # narrow term distinguishes accurate tracking from a slow residual drift.
+    tracking_lin_vel = 1.0
+    tracking_lin_vel_precise = 2.0
     # Dense cost on the squared body-frame forward-velocity tracking error.
     # Unlike the exponential reward, this still provides a gradient when the
     # policy stands still under a positive forward command.
-    lin_vel_error_sq = -1.0
+    lin_vel_error_sq = -5.0
     tracking_ang_vel = 1.0
     # Dense penalty on the squared yaw-rate tracking error.  Unlike the
     # exponential tracking reward, this remains negative when the error is
@@ -79,10 +90,16 @@ class RewardsCfg:
     # Allow a stronger orientation cost than the generic one-step clip while
     # retaining an explicit bound on the learning signal.
     orientation_clip_multiplier = 5.0
+    # Keep one unified orientation cost, but make lateral tilt more expensive
+    # than pitch. Pitch is needed during acceleration; sustained roll is not.
+    orientation_roll_multiplier = 3.0
     collision_clip_multiplier = 10.0
     safety_penalty_clip_multiplier = 10.0
     base_height = 1.0
-    nominal_state = -0.5
+    # Penalize excessive left/right virtual-leg swing-angle disagreement.
+    # This constrains sagittal leg geometry without forcing equal leg lengths,
+    # so the policy can still adapt the two leg lengths on uneven terrain.
+    nominal_state = -3.0
     lin_vel_z = -2.0
     ang_vel_xy = -0.05
     orientation = -10.0
@@ -91,7 +108,7 @@ class RewardsCfg:
     torques = -0.0001
     action_rate = -0.01
     action_smooth = -0.01
-    action_saturation = -0.2
+    action_saturation = -2.0
     collision = -2.0
     dof_pos_limits = -1.0
     leg_length_below_min = -200.0
@@ -102,9 +119,10 @@ class RewardsCfg:
 
     # parameters
     tracking_sigma = 0.25
+    tracking_sigma_precise = 0.01
     base_height_target = 0.18
     theta_asymmetry_deadband = 0.05  # [rad]
-    action_saturation_threshold = 0.8
+    action_saturation_threshold = 0.6
     # Only the virtual-leg angle commands should normally remain away from
     # saturation. Wheel actions must be free to approach +/-1 at high speed.
     action_saturation_indices = (0, 3)
@@ -132,6 +150,10 @@ class WheelLeggedVMCFlatEnvCfg(DirectRLEnvCfg):
     collision_force_threshold = 1.0  # [N]
     max_body_pitch = 0.5235987756  # [rad], 30 degrees
     body_pitch_terminal_time_s = 0.25
+    # Unequal leg lengths remain allowed for uneven terrain. Terminate only
+    # when their resulting body roll stays unsafe for a meaningful duration.
+    max_body_roll = 0.3490658504  # [rad], 20 degrees
+    body_roll_terminal_time_s = 0.2
 
     # Keep the interactive Isaac Sim viewport centered on env_0's robot.
     # Without this, the generic world camera is far from this small robot and
@@ -160,7 +182,10 @@ class WheelLeggedVMCFlatEnvCfg(DirectRLEnvCfg):
     # unreachable at action=1.
     wheel_radius = 0.0675  # [m]
     action_scale_vel = 15.0  # [rad/s] per action unit
-    feedforward_force = 40.0  # [N]
+    # Approximate per-leg support force for the 12.28 kg assembly. Start at
+    # 50 N because the wheel masses are supported directly at ground contact;
+    # refine this value with the zero-action static diagnostic.
+    feedforward_force = 50.0  # [N]
     kp_theta = 50.0  # [N*m/rad]
     kd_theta = 3.0  # [N*m*s/rad]
     kp_l0 = 900.0  # [N/m]

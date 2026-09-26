@@ -1,4 +1,3 @@
-cat > .gitignore << 'EOF'
 # 大目录，不传
 downloads/
 isaacsim-5.1.0/
@@ -10,4 +9,9 @@ __pycache__/
 .vscode/
 .~lock.*
 *.egg-info/
-EOF
+
+# 本地打包和生成的机器人资产缓存
+/wheel_legged_isaaclab.zip
+/wheel_legged_isaaclab/assets/robots/wl/urdf/wl/
+
+# 强化学习训练产物

@@ -7,6 +7,8 @@
 """Launch Isaac Sim Simulator first."""
 
 import argparse
+import csv
+from pathlib import Path
 import sys
 
 from isaaclab.app import AppLauncher
@@ -44,6 +46,24 @@ parser.add_argument(
     ),
 )
 parser.add_argument(
+    "--velocity_cycle",
+    type=float,
+    nargs="+",
+    default=None,
+    metavar="LIN_VEL_X",
+    help=(
+        "Cycle through forward-velocity commands during one replay. Requires "
+        "--fixed_command to provide the fixed yaw-rate and height values."
+    ),
+)
+parser.add_argument(
+    "--velocity_phase_duration",
+    type=float,
+    default=5.0,
+    metavar="SECONDS",
+    help="Duration of each --velocity_cycle phase in seconds (default: 5.0).",
+)
+parser.add_argument(
     "--fixed_leg_length",
     type=float,
     default=None,
@@ -73,6 +93,24 @@ parser.add_argument(
     help="Ignore the policy output and apply zero normalized actions for VMC symmetry diagnostics.",
 )
 parser.add_argument(
+    "--fixed_wheel_action",
+    type=float,
+    nargs=2,
+    metavar=("LEFT", "RIGHT"),
+    default=None,
+    help=(
+        "Override only the policy's normalized left/right wheel actions for an open-loop drive test. "
+        "Positive values command forward wheel motion; each value must be in [-1, 1]."
+    ),
+)
+parser.add_argument(
+    "--fixed_wheel_action_start",
+    type=int,
+    default=0,
+    metavar="STEPS",
+    help="Wait this many control steps before applying --fixed_wheel_action (default: 0).",
+)
+parser.add_argument(
     "--print_vmc",
     action="store_true",
     default=False,
@@ -84,6 +122,27 @@ parser.add_argument(
     default=None,
     metavar="STEPS",
     help="Stop replay automatically after this many control steps.",
+)
+parser.add_argument(
+    "--trace_csv",
+    type=str,
+    default=None,
+    metavar="PATH",
+    help="Write env state, actions, torques, and per-term rewards to a CSV file.",
+)
+parser.add_argument(
+    "--trace_interval",
+    type=int,
+    default=1,
+    metavar="STEPS",
+    help="Control-step interval between trace rows (default: 1).",
+)
+parser.add_argument(
+    "--trace_env_id",
+    type=int,
+    default=0,
+    metavar="ENV_ID",
+    help="Environment index recorded by --trace_csv (default: 0).",
 )
 parser.add_argument("--real-time", action="store_true", default=False, help="Run in real-time, if possible.")
 # append RSL-RL cli arguments
@@ -137,6 +196,22 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     """Play with RSL-RL agent."""
     if args_cli.print_obs_interval <= 0:
         raise ValueError("--print_obs_interval must be greater than zero.")
+    if args_cli.trace_interval <= 0:
+        raise ValueError("--trace_interval must be greater than zero.")
+    if args_cli.fixed_wheel_action_start < 0:
+        raise ValueError("--fixed_wheel_action_start must be non-negative.")
+    if args_cli.velocity_phase_duration <= 0.0:
+        raise ValueError("--velocity_phase_duration must be greater than zero.")
+    if args_cli.velocity_cycle is not None and args_cli.fixed_command is None:
+        raise ValueError("--velocity_cycle requires --fixed_command for fixed yaw and height.")
+    if args_cli.fixed_wheel_action is not None:
+        if any(abs(value) > 1.0 for value in args_cli.fixed_wheel_action):
+            raise ValueError("--fixed_wheel_action values must both be in [-1, 1].")
+        print(
+            "[INFO] Open-loop wheel override enabled: "
+            f"left={args_cli.fixed_wheel_action[0]:.3f}, "
+            f"right={args_cli.fixed_wheel_action[1]:.3f} (forward-positive normalized actions)."
+        )
     # grab task name for checkpoint path
     task_name = args_cli.task.split(":")[-1]
     train_task_name = task_name.replace("-Play", "")
@@ -188,8 +263,18 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     env_cfg.sim.device = args_cli.device if args_cli.device is not None else env_cfg.sim.device
 
     # specify directory for logging experiments
-    log_root_path = os.path.join("logs", "rsl_rl", agent_cfg.experiment_name)
-    log_root_path = os.path.abspath(log_root_path)
+    log_root_path = os.path.abspath(
+        os.path.join(
+            os.path.dirname(__file__),
+            "..",
+            "..",
+            "..",
+            "IsaacLab",
+            "logs",
+            "rsl_rl",
+            agent_cfg.experiment_name,
+        )
+    )
     print(f"[INFO] Loading experiment from directory: {log_root_path}")
     if args_cli.use_pretrained_checkpoint:
         resume_path = get_published_pretrained_checkpoint("rsl_rl", train_task_name)
@@ -258,6 +343,64 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
     dt = env.unwrapped.step_dt
 
+    velocity_phase_steps = None
+    last_velocity_phase = None
+    if args_cli.velocity_cycle is not None:
+        velocity_phase_steps = max(1, round(args_cli.velocity_phase_duration / dt))
+        reachable_speed = env.unwrapped.cfg.wheel_radius * env.unwrapped.cfg.action_scale_vel
+        if any(abs(value) > reachable_speed for value in args_cli.velocity_cycle):
+            raise ValueError(
+                "A --velocity_cycle command exceeds the ideal wheel-speed action range "
+                f"of +/-{reachable_speed:.3f} m/s."
+            )
+        print(
+            "[INFO] Velocity-cycle evaluation enabled: "
+            f"sequence={args_cli.velocity_cycle}, "
+            f"phase_duration={args_cli.velocity_phase_duration:.3f} s "
+            f"({velocity_phase_steps} control steps)."
+        )
+
+    def apply_velocity_cycle_command(observation, step: int):
+        """Synchronize the active test speed with the environment and policy input."""
+        nonlocal last_velocity_phase
+        if velocity_phase_steps is None:
+            return
+        phase = (step // velocity_phase_steps) % len(args_cli.velocity_cycle)
+        command_speed = args_cli.velocity_cycle[phase]
+        base_env = env.unwrapped
+        base_env._commands[:, 0] = command_speed
+        # _get_observations() may resample the collapsed fixed range. Update
+        # the already-returned observation to avoid a one-step command delay.
+        command_obs = base_env._commands[:, :3] * base_env._commands_scale
+        policy_obs = (
+            observation["policy"]
+            if hasattr(observation, "keys") and "policy" in observation.keys()
+            else observation
+        )
+        policy_obs[:, 6:9] = command_obs
+        if phase != last_velocity_phase:
+            print(
+                f"[COMMAND phase={phase} step={step}] "
+                f"lin_vel_x={command_speed:.3f} m/s, "
+                f"yaw_rate={base_env._commands[0, 1].item():.3f} rad/s, "
+                f"height={base_env._commands[0, 2].item():.3f} m",
+                flush=True,
+            )
+            last_velocity_phase = phase
+
+    trace_file = None
+    trace_writer = None
+    if args_cli.trace_csv is not None:
+        if not 0 <= args_cli.trace_env_id < env.unwrapped.num_envs:
+            raise ValueError(
+                f"--trace_env_id must be in [0, {env.unwrapped.num_envs - 1}], "
+                f"got {args_cli.trace_env_id}."
+            )
+        trace_path = Path(args_cli.trace_csv).expanduser().resolve()
+        trace_path.parent.mkdir(parents=True, exist_ok=True)
+        trace_file = trace_path.open("w", newline="", encoding="utf-8")
+        print(f"[INFO] Writing replay diagnostics to: {trace_path}")
+
     # reset environment
     obs = env.get_observations()
     timestep = 0
@@ -266,6 +409,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         start_time = time.time()
         # run everything in inference mode
         with torch.inference_mode():
+            apply_velocity_cycle_command(obs, timestep)
             # agent stepping
             actions = policy(obs)
             if args_cli.zero_actions:
@@ -273,8 +417,70 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
             if fixed_leg_action is not None:
                 actions = actions.clone()
                 actions[:, (1, 4)] = fixed_leg_action
+            if (
+                args_cli.fixed_wheel_action is not None
+                and timestep >= args_cli.fixed_wheel_action_start
+            ):
+                actions = actions.clone()
+                actions[:, 2] = args_cli.fixed_wheel_action[0]
+                actions[:, 5] = args_cli.fixed_wheel_action[1]
             # env stepping
             obs, _, _, _ = env.step(actions)
+            apply_velocity_cycle_command(obs, timestep)
+            if trace_file is not None and timestep % args_cli.trace_interval == 0:
+                base_env = env.unwrapped
+                env_id = args_cli.trace_env_id
+                heading_velocity = base_env._get_heading_frame_horizontal_velocity()[env_id]
+                gravity = base_env._robot.data.projected_gravity_b[env_id]
+                wheel_velocity = base_env._get_wheel_vel_forward_positive()[env_id]
+                logical_torque = base_env._robot.data.applied_torque[
+                    env_id, base_env._torque_joint_ids
+                ]
+                row = {
+                    "step": timestep,
+                    "sim_time_s": timestep * dt,
+                    "env_id": env_id,
+                    "cmd_x": base_env._commands[env_id, 0].item(),
+                    "cmd_yaw": base_env._commands[env_id, 1].item(),
+                    "height_cmd": base_env._commands[env_id, 2].item(),
+                    "vel_x_heading": heading_velocity[0].item(),
+                    "vel_y_heading": heading_velocity[1].item(),
+                    "vel_z_body": base_env._robot.data.root_lin_vel_b[env_id, 2].item(),
+                    "yaw_rate_body": base_env._robot.data.root_ang_vel_b[env_id, 2].item(),
+                    "base_height": base_env._base_height[env_id].item(),
+                    "gravity_x": gravity[0].item(),
+                    "gravity_y": gravity[1].item(),
+                    "gravity_z": gravity[2].item(),
+                    "pitch_est_rad": torch.asin(torch.clamp(gravity[0], -1.0, 1.0)).item(),
+                    "roll_est_rad": torch.asin(torch.clamp(gravity[1], -1.0, 1.0)).item(),
+                    "theta_left": base_env._theta0[env_id, 0].item(),
+                    "theta_right": base_env._theta0[env_id, 1].item(),
+                    "length_left": base_env._L0[env_id, 0].item(),
+                    "length_right": base_env._L0[env_id, 1].item(),
+                    "wheel_vel_left": wheel_velocity[0].item(),
+                    "wheel_vel_right": wheel_velocity[1].item(),
+                }
+                row.update(
+                    {f"action_{index}": value.item() for index, value in enumerate(actions[env_id])}
+                )
+                row.update(
+                    {f"torque_{index}": value.item() for index, value in enumerate(logical_torque)}
+                )
+                reward_terms = getattr(base_env, "_last_reward_terms", {})
+                row.update(
+                    {
+                        f"reward_{key}": value[env_id].item()
+                        for key, value in reward_terms.items()
+                    }
+                )
+                row["reward_total"] = sum(
+                    row[key] for key in row if key.startswith("reward_")
+                )
+                if trace_writer is None:
+                    trace_writer = csv.DictWriter(trace_file, fieldnames=list(row))
+                    trace_writer.writeheader()
+                trace_writer.writerow(row)
+                trace_file.flush()
             if args_cli.print_obs and timestep % args_cli.print_obs_interval == 0:
                 policy_obs = obs["policy"] if hasattr(obs, "keys") and "policy" in obs.keys() else obs
                 obs_values = policy_obs[0].detach().cpu().tolist()
@@ -321,7 +527,9 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         if args_cli.real_time and sleep_time > 0:
             time.sleep(sleep_time)
 
-    # close the simulator
+    # close diagnostics and simulator
+    if trace_file is not None:
+        trace_file.close()
     env.close()
 
 

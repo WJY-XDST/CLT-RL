@@ -35,6 +35,25 @@ class ObsScalesCfg:
 
 
 @configclass
+class ObsClipCfg:
+    """Physical bounds applied before observation scaling.
+
+    These limits are deliberately wider than the normal operating envelope.
+    They are numerical guards, not task constraints.
+    """
+
+    lin_vel = 5.0  # [m/s]
+    ang_vel = 20.0  # [rad/s]
+    projected_gravity = 1.0
+    theta = 3.1415926536  # [rad]
+    theta_dot = 50.0  # [rad/s]
+    leg_length = 0.5  # [m]
+    leg_length_dot = 5.0  # [m/s]
+    wheel_vel = 100.0  # [rad/s]
+    action = 1.0
+
+
+@configclass
 class CommandsCfg:
     """Command configuration (mirrors `commands` in the original project)."""
 
@@ -47,86 +66,65 @@ class CommandsCfg:
     # Bridge the discontinuity between explicit standing and forward motion.
     # Low-speed reverse samples also prevent a persistent positive wheel-action
     # bias at the zero-speed command.
-    ranges_transition_lin_vel_x = (-0.3, 0.3)  # [m/s]
+    ranges_transition_lin_vel_x = (-0.2, 0.2)  # [m/s]
     ranges_ang_vel_yaw = (0.0, 0.0)  # [rad/s]
     # Keep height fixed during the first standing/straight-line stage.  The
     # range can be widened after the basic policy no longer saturates actions.
     ranges_height = (0.18, 0.18)  # [m]
     ranges_heading = (-3.14, 3.14)
-    # Environment control steps. With 48 rollout steps per PPO iteration these
-    # are 1000 standing-only iterations and a 2000-iteration motion ramp.
-    standing_only_steps = 48_000
-    motion_ramp_steps = 96_000
+    # Environment control steps. Start introducing motion immediately and
+    # reach the full command mixture after 500 PPO iterations (48 steps each).
+    standing_only_steps = 0
+    motion_ramp_steps = 24_000
     # Explicit zero-speed population retained after motion is introduced.
-    standing_env_fraction = 0.50
+    standing_env_fraction = 0.25
     # At full curriculum progress, this fraction receives commands from the
     # bidirectional low-speed transition range. The remaining non-standing
     # environments receive commands from ranges_lin_vel_x.
-    transition_env_fraction = 0.20
+    transition_env_fraction = 0.25
 
 
 @configclass
 class RewardsCfg:
-    """Reward scales (mirrors `rewards.scales` in the original project)."""
+    """Reward scales restored from the original Wheel-Legged-Gym task.
 
-    # Coarse and precise terms share one command-independent objective.  The
-    # broad term keeps a useful learning signal for large errors, while the
-    # narrow term distinguishes accurate tracking from a slow residual drift.
+    Isaac-Lab-specific safety termination remains outside the reward set,
+    while the learning objective follows the source project.
+    """
+
     tracking_lin_vel = 1.0
-    tracking_lin_vel_precise = 2.0
-    # Dense cost on the squared body-frame forward-velocity tracking error.
-    # Unlike the exponential reward, this still provides a gradient when the
-    # policy stands still under a positive forward command.
-    lin_vel_error_sq = -5.0
+    tracking_lin_vel_enhance = 1.0
+    # A narrower tracking kernel and an explicit squared-error term preserve
+    # useful gradients both near and far from the commanded forward speed.
+    tracking_lin_vel_precise = 1.0
+    lin_vel_error_sq = -1.0
     tracking_ang_vel = 1.0
-    # Dense penalty on the squared yaw-rate tracking error.  Unlike the
-    # exponential tracking reward, this remains negative when the error is
-    # large, discouraging the spin-in-place local optimum.
-    yaw_rate_error = -0.5
-    # The yaw-rate error is allowed a larger per-step penalty than the other
-    # dense terms.  This prevents a fast spin from immediately saturating at
-    # the generic reward clip while still bounding the learning signal.
-    yaw_rate_error_clip_multiplier = 5.0
-    # Allow a stronger orientation cost than the generic one-step clip while
-    # retaining an explicit bound on the learning signal.
-    orientation_clip_multiplier = 5.0
-    # Keep one unified orientation cost, but make lateral tilt more expensive
-    # than pitch. Pitch is needed during acceleration; sustained roll is not.
-    orientation_roll_multiplier = 3.0
-    collision_clip_multiplier = 10.0
-    safety_penalty_clip_multiplier = 10.0
     base_height = 1.0
-    # Penalize excessive left/right virtual-leg swing-angle disagreement.
-    # This constrains sagittal leg geometry without forcing equal leg lengths,
-    # so the policy can still adapt the two leg lengths on uneven terrain.
-    nominal_state = -3.0
+    nominal_state = -0.5
     lin_vel_z = -2.0
     ang_vel_xy = -0.05
-    orientation = -10.0
+    orientation = -15.0
     dof_vel = -5e-5
     dof_acc = -2.5e-7
     torques = -0.0001
     action_rate = -0.01
     action_smooth = -0.01
-    action_saturation = -2.0
-    collision = -2.0
+    # Softly discourage virtual-leg length commands from remaining close to
+    # their normalized action limits. This still permits unequal leg lengths.
+    leg_length_action_saturation = -5.0
+    collision = -1.0
     dof_pos_limits = -1.0
-    leg_length_below_min = -200.0
-    base_height_below_target = -50.0
-    # A fall must be worse than ending an episode early to avoid the policy
-    # exploiting accumulated per-step penalties by deliberately falling.
-    termination = -10.0
 
     # parameters
+    clip_single_reward = 1.0
     tracking_sigma = 0.25
-    tracking_sigma_precise = 0.01
+    tracking_sigma_precise = 0.04
+    # Projected-gravity y is dominated by body roll; weight it more strongly
+    # without constraining the two virtual-leg lengths to be identical.
+    orientation_roll_multiplier = 2.0
     base_height_target = 0.18
-    theta_asymmetry_deadband = 0.05  # [rad]
-    action_saturation_threshold = 0.6
-    # Only the virtual-leg angle commands should normally remain away from
-    # saturation. Wheel actions must be free to approach +/-1 at high speed.
-    action_saturation_indices = (0, 3)
     max_contact_force = 100.0
+    leg_length_action_soft_limit = 0.85
 
 
 @configclass
@@ -181,6 +179,7 @@ class WheelLeggedVMCFlatEnvCfg(DirectRLEnvCfg):
     # Keep some control margin instead of making the fastest command
     # unreachable at action=1.
     wheel_radius = 0.0675  # [m]
+    wheel_track_width = 0.341  # [m], wheel-center separation from the URDF
     action_scale_vel = 15.0  # [rad/s] per action unit
     # Approximate per-leg support force for the 12.28 kg assembly. Start at
     # 50 N because the wheel masses are supported directly at ground contact;
@@ -233,13 +232,13 @@ class WheelLeggedVMCFlatEnvCfg(DirectRLEnvCfg):
                 joint_names_expr=["lf0_Joint", "lf1_Joint", "rf0_Joint", "rf1_Joint"],
                 stiffness=0.0,
                 damping=0.0,
-                effort_limit=30.0,
+                effort_limit_sim=30.0,
             ),
             "wheels": ImplicitActuatorCfg(
                 joint_names_expr=["l_wheel_Joint", "r_wheel_Joint"],
                 stiffness=0.0,
                 damping=0.0,
-                effort_limit=5.0,
+                effort_limit_sim=5.0,
             ),
         },
     )
@@ -254,7 +253,7 @@ class WheelLeggedVMCFlatEnvCfg(DirectRLEnvCfg):
 
     # -- scene --
     scene: InteractiveSceneCfg = InteractiveSceneCfg(
-        num_envs=4096, env_spacing=4.0, replicate_physics=True
+        num_envs=8192, env_spacing=4.0, replicate_physics=True
     )
 
     # -- simulation --
@@ -287,5 +286,6 @@ class WheelLeggedVMCFlatEnvCfg(DirectRLEnvCfg):
 
     # -- sub-configs --
     obs_scales: ObsScalesCfg = ObsScalesCfg()
+    obs_clip: ObsClipCfg = ObsClipCfg()
     commands: CommandsCfg = CommandsCfg()
     rewards: RewardsCfg = RewardsCfg()

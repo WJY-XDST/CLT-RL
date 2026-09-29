@@ -8,6 +8,8 @@ In five headless, 25-second replays (seeds 42-46), the command phases were `0, -
 
 This is a promising intermediate model, not a complete validation. Two seeds briefly dipped below 0.12 m during the transition from reverse to +0.8 m/s, and height tracking at 0.16 m and 0.20 m remains imprecise. A 0.6 m/s² replay did not materially improve that dip, so the 0.8 m/s² setting was retained for continued training.
 
+An additional 300 iterations were run from this checkpoint with its optimizer state preserved, producing checkpoints at iterations 3100, 3200, 3300, and 3345. The final 20 training iterations still timed out in 99.1% of episodes, but the same seed-43 replay showed a larger steady left/right leg-angle difference at +0.8 m/s: 6.0 degrees for iteration 3345 versus 0.2 degrees for iteration 3046. Its minimum height during that phase remained 0.103 m. Iteration 3046 is therefore retained as the preferred controller; further training with those settings was stopped. The continuation's logs and unselected checkpoints remain in the ignored local directory `IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-09-30_02-44-56_speed_slew_refine_300/`.
+
 From the repository root, replay this controller with:
 
 ```bash

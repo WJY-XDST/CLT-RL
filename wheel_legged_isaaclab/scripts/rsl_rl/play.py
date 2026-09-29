@@ -356,7 +356,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         normalizer = None
 
     # export policy to onnx/jit
-    export_model_dir = os.path.join(os.path.dirname(resume_path), "exported")
+    export_model_dir = os.path.join(log_dir, "exported")
     export_policy_as_jit(policy_nn, normalizer=normalizer, path=export_model_dir, filename="policy.pt")
     export_policy_as_onnx(policy_nn, normalizer=normalizer, path=export_model_dir, filename="policy.onnx")
 
@@ -387,9 +387,9 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         phase = (step // velocity_phase_steps) % len(args_cli.velocity_cycle)
         command_speed = args_cli.velocity_cycle[phase]
         base_env = env.unwrapped
-        base_env._commands[:, 0] = command_speed
-        # _get_observations() may resample the collapsed fixed range. Update
-        # the already-returned observation to avoid a one-step command delay.
+        base_env._command_ranges[0, :] = command_speed
+        base_env._target_lin_vel_x[:] = command_speed
+        # The policy receives the ramped command already applied by the environment.
         command_obs = base_env._commands[:, :3] * base_env._commands_scale
         policy_obs = (
             observation["policy"]
@@ -460,6 +460,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                     "sim_time_s": timestep * dt,
                     "env_id": env_id,
                     "cmd_x": base_env._commands[env_id, 0].item(),
+                    "cmd_x_target": base_env._target_lin_vel_x[env_id].item(),
                     "cmd_yaw": base_env._commands[env_id, 1].item(),
                     "height_cmd": base_env._commands[env_id, 2].item(),
                     "vel_x_heading": heading_velocity[0].item(),
@@ -476,6 +477,8 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                     "theta_right": base_env._theta0[env_id, 1].item(),
                     "length_left": base_env._L0[env_id, 0].item(),
                     "length_right": base_env._L0[env_id, 1].item(),
+                    "target_length_left": base_env._l0_ref_applied[env_id, 0].item(),
+                    "target_length_right": base_env._l0_ref_applied[env_id, 1].item(),
                     "wheel_vel_left": wheel_velocity[0].item(),
                     "wheel_vel_right": wheel_velocity[1].item(),
                 }

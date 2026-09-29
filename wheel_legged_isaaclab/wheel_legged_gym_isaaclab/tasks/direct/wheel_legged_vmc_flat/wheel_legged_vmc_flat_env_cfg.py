@@ -59,6 +59,7 @@ class CommandsCfg:
 
     num_commands = 3
     resampling_time = 5.0  # [s]
+    linear_acceleration_limit = 0.8  # [m/s^2], ramps abrupt speed changes
     # Hold the initial world-frame heading throughout each episode.
     heading_command = True
     heading_kp = 1.5  # [1/s], heading error -> target yaw rate
@@ -137,6 +138,7 @@ class RewardsCfg:
     max_contact_force = 100.0
     leg_length_action_soft_limit = 0.85
     leg_length_target_height_offset = 0.04  # [m], minimum reference above commanded root height
+    leg_length_target_cap = 0.23  # [m], avoid demanding an unstable high-speed stance
 
 
 @configclass
@@ -187,6 +189,8 @@ class WheelLeggedVMCFlatEnvCfg(DirectRLEnvCfg):
     l0_offset = 0.19  # [m], midpoint of the virtual-leg target range
     l0_ref_min = 0.12  # [m], hard lower bound for the VMC reference
     l0_ref_max = 0.26  # [m], hard upper bound for the VMC reference
+    forward_support_speed_threshold = 0.6  # [m/s]
+    forward_support_min_leg_length = 0.23  # [m], applied only above the threshold
     # A 0.0675 m wheel needs 11.85 rad/s for the maximum 0.8 m/s command.
     # Keep some control margin instead of making the fastest command
     # unreachable at action=1.

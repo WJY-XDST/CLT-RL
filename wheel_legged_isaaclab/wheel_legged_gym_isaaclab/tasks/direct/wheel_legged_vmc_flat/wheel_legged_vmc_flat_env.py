@@ -107,6 +107,7 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
 
         # commands: [lin_vel_x, ang_vel_yaw (or heading-error), height, heading]
         self._commands = torch.zeros(self.num_envs, 4, device=self.device)
+        self._target_lin_vel_x = torch.zeros(self.num_envs, device=self.device)
         self._command_ranges = torch.tensor(
             [
                 list(self.cfg.commands.ranges_lin_vel_x),
@@ -133,6 +134,7 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
         self._theta0_dot = torch.zeros(self.num_envs, 2, device=self.device)
         self._L0 = torch.zeros(self.num_envs, 2, device=self.device)
         self._L0_dot = torch.zeros(self.num_envs, 2, device=self.device)
+        self._l0_ref_applied = torch.zeros(self.num_envs, 2, device=self.device)
 
         # termination bookkeeping
         self._fail_buf = torch.zeros(self.num_envs, device=self.device)
@@ -140,6 +142,7 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
         self._pitch_fail_buf = torch.zeros(self.num_envs, device=self.device)
         self._roll_fail_buf = torch.zeros(self.num_envs, device=self.device)
         self._leg_contact_buf = torch.zeros(self.num_envs, device=self.device)
+        self._termination_reasons: dict[str, torch.Tensor] = {}
 
         # episode reward sums for logging
         self._episode_sums = {
@@ -215,6 +218,8 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
             )
         if self.cfg.commands.reverse_ramp_steps <= 0:
             raise ValueError("reverse_ramp_steps must be greater than zero.")
+        if self.cfg.commands.linear_acceleration_limit <= 0.0:
+            raise ValueError("linear_acceleration_limit must be greater than zero.")
 
         transition_min, transition_max = self.cfg.commands.ranges_transition_lin_vel_x
         main_min, main_max = self.cfg.commands.ranges_lin_vel_x
@@ -262,6 +267,22 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
             raise ValueError(
                 "The minimum leg-length reference must fit inside the VMC range."
             )
+        if not (
+            self.cfg.l0_ref_min
+            <= self.cfg.rewards.leg_length_target_cap
+            <= self.cfg.l0_ref_max
+        ):
+            raise ValueError("leg_length_target_cap must be inside the VMC range.")
+        if not (
+            self.cfg.l0_ref_min
+            <= self.cfg.forward_support_min_leg_length
+            <= self.cfg.l0_ref_max
+        ):
+            raise ValueError("forward_support_min_leg_length must be inside the VMC range.")
+        if not fixed_evaluation_command and not (
+            main_min <= self.cfg.forward_support_speed_threshold <= main_max
+        ):
+            raise ValueError("forward_support_speed_threshold must be in the forward command range.")
 
         max_command_speed = float(
             max(
@@ -428,6 +449,18 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
         l0_ref = torch.clamp(
             l0_ref, min=self.cfg.l0_ref_min, max=self.cfg.l0_ref_max
         )
+        forward_support = (
+            self._commands[:, 0] >= self.cfg.forward_support_speed_threshold
+        )
+        l0_ref = torch.where(
+            forward_support[:, None],
+            torch.clamp(l0_ref, min=self.cfg.forward_support_min_leg_length),
+            l0_ref,
+        )
+        self._l0_ref_applied = l0_ref
+        self._actions[:, (1, 4)] = (
+            l0_ref - self.cfg.l0_offset
+        ) / self.cfg.action_scale_l0
         wheel_vel_ref = (
             torch.cat(
                 (
@@ -569,6 +602,12 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
     def _get_observations(self) -> dict:
         # command resampling (once every resampling_time seconds)
         self._update_commands()
+        max_command_step = self.cfg.commands.linear_acceleration_limit * self.step_dt
+        self._commands[:, 0] += torch.clamp(
+            self._target_lin_vel_x - self._commands[:, 0],
+            min=-max_command_step,
+            max=max_command_step,
+        )
         # heading command -> yaw-rate command
         if self.cfg.commands.heading_command:
             forward_axis = torch.tensor(
@@ -745,12 +784,17 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
             self._actions[:, 1] - self._actions[:, 4]
         )
         leg_length_refs = (
-            self._actions[:, (1, 4)] * self.cfg.action_scale_l0
+            torch.clamp(self._raw_actions[:, (1, 4)], -1.0, 1.0)
+            * self.cfg.action_scale_l0
             + self.cfg.l0_offset
         )
         minimum_leg_length_ref = (
             self._commands[:, 2:3]
             + self.cfg.rewards.leg_length_target_height_offset
+        )
+        minimum_leg_length_ref = torch.clamp(
+            minimum_leg_length_ref,
+            max=self.cfg.rewards.leg_length_target_cap,
         )
         r_leg_length_target_underreach = torch.mean(
             torch.square(torch.relu(minimum_leg_length_ref - leg_length_refs)),
@@ -941,6 +985,14 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
             | leg_contact_died
             | numerical_failure
         )
+        self._termination_reasons = {
+            "base_contact": base_contact_died,
+            "fallen": fallen_died,
+            "pitch": pitch_died,
+            "roll": roll_died,
+            "leg_contact": leg_contact_died,
+            "numerical": numerical_failure,
+        }
 
         time_out = self.episode_length_buf >= self.max_episode_length - 1
         return died, time_out
@@ -951,6 +1003,11 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
     def _reset_idx(self, env_ids: Sequence[int] | None):
         if env_ids is None:
             env_ids = self._robot._ALL_INDICES
+        terminated_command_x = self._commands[env_ids, 0].clone()
+        terminated_target_x = self._target_lin_vel_x[env_ids].clone()
+        terminated_command_height = self._commands[env_ids, 2].clone()
+        resample_steps = max(int(self.cfg.commands.resampling_time / self.step_dt), 1)
+        steps_since_resample = self.episode_length_buf[env_ids].clone() % resample_steps
         self._robot.reset(env_ids)
         super()._reset_idx(env_ids)
 
@@ -1002,12 +1059,39 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
         extras["Episode_Termination/time_out"] = torch.mean(
             self.reset_time_outs[env_ids].float()
         ).item()
+        for reason, flags in self._termination_reasons.items():
+            extras[f"Episode_Termination/{reason}"] = torch.mean(
+                flags[env_ids].float()
+            ).item()
+        command_groups = {
+            "standing": torch.abs(terminated_command_x) < 0.05,
+            "reverse": terminated_command_x < -0.2,
+            "reverse_fast": terminated_command_x < -0.5,
+            "reverse_slow": (terminated_command_x >= -0.5) & (terminated_command_x < -0.2),
+            "forward": terminated_command_x > 0.2,
+            "forward_fast": terminated_command_x >= 0.6,
+            "forward_slow": (terminated_command_x > 0.2) & (terminated_command_x < 0.6),
+            "high_height": terminated_command_height >= 0.19,
+            "target_reverse_fast": terminated_target_x < -0.5,
+            "target_forward_fast": terminated_target_x >= 0.6,
+        }
+        for group, mask in command_groups.items():
+            if torch.any(mask):
+                extras[f"Episode_Termination/{group}_unsafe"] = torch.mean(
+                    self.reset_terminated[env_ids][mask].float()
+                ).item()
+        unsafe_mask = self.reset_terminated[env_ids]
+        if torch.any(unsafe_mask):
+            extras["Episode_Termination/unsafe_within_1s_of_command"] = torch.mean(
+                (steps_since_resample[unsafe_mask] < int(1.0 / self.step_dt)).float()
+            ).item()
         self.extras["log"].update(extras)
 
     def _resample_commands_for(self, env_ids):
         env_ids = torch.as_tensor(env_ids, dtype=torch.long, device=self.device)
         if env_ids.numel() == 0:
             return
+        previous_speed = self._commands[env_ids, 0].clone()
 
         lin_min = float(self._command_ranges[0, 0].item())
         lin_max = float(self._command_ranges[0, 1].item())
@@ -1117,3 +1201,5 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
                 self._commands[moving_ids, 1] = yaw_min + (yaw_max - yaw_min) * torch.rand(
                     moving_ids.numel(), device=self.device
                 )
+        self._target_lin_vel_x[env_ids] = self._commands[env_ids, 0]
+        self._commands[env_ids, 0] = previous_speed

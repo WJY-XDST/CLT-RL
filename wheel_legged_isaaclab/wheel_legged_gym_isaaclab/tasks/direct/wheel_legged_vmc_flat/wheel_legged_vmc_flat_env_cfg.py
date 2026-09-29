@@ -83,10 +83,10 @@ class CommandsCfg:
     # between forward and reverse as the reverse curriculum progresses.
     transition_env_fraction = 0.25
     # Resume from the 2000-iteration forward policy, then introduce reverse
-    # commands gradually over another 500 iterations (48 steps per iteration).
+    # commands gradually over another 1000 iterations (48 steps per iteration).
     reverse_env_fraction = 0.25
     reverse_ramp_start_steps = 96_000
-    reverse_ramp_steps = 24_000
+    reverse_ramp_steps = 48_000
 
 
 @configclass
@@ -120,6 +120,7 @@ class RewardsCfg:
     # their normalized action limits. This still permits unequal leg lengths.
     leg_length_action_saturation = -5.0
     leg_length_action_difference = -0.5
+    leg_length_target_underreach = -200.0
     collision = -1.0
     dof_pos_limits = -1.0
 
@@ -135,6 +136,7 @@ class RewardsCfg:
     base_height_sigma = 0.0004  # [m^2], experimental height-tracking width
     max_contact_force = 100.0
     leg_length_action_soft_limit = 0.85
+    leg_length_target_height_offset = 0.04  # [m], minimum reference above commanded root height
 
 
 @configclass

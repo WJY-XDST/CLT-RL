@@ -164,6 +164,7 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
                 "action_smooth",
                 "leg_length_action_saturation",
                 "leg_length_action_difference",
+                "leg_length_target_underreach",
                 "collision",
                 "dof_pos_limits",
             ]
@@ -249,6 +250,17 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
                 "base_height_target must lie inside the training height range, "
                 f"got target={self.cfg.rewards.base_height_target}, "
                 f"range={self.cfg.commands.ranges_height}."
+            )
+        if (
+            self.cfg.rewards.leg_length_target_height_offset < 0.0
+            or (
+                not fixed_evaluation_command
+                and height_max + self.cfg.rewards.leg_length_target_height_offset
+                > self.cfg.l0_ref_max
+            )
+        ):
+            raise ValueError(
+                "The minimum leg-length reference must fit inside the VMC range."
             )
 
         max_command_speed = float(
@@ -732,6 +744,18 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
         r_leg_length_action_difference = torch.square(
             self._actions[:, 1] - self._actions[:, 4]
         )
+        leg_length_refs = (
+            self._actions[:, (1, 4)] * self.cfg.action_scale_l0
+            + self.cfg.l0_offset
+        )
+        minimum_leg_length_ref = (
+            self._commands[:, 2:3]
+            + self.cfg.rewards.leg_length_target_height_offset
+        )
+        r_leg_length_target_underreach = torch.mean(
+            torch.square(torch.relu(minimum_leg_length_ref - leg_length_refs)),
+            dim=1,
+        )
 
         contact_force_norm = torch.norm(
             contact_forces[:, self._penalised_contact_ids, :], dim=-1
@@ -793,6 +817,9 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
             * self.step_dt,
             "leg_length_action_difference": r_leg_length_action_difference
             * self.cfg.rewards.leg_length_action_difference
+            * self.step_dt,
+            "leg_length_target_underreach": r_leg_length_target_underreach
+            * self.cfg.rewards.leg_length_target_underreach
             * self.step_dt,
             "collision": r_collision * self.cfg.rewards.collision * self.step_dt,
             "dof_pos_limits": r_dof_pos_limits

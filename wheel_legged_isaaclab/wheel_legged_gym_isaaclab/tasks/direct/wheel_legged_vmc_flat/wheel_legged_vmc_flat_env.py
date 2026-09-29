@@ -150,6 +150,7 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
                 "track_lin_vel_precise",
                 "lin_vel_error_sq",
                 "track_ang_vel",
+                "yaw_rate_error_sq",
                 "base_height",
                 "nominal_state",
                 "lin_vel_z",
@@ -214,6 +215,21 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
                 f"main={self.cfg.commands.ranges_lin_vel_x}."
             )
 
+        height_min, height_max = self.cfg.commands.ranges_height
+        if height_min > height_max:
+            raise ValueError(
+                "Height command range must satisfy min <= max, "
+                f"got {self.cfg.commands.ranges_height}."
+            )
+        if not fixed_evaluation_command and not (
+            height_min <= self.cfg.rewards.base_height_target <= height_max
+        ):
+            raise ValueError(
+                "base_height_target must lie inside the training height range, "
+                f"got target={self.cfg.rewards.base_height_target}, "
+                f"range={self.cfg.commands.ranges_height}."
+            )
+
         max_command_speed = float(
             max(abs(transition_min), abs(transition_max), abs(main_min), abs(main_max))
         )
@@ -225,6 +241,8 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
                 f"reachable={max_wheel_speed:.3f} m/s."
             )
 
+        if self.cfg.rewards.base_height_sigma <= 0.0:
+            raise ValueError("base_height_sigma must be greater than zero.")
         if self.cfg.rewards.tracking_sigma <= 0.0:
             raise ValueError(
                 "tracking_sigma must be greater than zero, "
@@ -411,10 +429,13 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
         torques = torch.clip(torques, -self._torque_limits, self._torque_limits)
         self._robot.set_joint_effort_target(torques, joint_ids=self._torque_joint_ids)
 
-    def _update_forward_kinematics(self):
+    def _update_forward_kinematics(self, env_ids: torch.Tensor | None = None):
         """Update VMC virtual-coordinate states from current joint states."""
         dof_pos = self._robot.data.joint_pos
         dof_vel = self._robot.data.joint_vel
+        if env_ids is not None:
+            dof_pos = dof_pos[env_ids]
+            dof_vel = dof_vel[env_ids]
 
         theta1 = torch.cat(
             (
@@ -454,12 +475,20 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
         L0_dot = (L0_temp - L0) / dt
         theta0_dot = (theta0_temp - theta0) / dt
 
-        self._theta1 = theta1
-        self._theta2 = theta2
-        self._theta0 = theta0
-        self._theta0_dot = theta0_dot
-        self._L0 = L0
-        self._L0_dot = L0_dot
+        if env_ids is None:
+            self._theta1 = theta1
+            self._theta2 = theta2
+            self._theta0 = theta0
+            self._theta0_dot = theta0_dot
+            self._L0 = L0
+            self._L0_dot = L0_dot
+        else:
+            self._theta1[env_ids] = theta1
+            self._theta2[env_ids] = theta2
+            self._theta0[env_ids] = theta0
+            self._theta0_dot[env_ids] = theta0_dot
+            self._L0[env_ids] = L0
+            self._L0_dot[env_ids] = L0_dot
 
     def _forward_kinematics(self, theta1: torch.Tensor, theta2: torch.Tensor):
         end_x = (
@@ -508,7 +537,9 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
             )
             heading = torch.atan2(forward[:, 1], forward[:, 0])
             self._commands[:, 1] = torch.clip(
-                1.5 * wrap_to_pi(self._commands[:, 3] - heading), -5, 5
+                self.cfg.commands.heading_kp * wrap_to_pi(self._commands[:, 3] - heading),
+                -self.cfg.commands.heading_rate_limit,
+                self.cfg.commands.heading_rate_limit,
             )
 
         # base height (flat ground)
@@ -579,6 +610,7 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
     # Rewards (ported from legged_robot.py reward functions)
     # ------------------------------------------------------------------
     def _get_rewards(self) -> torch.Tensor:
+        self._update_forward_kinematics()
         root_lin_vel_b = self._robot.data.root_lin_vel_b
         root_ang_vel_b = self._robot.data.root_ang_vel_b
         proj_gravity = self._robot.data.projected_gravity_b
@@ -608,12 +640,14 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
         r_track_ang = torch.exp(-ang_vel_error / self.cfg.rewards.tracking_sigma)
 
         base_height_error = torch.square(
-            self._base_height - self._commands[:, 2]
+            self._robot.data.root_pos_w[:, 2] - self._commands[:, 2]
         )
         if self.cfg.rewards.base_height < 0:
             r_base_height = torch.sqrt(base_height_error)
         else:
-            r_base_height = torch.exp(-base_height_error / 0.001)
+            r_base_height = torch.exp(
+                -base_height_error / self.cfg.rewards.base_height_sigma
+            )
 
         theta_difference = torch.square(self._theta0[:, 0] - self._theta0[:, 1])
         if self.cfg.rewards.nominal_state < 0:
@@ -694,6 +728,9 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
             * self.step_dt,
             "track_ang_vel": r_track_ang
             * self.cfg.rewards.tracking_ang_vel
+            * self.step_dt,
+            "yaw_rate_error_sq": ang_vel_error
+            * self.cfg.rewards.yaw_rate_error_sq
             * self.step_dt,
             "base_height": r_base_height
             * self.cfg.rewards.base_height
@@ -864,6 +901,7 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
         self._robot.write_root_pose_to_sim(default_root_state[:, :7], env_ids)
         self._robot.write_root_velocity_to_sim(default_root_state[:, 7:], env_ids)
         self._robot.write_joint_state_to_sim(joint_pos, joint_vel, None, env_ids)
+        self._update_forward_kinematics(env_ids)
 
         # reset buffers
         self._raw_actions[env_ids] = 0.0
@@ -875,6 +913,12 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
         self._roll_fail_buf[env_ids] = 0.0
         self._leg_contact_buf[env_ids] = 0.0
         self._commands[env_ids] = 0.0
+        if self.cfg.commands.heading_command:
+            forward_axis = torch.tensor(
+                [1.0, 0.0, 0.0], device=self.device
+            ).expand(len(env_ids), -1)
+            forward = quat_apply(default_root_state[:, 3:7], forward_axis)
+            self._commands[env_ids, 3] = torch.atan2(forward[:, 1], forward[:, 0])
         self._resample_commands_for(env_ids)
 
         # episode logs
@@ -920,9 +964,21 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
             ) * progress
 
             # Every resample starts as an explicit standing command.  A growing
-            # subset is then replaced with forward-motion commands.
+            # subset is then replaced with forward-motion commands.  Height is
+            # sampled independently for every environment, including standing
+            # samples, so height control is not coupled to forward motion.
             self._commands[env_ids, :3] = 0.0
-            self._commands[env_ids, 2] = self.cfg.rewards.base_height_target
+            height_min, height_max = self.cfg.commands.ranges_height
+            height_center = self.cfg.rewards.base_height_target
+            progressive_height_min = height_center + (
+                height_min - height_center
+            ) * progress
+            progressive_height_max = height_center + (
+                height_max - height_center
+            ) * progress
+            self._commands[env_ids, 2] = progressive_height_min + (
+                progressive_height_max - progressive_height_min
+            ) * torch.rand(env_ids.numel(), device=self.device)
             moving_mask = (
                 torch.rand(env_ids.numel(), device=self.device) < moving_fraction
             )
@@ -964,14 +1020,3 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
                 self._commands[moving_ids, 1] = yaw_min + (yaw_max - yaw_min) * torch.rand(
                     moving_ids.numel(), device=self.device
                 )
-                height_min, height_max = self.cfg.commands.ranges_height
-                self._commands[moving_ids, 2] = height_min + (
-                    height_max - height_min
-                ) * torch.rand(moving_ids.numel(), device=self.device)
-
-        if self.cfg.commands.heading_command:
-            self._commands[env_ids, 3] = (
-                self.cfg.commands.ranges_heading[0]
-                + (self.cfg.commands.ranges_heading[1] - self.cfg.commands.ranges_heading[0])
-                * torch.rand(env_ids.numel(), device=self.device)
-            )

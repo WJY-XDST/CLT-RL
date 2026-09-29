@@ -59,19 +59,20 @@ class CommandsCfg:
 
     num_commands = 3
     resampling_time = 5.0  # [s]
-    # This stage learns standing and straight-line motion. Turning can be
-    # introduced later after zero-yaw behavior is reliable.
-    heading_command = False
+    # Hold the initial world-frame heading throughout each episode.
+    heading_command = True
+    heading_kp = 1.5  # [1/s], heading error -> target yaw rate
+    heading_rate_limit = 0.5  # [rad/s], maximum corrective yaw rate
     ranges_lin_vel_x = (0.3, 0.8)  # [m/s], forward-only training commands
     # Bridge the discontinuity between explicit standing and forward motion.
     # Low-speed reverse samples also prevent a persistent positive wheel-action
     # bias at the zero-speed command.
     ranges_transition_lin_vel_x = (-0.2, 0.2)  # [m/s]
     ranges_ang_vel_yaw = (0.0, 0.0)  # [rad/s]
-    # Keep height fixed during the first standing/straight-line stage.  The
-    # range can be widened after the basic policy no longer saturates actions.
-    ranges_height = (0.18, 0.18)  # [m]
-    ranges_heading = (-3.14, 3.14)
+    # Introduce height control around the nominal 0.18 m stance.  The sampler
+    # expands progressively from the midpoint to this complete interval using
+    # the same curriculum progress as the velocity commands.
+    ranges_height = (0.16, 0.20)  # [m]
     # Environment control steps. Start introducing motion immediately and
     # reach the full command mixture after 500 PPO iterations (48 steps each).
     standing_only_steps = 0
@@ -99,6 +100,7 @@ class RewardsCfg:
     tracking_lin_vel_precise = 1.0
     lin_vel_error_sq = -1.0
     tracking_ang_vel = 1.0
+    yaw_rate_error_sq = -5.0
     base_height = 1.0
     nominal_state = -0.5
     lin_vel_z = -2.0
@@ -123,6 +125,7 @@ class RewardsCfg:
     # without constraining the two virtual-leg lengths to be identical.
     orientation_roll_multiplier = 2.0
     base_height_target = 0.18
+    base_height_sigma = 0.0004  # [m^2], experimental height-tracking width
     max_contact_force = 100.0
     leg_length_action_soft_limit = 0.85
 
@@ -168,13 +171,13 @@ class WheelLeggedVMCFlatEnvCfg(DirectRLEnvCfg):
     action_scale_theta = 0.2  # [rad] per action unit
     theta0_ref_min = -0.2  # [rad], hard VMC target bound
     theta0_ref_max = 0.2  # [rad], hard VMC target bound
-    # Map the complete normalized interval [-1, 1] exactly onto the safe
-    # virtual-leg range [0.12, 0.25] m. This avoids dead action regions caused
-    # by applying a wider affine map and then clipping it.
-    action_scale_l0 = 0.065  # [m] per action unit
-    l0_offset = 0.185  # [m], midpoint of the safe virtual-leg range
+    # Map the complete normalized interval [-1, 1] onto [0.12, 0.26] m.
+    # The extra upper travel improves high-stance reach without the roll
+    # increase observed when testing a 0.27 m reference ceiling.
+    action_scale_l0 = 0.07  # [m] per action unit
+    l0_offset = 0.19  # [m], midpoint of the virtual-leg target range
     l0_ref_min = 0.12  # [m], hard lower bound for the VMC reference
-    l0_ref_max = 0.25  # [m], hard upper bound for the VMC reference
+    l0_ref_max = 0.26  # [m], hard upper bound for the VMC reference
     # A 0.0675 m wheel needs 11.85 rad/s for the maximum 0.8 m/s command.
     # Keep some control margin instead of making the fastest command
     # unreachable at action=1.

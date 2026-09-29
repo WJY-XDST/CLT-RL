@@ -220,17 +220,18 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     agent_cfg: RslRlBaseRunnerCfg = cli_args.update_rsl_rl_cfg(agent_cfg, args_cli)
     env_cfg.scene.num_envs = args_cli.num_envs if args_cli.num_envs is not None else env_cfg.scene.num_envs
 
-    # Evaluation should be repeatable.  Disable the heading-to-yaw controller
-    # and collapse command ranges to a supplied constant command when asked.
+    # Zero yaw holds the initial world-frame heading. Nonzero yaw turns at a
+    # constant commanded rate.
     if args_cli.fixed_command is not None:
         lin_vel_x, yaw_rate, height = args_cli.fixed_command
-        env_cfg.commands.heading_command = False
+        env_cfg.commands.heading_command = yaw_rate == 0.0
         env_cfg.commands.ranges_lin_vel_x = (lin_vel_x, lin_vel_x)
         env_cfg.commands.ranges_ang_vel_yaw = (yaw_rate, yaw_rate)
         env_cfg.commands.ranges_height = (height, height)
         print(
             "[INFO] Using fixed evaluation command: "
-            f"lin_vel_x={lin_vel_x:.3f} m/s, yaw_rate={yaw_rate:.3f} rad/s, height={height:.3f} m"
+            f"lin_vel_x={lin_vel_x:.3f} m/s, yaw_rate={yaw_rate:.3f} rad/s, height={height:.3f} m, "
+            f"heading_hold={env_cfg.commands.heading_command}"
         )
 
     # Do not alter ``l0_offset`` for a single replay experiment: it is part of

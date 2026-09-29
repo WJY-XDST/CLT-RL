@@ -35,6 +35,12 @@ parser.add_argument(
     help="Use the published pre-trained checkpoint instead of a local run checkpoint.",
 )
 parser.add_argument(
+    "--checkpoint_path",
+    type=str,
+    default=None,
+    help="Load an explicit checkpoint path, including a checkpoint stored in this repository.",
+)
+parser.add_argument(
     "--fixed_command",
     type=float,
     nargs=3,
@@ -277,7 +283,13 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         )
     )
     print(f"[INFO] Loading experiment from directory: {log_root_path}")
-    if args_cli.use_pretrained_checkpoint:
+    if args_cli.use_pretrained_checkpoint and args_cli.checkpoint_path is not None:
+        raise ValueError("--checkpoint_path cannot be combined with --use_pretrained_checkpoint.")
+    if args_cli.checkpoint_path is not None:
+        resume_path = str(Path(args_cli.checkpoint_path).expanduser().resolve())
+        if not os.path.isfile(resume_path):
+            raise FileNotFoundError(f"Checkpoint not found: {resume_path}")
+    elif args_cli.use_pretrained_checkpoint:
         resume_path = get_published_pretrained_checkpoint("rsl_rl", train_task_name)
         if not resume_path:
             print("[INFO] Unfortunately a pre-trained checkpoint is currently unavailable for this task.")
@@ -285,7 +297,13 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     else:
         resume_path = get_checkpoint_path(log_root_path, agent_cfg.load_run, agent_cfg.load_checkpoint)
 
-    log_dir = os.path.dirname(resume_path)
+    log_dir = (
+        os.path.dirname(resume_path)
+        if args_cli.checkpoint_path is None
+        else os.path.join(log_root_path, "external_checkpoint_play")
+    )
+    if args_cli.checkpoint_path is not None:
+        os.makedirs(log_dir, exist_ok=True)
 
     # set the log directory for the environment
     env_cfg.log_dir = log_dir

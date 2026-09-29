@@ -63,10 +63,9 @@ class CommandsCfg:
     heading_command = True
     heading_kp = 1.5  # [1/s], heading error -> target yaw rate
     heading_rate_limit = 0.5  # [rad/s], maximum corrective yaw rate
-    ranges_lin_vel_x = (0.3, 0.8)  # [m/s], forward-only training commands
-    # Bridge the discontinuity between explicit standing and forward motion.
-    # Low-speed reverse samples also prevent a persistent positive wheel-action
-    # bias at the zero-speed command.
+    ranges_lin_vel_x = (0.3, 0.8)  # [m/s], forward training commands
+    ranges_reverse_lin_vel_x = (-0.8, -0.3)  # [m/s], reverse training commands
+    # Bridge the gap between standing and the positive/negative main ranges.
     ranges_transition_lin_vel_x = (-0.2, 0.2)  # [m/s]
     ranges_ang_vel_yaw = (0.0, 0.0)  # [rad/s]
     # Introduce height control around the nominal 0.18 m stance.  The sampler
@@ -80,9 +79,14 @@ class CommandsCfg:
     # Explicit zero-speed population retained after motion is introduced.
     standing_env_fraction = 0.25
     # At full curriculum progress, this fraction receives commands from the
-    # bidirectional low-speed transition range. The remaining non-standing
-    # environments receive commands from ranges_lin_vel_x.
+    # bidirectional low-speed transition range. Main-range samples are split
+    # between forward and reverse as the reverse curriculum progresses.
     transition_env_fraction = 0.25
+    # Resume from the 2000-iteration forward policy, then introduce reverse
+    # commands gradually over another 500 iterations (48 steps per iteration).
+    reverse_env_fraction = 0.25
+    reverse_ramp_start_steps = 96_000
+    reverse_ramp_steps = 24_000
 
 
 @configclass
@@ -99,10 +103,11 @@ class RewardsCfg:
     # useful gradients both near and far from the commanded forward speed.
     tracking_lin_vel_precise = 1.0
     lin_vel_error_sq = -1.0
+    base_height_error_sq = -40.0
     tracking_ang_vel = 1.0
     yaw_rate_error_sq = -5.0
     base_height = 1.0
-    nominal_state = -0.5
+    nominal_state = -2.0
     lin_vel_z = -2.0
     ang_vel_xy = -0.05
     orientation = -15.0
@@ -114,16 +119,18 @@ class RewardsCfg:
     # Softly discourage virtual-leg length commands from remaining close to
     # their normalized action limits. This still permits unequal leg lengths.
     leg_length_action_saturation = -5.0
+    leg_length_action_difference = -0.5
     collision = -1.0
     dof_pos_limits = -1.0
 
     # parameters
     clip_single_reward = 1.0
     tracking_sigma = 0.25
+    tracking_sigma_enhance = 0.025
     tracking_sigma_precise = 0.04
     # Projected-gravity y is dominated by body roll; weight it more strongly
     # without constraining the two virtual-leg lengths to be identical.
-    orientation_roll_multiplier = 2.0
+    orientation_roll_multiplier = 4.0
     base_height_target = 0.18
     base_height_sigma = 0.0004  # [m^2], experimental height-tracking width
     max_contact_force = 100.0
@@ -256,7 +263,7 @@ class WheelLeggedVMCFlatEnvCfg(DirectRLEnvCfg):
 
     # -- scene --
     scene: InteractiveSceneCfg = InteractiveSceneCfg(
-        num_envs=8192, env_spacing=4.0, replicate_physics=True
+        num_envs=12288, env_spacing=4.0, replicate_physics=True
     )
 
     # -- simulation --

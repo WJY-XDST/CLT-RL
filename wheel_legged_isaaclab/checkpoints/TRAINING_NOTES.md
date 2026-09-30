@@ -180,3 +180,18 @@
 
 - 与保留参照相比有明确改善，留存模型与精确配置：`wheel_legged_isaaclab/checkpoints/optimized/continuous_optimization_20261001_round0002`。
 - 此记录不代表所有目标已达标；以 assessment.json 的 passed 和额外种子验证为准。
+
+### 自动优化 2026-10-01 02:50:32
+
+- 回放 `round0002_validation`：异常/超时总次数 0；通过=True。
+- 各项最差阈值倍数（<1 为达标）：`{"speed": 0.7255914807319629, "height": 0.31910419464111284, "body": 0.3320098393039134, "symmetry": 0.2493451625702088, "transient_body": 0.376686811028225, "height_overshoot": 0.3860419326358364}`。
+- 完整数据：`/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/continuous_optimization_20261001/round0002_validation`。
+
+### 自动优化 2026-10-01 02:50:32
+
+- 训练验收完成：三个开发种子及三个额外种子、正反命令顺序均通过。速度/高度为 5% 门槛，零速度和角度采用记录中的绝对门槛；这是测试范围内达标，不是所有环境下完美。
+
+### 自动优化 2026-10-01 02:50:32
+
+- 与保留参照相比有明确改善，留存模型与精确配置：`wheel_legged_isaaclab/checkpoints/optimized/continuous_optimization_20261001_round0002_accepted`。
+- 此记录不代表所有目标已达标；以 assessment.json 的 passed 和额外种子验证为准。

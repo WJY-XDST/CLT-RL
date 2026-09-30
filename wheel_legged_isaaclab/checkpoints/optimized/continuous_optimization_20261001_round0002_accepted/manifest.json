@@ -1,0 +1,39 @@
+{
+  "checkpoint_source": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-10-01_01-56-36_autotune_r0002_20261001_015632/model_5740.pt",
+  "sha256": "d1dd713a6ee08974dc7146f51a67cf2d1cb78744e97cf1c002d555bec35d6d58",
+  "reward_overrides": {
+    "lin_vel_error_sq": -30.0,
+    "standing_velocity": -50.0,
+    "base_height_error_sq": -1000.0,
+    "nominal_state": -90.0,
+    "orientation": -150.0
+  },
+  "source_hashes": {
+    "play_wheel.sh": "910e9cad0ca2ec621e20ca3b85185a37082514ceff27021358c7a6032876025c",
+    "train_wheel.sh": "93ccc68ad962f7c4729b269175e5c8df8f6ae27a520d40152a1d1b1c6033ccce",
+    "wheel_legged_isaaclab/scripts/rsl_rl/assess_tracking.py": "218d7db5b209f5dc46ae42cb64f089c1f1573a38536d7128089420b7375f3e93",
+    "wheel_legged_isaaclab/scripts/rsl_rl/cli_args.py": "dbcd5949e6699126fd5d0aa650104e38a4f136a01c36fe934f1cae267a95759a",
+    "wheel_legged_isaaclab/scripts/rsl_rl/export_trace_html.py": "7fba5b3d460274f7a30d0b24f2bd80cf781cc1dbd60babd49f15b61eef433267",
+    "wheel_legged_isaaclab/scripts/rsl_rl/monitor_training.py": "e2f9add28c39c30523b52a80eb5f0d14bcf80ca5d9cbf4d41ff65e3e1f609cc1",
+    "wheel_legged_isaaclab/scripts/rsl_rl/optimize_training.py": "a445f7af2112875adce6d50a4b199f507122599d29241de4916bbc751af8eaae",
+    "wheel_legged_isaaclab/scripts/rsl_rl/play.py": "dc9f0a5dda145c62b3cb435d09fe4876106a8a155124224d3f2381f9d05365e1",
+    "wheel_legged_isaaclab/scripts/rsl_rl/plot_trace.py": "bc9e3e75a371bfa2a6959adffdcf2b4630b8b7e9afac63c4dffe77a170134851",
+    "wheel_legged_isaaclab/scripts/rsl_rl/summarize_trace.py": "b33b508aaf9abc3ba6a9d16f2414b9bd132a58b7a22eb7397b06e4263c1c904f",
+    "wheel_legged_isaaclab/scripts/rsl_rl/train.py": "80dc850a1ece20fc69ec42aeeaeadf2233e728a906e73aad0416950e8afa16ba",
+    "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/__init__.py": "7c8f023b8c5a1ebe31f3df2528f9f60e192ea95318900e407e8fbe89a6cf05f5",
+    "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/__init__.py": "412b1f987b96ff04e5b349b4d4c23617c850eee4fbed0e045f0d44a495b0ca84",
+    "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/__init__.py": "1cc4b1597993d3ff859313a02afdb96785d8adad976360090e07d5e6c0e0152b",
+    "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/__init__.py": "b9ed82f53da3b4af99972caef5c2c366803cbfda0593c68d5b7f2a0a5d3a6a38",
+    "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/agents/__init__.py": "4ffa20ebf6b6315540ed813de42c5df89ce7eb8cfbd1b1d1abc9635be026a005",
+    "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/agents/rsl_rl_ppo_cfg.py": "9079811666cfe9b08f818524a465706c386712a62299428b02464a841e4bdb55",
+    "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py": "d74a4b9657770a5f08cc91e8a6cce7bf94b530975e7c9f713f63dfcd02ed71cc",
+    "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env_cfg.py": "1a8607e633ea51c4261546e5c8a7bec9b793da9d6a133b382def8514b54c653e",
+    "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/vmc.py": "edbd606f21d0e69701b90067b0d8acf44255213936d245fa9e6abda544642db3"
+  },
+  "evaluation_traces": [
+    "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/continuous_optimization_20261001/round0002/seed43.csv",
+    "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/continuous_optimization_20261001/round0002/seed44.csv",
+    "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/continuous_optimization_20261001/round0002/seed45.csv"
+  ],
+  "provisional_angle_limit_deg": 3.0
+}

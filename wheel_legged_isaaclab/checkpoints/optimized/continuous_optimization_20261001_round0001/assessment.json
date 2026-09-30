@@ -1,0 +1,2937 @@
+{
+  "limits": {
+    "speed_relative": 0.05,
+    "height_relative": 0.05,
+    "standing_m_s": 0.02,
+    "angle_deg": 3.0,
+    "transient_body_deg": 10.0,
+    "height_overshoot_relative": 0.05
+  },
+  "angle_limit_is_provisional_absolute_not_percent": true,
+  "steady_window_seconds": [
+    3.0,
+    5.0
+  ],
+  "reverse_order": false,
+  "resets": 0,
+  "worst_ratios": {
+    "speed": 1.0106337070465097,
+    "height": 0.31904796759287446,
+    "body": 0.4706126625490627,
+    "symmetry": 0.5369439379519357,
+    "transient_body": 0.3798964876739432,
+    "height_overshoot": 0.8027222752571109
+  },
+  "score": 1.0017722845077517,
+  "passed": false,
+  "traces": [
+    {
+      "trace": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/continuous_optimization_20261001/round0001/seed43.csv",
+      "samples": 8250,
+      "resets": 0,
+      "terminated": 0,
+      "timeouts": 0,
+      "phases": [
+        {
+          "phase": 0,
+          "speed": 0.0,
+          "height": 0.16,
+          "speed_mae": 0.006007318375632167,
+          "speed_p95": 0.006231581326574087,
+          "speed_relative_mae": null,
+          "speed_relative_p95": null,
+          "standing_horizontal_p95": 0.0065779968851683605,
+          "height_relative_mae": 0.009935886599123457,
+          "height_relative_p95": 0.009961869567632654,
+          "body_abs_max_deg": 0.11757662394053167,
+          "leg_difference_max_deg": 0.40466138756657544,
+          "transient_body_abs_max_deg": 0.11757662394053167,
+          "height_overshoot_relative": 0.0,
+          "leg_length_mae_m": {
+            "left": 0.006582794189453125,
+            "right": 0.005010805279016495
+          },
+          "ratios": {
+            "speed": 0.328899844258418,
+            "height": 0.1992373913526531,
+            "body": 0.039192207980177224,
+            "symmetry": 0.13488712918885848,
+            "transient_body": 0.011757662394053167,
+            "height_overshoot": 0.0
+          },
+          "passed": true
+        },
+        {
+          "phase": 1,
+          "speed": 0.0,
+          "height": 0.18,
+          "speed_mae": 0.006600086148828268,
+          "speed_p95": 0.006721991114318371,
+          "speed_relative_mae": null,
+          "speed_relative_p95": null,
+          "standing_horizontal_p95": 0.006981422570145114,
+          "height_relative_mae": 0.0007906200157271121,
+          "height_relative_p95": 0.0007961789766947058,
+          "body_abs_max_deg": 0.06313774841928219,
+          "leg_difference_max_deg": 0.04912272051073171,
+          "transient_body_abs_max_deg": 0.1264139682518158,
+          "height_overshoot_relative": 0.013021502229902516,
+          "leg_length_mae_m": {
+            "left": 0.007004024386405945,
+            "right": 0.004444585889577865
+          },
+          "ratios": {
+            "speed": 0.3490711285072557,
+            "height": 0.015923579533894117,
+            "body": 0.02104591613976073,
+            "symmetry": 0.016374240170243904,
+            "transient_body": 0.01264139682518158,
+            "height_overshoot": 0.2604300445980503
+          },
+          "passed": true
+        },
+        {
+          "phase": 2,
+          "speed": 0.0,
+          "height": 0.2,
+          "speed_mae": 0.00828591626137495,
+          "speed_p95": 0.008325949311256409,
+          "speed_relative_mae": null,
+          "speed_relative_p95": null,
+          "standing_horizontal_p95": 0.00838954687609696,
+          "height_relative_mae": 0.010179144889116342,
+          "height_relative_p95": 0.010185897350311335,
+          "body_abs_max_deg": 0.06395126797213434,
+          "leg_difference_max_deg": 0.3971891606145815,
+          "transient_body_abs_max_deg": 0.11400640935617196,
+          "height_overshoot_relative": 0.0,
+          "leg_length_mae_m": {
+            "left": 0.007429197728633881,
+            "right": 0.0038974401354789734
+          },
+          "ratios": {
+            "speed": 0.41947734380484797,
+            "height": 0.20371794700622667,
+            "body": 0.021317089324044778,
+            "symmetry": 0.13239638687152716,
+            "transient_body": 0.011400640935617195,
+            "height_overshoot": 0.0
+          },
+          "passed": true
+        },
+        {
+          "phase": 3,
+          "speed": 0.2,
+          "height": 0.16,
+          "speed_mae": 0.0014382030069828144,
+          "speed_p95": 0.001819741725921642,
+          "speed_relative_mae": 0.007191015034914072,
+          "speed_relative_p95": 0.00909870862960821,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.007680121809244135,
+          "height_relative_p95": 0.00770769640803335,
+          "body_abs_max_deg": 0.411954108609445,
+          "leg_difference_max_deg": 0.4433475790255277,
+          "transient_body_abs_max_deg": 1.2618123489193291,
+          "height_overshoot_relative": 0.029649421572685263,
+          "leg_length_mae_m": {
+            "left": 0.0060960805416107175,
+            "right": 0.005511946529150009
+          },
+          "ratios": {
+            "speed": 0.18197417259216417,
+            "height": 0.154153928160667,
+            "body": 0.13731803620314834,
+            "symmetry": 0.14778252634184255,
+            "transient_body": 0.12618123489193292,
+            "height_overshoot": 0.5929884314537052
+          },
+          "passed": true
+        },
+        {
+          "phase": 4,
+          "speed": 0.2,
+          "height": 0.18,
+          "speed_mae": 0.0019918498396873587,
+          "speed_p95": 0.002338048815727245,
+          "speed_relative_mae": 0.009959249198436793,
+          "speed_relative_p95": 0.011690244078636225,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.0023409169581200973,
+          "height_relative_p95": 0.002351032363043854,
+          "body_abs_max_deg": 0.36915152755637004,
+          "leg_difference_max_deg": 0.2191329591415191,
+          "transient_body_abs_max_deg": 0.42140124740735113,
+          "height_overshoot_relative": 0.010845104853312212,
+          "leg_length_mae_m": {
+            "left": 0.0066653211414814,
+            "right": 0.004793035835027695
+          },
+          "ratios": {
+            "speed": 0.23380488157272444,
+            "height": 0.04702064726087708,
+            "body": 0.12305050918545668,
+            "symmetry": 0.07304431971383969,
+            "transient_body": 0.04214012474073511,
+            "height_overshoot": 0.21690209706624422
+          },
+          "passed": true
+        },
+        {
+          "phase": 5,
+          "speed": 0.2,
+          "height": 0.2,
+          "speed_mae": 0.0036530674993991963,
+          "speed_p95": 0.003927287459373485,
+          "speed_relative_mae": 0.018265337496995982,
+          "speed_relative_p95": 0.019636437296867426,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.011270456761121804,
+          "height_relative_p95": 0.01128962635993963,
+          "body_abs_max_deg": 0.2143719037434103,
+          "leg_difference_max_deg": 0.18638220207130796,
+          "transient_body_abs_max_deg": 0.41765155359429346,
+          "height_overshoot_relative": 0.0,
+          "leg_length_mae_m": {
+            "left": 0.007152275741100311,
+            "right": 0.004183006882667542
+          },
+          "ratios": {
+            "speed": 0.39272874593734847,
+            "height": 0.22579252719879256,
+            "body": 0.07145730124780343,
+            "symmetry": 0.062127400690435985,
+            "transient_body": 0.041765155359429346,
+            "height_overshoot": 0.0
+          },
+          "passed": true
+        },
+        {
+          "phase": 6,
+          "speed": 0.4,
+          "height": 0.16,
+          "speed_mae": 0.0031410083174705727,
+          "speed_p95": 0.004435026645660423,
+          "speed_relative_mae": 0.007852520793676432,
+          "speed_relative_p95": 0.011087566614151056,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.001017861068248728,
+          "height_relative_p95": 0.0012989863753318578,
+          "body_abs_max_deg": 0.5276330205179841,
+          "leg_difference_max_deg": 0.12199400876559774,
+          "transient_body_abs_max_deg": 2.113207381792466,
+          "height_overshoot_relative": 0.032831378281116506,
+          "leg_length_mae_m": {
+            "left": 0.005385444164276123,
+            "right": 0.006229111254215241
+          },
+          "ratios": {
+            "speed": 0.22175133228302107,
+            "height": 0.025979727506637157,
+            "body": 0.1758776735059947,
+            "symmetry": 0.04066466958853258,
+            "transient_body": 0.21132073817924663,
+            "height_overshoot": 0.65662756562233
+          },
+          "passed": true
+        },
+        {
+          "phase": 7,
+          "speed": 0.4,
+          "height": 0.18,
+          "speed_mae": 0.0026193201541900857,
+          "speed_p95": 0.003007793426513694,
+          "speed_relative_mae": 0.006548300385475214,
+          "speed_relative_p95": 0.007519483566284235,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.007518526580598583,
+          "height_relative_p95": 0.007538209358851078,
+          "body_abs_max_deg": 0.3825373376278463,
+          "leg_difference_max_deg": 0.07887502453530724,
+          "transient_body_abs_max_deg": 0.4839006532837148,
+          "height_overshoot_relative": 0.005212300353580088,
+          "leg_length_mae_m": {
+            "left": 0.006164517849683761,
+            "right": 0.005303661525249481
+          },
+          "ratios": {
+            "speed": 0.15038967132568468,
+            "height": 0.15076418717702156,
+            "body": 0.12751244587594876,
+            "symmetry": 0.026291674845102416,
+            "transient_body": 0.04839006532837148,
+            "height_overshoot": 0.10424600707160177
+          },
+          "passed": true
+        },
+        {
+          "phase": 8,
+          "speed": 0.4,
+          "height": 0.2,
+          "speed_mae": 0.004153982698917411,
+          "speed_p95": 0.00468062758445742,
+          "speed_relative_mae": 0.010384956747293528,
+          "speed_relative_p95": 0.01170156896114355,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.015379429608583505,
+          "height_relative_p95": 0.015459120273590143,
+          "body_abs_max_deg": 0.21119286423137926,
+          "leg_difference_max_deg": 0.3569661765923764,
+          "transient_body_abs_max_deg": 0.42212057838474454,
+          "height_overshoot_relative": 0.0,
+          "leg_length_mae_m": {
+            "left": 0.006791458427906036,
+            "right": 0.004543182849884034
+          },
+          "ratios": {
+            "speed": 0.23403137922287093,
+            "height": 0.3091824054718028,
+            "body": 0.07039762141045976,
+            "symmetry": 0.11898872553079214,
+            "transient_body": 0.042212057838474454,
+            "height_overshoot": 0.0
+          },
+          "passed": true
+        },
+        {
+          "phase": 9,
+          "speed": 0.6,
+          "height": 0.16,
+          "speed_mae": 0.015283530950546242,
+          "speed_p95": 0.015890455245971657,
+          "speed_relative_mae": 0.02547255158424374,
+          "speed_relative_p95": 0.02648409207661943,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.008995550684630892,
+          "height_relative_p95": 0.009030871093273184,
+          "body_abs_max_deg": 0.21917188588370287,
+          "leg_difference_max_deg": 0.7664565079021509,
+          "transient_body_abs_max_deg": 2.5210877094488215,
+          "height_overshoot_relative": 0.04013611376285555,
+          "leg_length_mae_m": {
+            "left": 0.004473320245742798,
+            "right": 0.0071611422300338744
+          },
+          "ratios": {
+            "speed": 0.5296818415323886,
+            "height": 0.18061742186546367,
+            "body": 0.07305729529456763,
+            "symmetry": 0.2554855026340503,
+            "transient_body": 0.25210877094488215,
+            "height_overshoot": 0.8027222752571109
+          },
+          "passed": true
+        },
+        {
+          "phase": 10,
+          "speed": 0.6,
+          "height": 0.18,
+          "speed_mae": 0.010534049868583657,
+          "speed_p95": 0.011177814006805398,
+          "speed_relative_mae": 0.017556749780972762,
+          "speed_relative_p95": 0.01862969001134233,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.015007884138160245,
+          "height_relative_p95": 0.01504210299915734,
+          "body_abs_max_deg": 0.24031663076975496,
+          "leg_difference_max_deg": 0.7453853743126615,
+          "transient_body_abs_max_deg": 0.2879362560958343,
+          "height_overshoot_relative": 0.0006682740317451,
+          "leg_length_mae_m": {
+            "left": 0.005580882579088211,
+            "right": 0.005897056460380554
+          },
+          "ratios": {
+            "speed": 0.3725938002268466,
+            "height": 0.3008420599831468,
+            "body": 0.08010554358991832,
+            "symmetry": 0.24846179143755384,
+            "transient_body": 0.02879362560958343,
+            "height_overshoot": 0.013365480634902
+          },
+          "passed": true
+        },
+        {
+          "phase": 11,
+          "speed": 0.6,
+          "height": 0.2,
+          "speed_mae": 0.009290242195129372,
+          "speed_p95": 0.009860908985137917,
+          "speed_relative_mae": 0.015483736991882286,
+          "speed_relative_p95": 0.016434848308563198,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.014536157250404413,
+          "height_relative_p95": 0.014638066291809138,
+          "body_abs_max_deg": 0.180531304613759,
+          "leg_difference_max_deg": 0.9504344833856143,
+          "transient_body_abs_max_deg": 0.26430604272341157,
+          "height_overshoot_relative": 0.0,
+          "leg_length_mae_m": {
+            "left": 0.005659145712852478,
+            "right": 0.005690663158893585
+          },
+          "ratios": {
+            "speed": 0.3286969661712639,
+            "height": 0.2927613258361827,
+            "body": 0.060177101537919664,
+            "symmetry": 0.31681149446187146,
+            "transient_body": 0.026430604272341156,
+            "height_overshoot": 0.0
+          },
+          "passed": true
+        },
+        {
+          "phase": 12,
+          "speed": 0.8,
+          "height": 0.16,
+          "speed_mae": 0.02687406241893773,
+          "speed_p95": 0.027699756622314498,
+          "speed_relative_mae": 0.03359257802367216,
+          "speed_relative_p95": 0.03462469577789312,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.013534951023757479,
+          "height_relative_p95": 0.013601988554000875,
+          "body_abs_max_deg": 0.6007316260061647,
+          "leg_difference_max_deg": 1.5367106009828289,
+          "transient_body_abs_max_deg": 3.79397713109803,
+          "height_overshoot_relative": 0.032862670719623586,
+          "leg_length_mae_m": {
+            "left": 0.005188072621822357,
+            "right": 0.006460200250148773
+          },
+          "ratios": {
+            "speed": 0.6924939155578623,
+            "height": 0.2720397710800175,
+            "body": 0.20024387533538823,
+            "symmetry": 0.5122368669942763,
+            "transient_body": 0.379397713109803,
+            "height_overshoot": 0.6572534143924716
+          },
+          "passed": true
+        },
+        {
+          "phase": 13,
+          "speed": 0.8,
+          "height": 0.18,
+          "speed_mae": 0.020067275762558026,
+          "speed_p95": 0.020861375331878707,
+          "speed_relative_mae": 0.025084094703197533,
+          "speed_relative_p95": 0.026076719164848383,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.01583273957173026,
+          "height_relative_p95": 0.01593302687009172,
+          "body_abs_max_deg": 0.6135340151925602,
+          "leg_difference_max_deg": 1.4705465584929154,
+          "transient_body_abs_max_deg": 0.6696997279546328,
+          "height_overshoot_relative": 0.0,
+          "leg_length_mae_m": {
+            "left": 0.005718869119882584,
+            "right": 0.0057681271433830264
+          },
+          "ratios": {
+            "speed": 0.5215343832969676,
+            "height": 0.3186605374018344,
+            "body": 0.2045113383975201,
+            "symmetry": 0.49018218616430514,
+            "transient_body": 0.06696997279546328,
+            "height_overshoot": 0.0
+          },
+          "passed": true
+        },
+        {
+          "phase": 14,
+          "speed": 0.8,
+          "height": 0.2,
+          "speed_mae": 0.015471994876861617,
+          "speed_p95": 0.016252505779266402,
+          "speed_relative_mae": 0.01933999359607702,
+          "speed_relative_p95": 0.020315632224083002,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.014583266526460702,
+          "height_relative_p95": 0.014669731259346064,
+          "body_abs_max_deg": 0.599549256227812,
+          "leg_difference_max_deg": 1.6094521156434647,
+          "transient_body_abs_max_deg": 0.6337656224835198,
+          "height_overshoot_relative": 0.0,
+          "leg_length_mae_m": {
+            "left": 0.005654839873313904,
+            "right": 0.005698607265949249
+          },
+          "ratios": {
+            "speed": 0.40631264448166,
+            "height": 0.2933946251869212,
+            "body": 0.19984975207593733,
+            "symmetry": 0.5364840385478216,
+            "transient_body": 0.06337656224835198,
+            "height_overshoot": 0.0
+          },
+          "passed": true
+        },
+        {
+          "phase": 15,
+          "speed": 0.0,
+          "height": 0.16,
+          "speed_mae": 0.008514188062399626,
+          "speed_p95": 0.009375151246786118,
+          "speed_relative_mae": null,
+          "speed_relative_p95": null,
+          "standing_horizontal_p95": 0.009405340442120817,
+          "height_relative_mae": 0.009737609885632971,
+          "height_relative_p95": 0.009777002036571482,
+          "body_abs_max_deg": 0.1527741361983412,
+          "leg_difference_max_deg": 0.42621746458713566,
+          "transient_body_abs_max_deg": 2.2605112968577807,
+          "height_overshoot_relative": 0.024910852313041708,
+          "leg_length_mae_m": {
+            "left": 0.006628832966089249,
+            "right": 0.004958434849977493
+          },
+          "ratios": {
+            "speed": 0.4702670221060409,
+            "height": 0.19554004073142964,
+            "body": 0.050924712066113736,
+            "symmetry": 0.1420724881957119,
+            "transient_body": 0.22605112968577806,
+            "height_overshoot": 0.49821704626083413
+          },
+          "passed": true
+        },
+        {
+          "phase": 16,
+          "speed": 0.0,
+          "height": 0.18,
+          "speed_mae": 0.007467535780742765,
+          "speed_p95": 0.0075980727560818195,
+          "speed_relative_mae": null,
+          "speed_relative_p95": null,
+          "standing_horizontal_p95": 0.007807532904396135,
+          "height_relative_mae": 0.0008414934078851966,
+          "height_relative_p95": 0.0008534656630621646,
+          "body_abs_max_deg": 0.07999829049897683,
+          "leg_difference_max_deg": 0.041752946396287946,
+          "transient_body_abs_max_deg": 0.15848721591308665,
+          "height_overshoot_relative": 0.012870503796471528,
+          "leg_length_mae_m": {
+            "left": 0.007024071216583252,
+            "right": 0.004432944655418396
+          },
+          "ratios": {
+            "speed": 0.39037664521980675,
+            "height": 0.017069313261243294,
+            "body": 0.026666096832992276,
+            "symmetry": 0.01391764879876265,
+            "transient_body": 0.015848721591308665,
+            "height_overshoot": 0.25741007592943055
+          },
+          "passed": true
+        },
+        {
+          "phase": 17,
+          "speed": 0.0,
+          "height": 0.2,
+          "speed_mae": 0.00837951454333961,
+          "speed_p95": 0.008511397987604141,
+          "speed_relative_mae": null,
+          "speed_relative_p95": null,
+          "standing_horizontal_p95": 0.00856585543599158,
+          "height_relative_mae": 0.010175847262144143,
+          "height_relative_p95": 0.010188803076744135,
+          "body_abs_max_deg": 0.07520430478452786,
+          "leg_difference_max_deg": 0.3949625189451573,
+          "transient_body_abs_max_deg": 0.12070862586073952,
+          "height_overshoot_relative": 0.0,
+          "leg_length_mae_m": {
+            "left": 0.0074328151345252995,
+            "right": 0.003903374969959259
+          },
+          "ratios": {
+            "speed": 0.42829277179957903,
+            "height": 0.20377606153488267,
+            "body": 0.02506810159484262,
+            "symmetry": 0.1316541729817191,
+            "transient_body": 0.012070862586073951,
+            "height_overshoot": 0.0
+          },
+          "passed": true
+        },
+        {
+          "phase": 18,
+          "speed": -0.2,
+          "height": 0.16,
+          "speed_mae": 0.004223713576793659,
+          "speed_p95": 0.004505518078804005,
+          "speed_relative_mae": 0.021118567883968296,
+          "speed_relative_p95": 0.022527590394020025,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.010847230441868284,
+          "height_relative_p95": 0.01086236536502836,
+          "body_abs_max_deg": 0.5406918086025196,
+          "leg_difference_max_deg": 0.35165911960727647,
+          "transient_body_abs_max_deg": 2.119819004909038,
+          "height_overshoot_relative": 0.020475149154663107,
+          "leg_length_mae_m": {
+            "left": 0.006770698875188827,
+            "right": 0.004829407781362534
+          },
+          "ratios": {
+            "speed": 0.4505518078804004,
+            "height": 0.2172473073005672,
+            "body": 0.18023060286750656,
+            "symmetry": 0.11721970653575882,
+            "transient_body": 0.21198190049090382,
+            "height_overshoot": 0.4095029830932621
+          },
+          "passed": true
+        },
+        {
+          "phase": 19,
+          "speed": -0.2,
+          "height": 0.18,
+          "speed_mae": 0.005397042930126179,
+          "speed_p95": 0.005617561936378468,
+          "speed_relative_mae": 0.026985214650630893,
+          "speed_relative_p95": 0.02808780968189234,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.0004544332623481381,
+          "height_relative_p95": 0.00046164790789282595,
+          "body_abs_max_deg": 0.3534922249866316,
+          "leg_difference_max_deg": 0.06790574072826677,
+          "transient_body_abs_max_deg": 0.5378870554528774,
+          "height_overshoot_relative": 0.013746029800838932,
+          "leg_length_mae_m": {
+            "left": 0.007119157016277313,
+            "right": 0.0043243390321731565
+          },
+          "ratios": {
+            "speed": 0.5617561936378467,
+            "height": 0.009232958157856519,
+            "body": 0.11783074166221053,
+            "symmetry": 0.022635246909422257,
+            "transient_body": 0.05378870554528774,
+            "height_overshoot": 0.2749205960167786
+          },
+          "passed": true
+        },
+        {
+          "phase": 20,
+          "speed": -0.2,
+          "height": 0.2,
+          "speed_mae": 0.0069725352525710944,
+          "speed_p95": 0.007334965467452992,
+          "speed_relative_mae": 0.03486267626285547,
+          "speed_relative_p95": 0.03667482733726496,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.01008415743708616,
+          "height_relative_p95": 0.010092988610267695,
+          "body_abs_max_deg": 0.10685242653081829,
+          "leg_difference_max_deg": 0.5219015846698443,
+          "transient_body_abs_max_deg": 0.39505910208888956,
+          "height_overshoot_relative": 0.0,
+          "leg_length_mae_m": {
+            "left": 0.007451698780059814,
+            "right": 0.0038720718026161193
+          },
+          "ratios": {
+            "speed": 0.7334965467452991,
+            "height": 0.20185977220535387,
+            "body": 0.035617475510272764,
+            "symmetry": 0.17396719488994808,
+            "transient_body": 0.03950591020888895,
+            "height_overshoot": 0.0
+          },
+          "passed": true
+        },
+        {
+          "phase": 21,
+          "speed": -0.4,
+          "height": 0.16,
+          "speed_mae": 0.00683469891548159,
+          "speed_p95": 0.007225209474563621,
+          "speed_relative_mae": 0.017086747288703973,
+          "speed_relative_p95": 0.018063023686409052,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.01139637455344198,
+          "height_relative_p95": 0.011422835290431956,
+          "body_abs_max_deg": 1.002650212373304,
+          "leg_difference_max_deg": 0.26880892497502185,
+          "transient_body_abs_max_deg": 2.406756319158332,
+          "height_overshoot_relative": 0.019878171384334585,
+          "leg_length_mae_m": {
+            "left": 0.006780031472444535,
+            "right": 0.004821474254131317
+          },
+          "ratios": {
+            "speed": 0.361260473728181,
+            "height": 0.2284567058086391,
+            "body": 0.33421673745776803,
+            "symmetry": 0.08960297499167395,
+            "transient_body": 0.2406756319158332,
+            "height_overshoot": 0.3975634276866917
+          },
+          "passed": true
+        },
+        {
+          "phase": 22,
+          "speed": -0.4,
+          "height": 0.18,
+          "speed_mae": 0.005246446132659934,
+          "speed_p95": 0.005501830577850364,
+          "speed_relative_mae": 0.013116115331649835,
+          "speed_relative_p95": 0.01375457644462591,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.00035399860805931634,
+          "height_relative_p95": 0.0003734827041625607,
+          "body_abs_max_deg": 0.7698538866839976,
+          "leg_difference_max_deg": 0.15692359618104296,
+          "transient_body_abs_max_deg": 1.005830092318768,
+          "height_overshoot_relative": 0.014040824439790552,
+          "leg_length_mae_m": {
+            "left": 0.007064832448959351,
+            "right": 0.004380968660116196
+          },
+          "ratios": {
+            "speed": 0.27509152889251814,
+            "height": 0.007469654083251213,
+            "body": 0.2566179622279992,
+            "symmetry": 0.052307865393680986,
+            "transient_body": 0.1005830092318768,
+            "height_overshoot": 0.280816488795811
+          },
+          "passed": true
+        },
+        {
+          "phase": 23,
+          "speed": -0.4,
+          "height": 0.2,
+          "speed_mae": 0.003435679078102134,
+          "speed_p95": 0.003754788637161277,
+          "speed_relative_mae": 0.008589197695255336,
+          "speed_relative_p95": 0.009386971592903193,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.010229088366031702,
+          "height_relative_p95": 0.010253623127937372,
+          "body_abs_max_deg": 0.4937617388979207,
+          "leg_difference_max_deg": 0.6214789125794602,
+          "transient_body_abs_max_deg": 0.809398387461697,
+          "height_overshoot_relative": 0.0,
+          "leg_length_mae_m": {
+            "left": 0.007343457341194153,
+            "right": 0.003982519507408142
+          },
+          "ratios": {
+            "speed": 0.18773943185806383,
+            "height": 0.20507246255874742,
+            "body": 0.1645872462993069,
+            "symmetry": 0.20715963752648672,
+            "transient_body": 0.0809398387461697,
+            "height_overshoot": 0.0
+          },
+          "passed": true
+        },
+        {
+          "phase": 24,
+          "speed": -0.6,
+          "height": 0.16,
+          "speed_mae": 0.021945928931236244,
+          "speed_p95": 0.022415435314178445,
+          "speed_relative_mae": 0.03657654821872708,
+          "speed_relative_p95": 0.03735905885696408,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.011524798348546007,
+          "height_relative_p95": 0.011584512889385203,
+          "body_abs_max_deg": 1.2897828273441776,
+          "leg_difference_max_deg": 0.1893055230360734,
+          "transient_body_abs_max_deg": 2.5915502888042004,
+          "height_overshoot_relative": 0.019528087228536627,
+          "leg_length_mae_m": {
+            "left": 0.006747675389051438,
+            "right": 0.004848632663488388
+          },
+          "ratios": {
+            "speed": 0.7471811771392816,
+            "height": 0.23169025778770405,
+            "body": 0.4299276091147259,
+            "symmetry": 0.06310184101202447,
+            "transient_body": 0.25915502888042,
+            "height_overshoot": 0.3905617445707325
+          },
+          "passed": true
+        },
+        {
+          "phase": 25,
+          "speed": -0.6,
+          "height": 0.18,
+          "speed_mae": 0.02051372766494749,
+          "speed_p95": 0.020858681201934792,
+          "speed_relative_mae": 0.034189546108245816,
+          "speed_relative_p95": 0.03476446866989132,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.0005339235067367184,
+          "height_relative_p95": 0.000575227869881487,
+          "body_abs_max_deg": 1.0207831906809242,
+          "leg_difference_max_deg": 0.24874182919352436,
+          "transient_body_abs_max_deg": 1.29282183463801,
+          "height_overshoot_relative": 0.013919711112976112,
+          "leg_length_mae_m": {
+            "left": 0.006963028758764267,
+            "right": 0.004487552791833878
+          },
+          "ratios": {
+            "speed": 0.6952893733978265,
+            "height": 0.01150455739762974,
+            "body": 0.34026106356030805,
+            "symmetry": 0.08291394306450812,
+            "transient_body": 0.129282183463801,
+            "height_overshoot": 0.2783942222595222
+          },
+          "passed": true
+        },
+        {
+          "phase": 26,
+          "speed": -0.6,
+          "height": 0.2,
+          "speed_mae": 0.018581430315971353,
+          "speed_p95": 0.018929457664489724,
+          "speed_relative_mae": 0.030969050526618924,
+          "speed_relative_p95": 0.031549096107482875,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.010611909627914484,
+          "height_relative_p95": 0.010644480586051996,
+          "body_abs_max_deg": 0.69372043604851,
+          "leg_difference_max_deg": 0.705456088424767,
+          "transient_body_abs_max_deg": 1.0535534778232933,
+          "height_overshoot_relative": 0.0,
+          "leg_length_mae_m": {
+            "left": 0.00720797061920166,
+            "right": 0.0041241726279258725
+          },
+          "ratios": {
+            "speed": 0.6309819221496575,
+            "height": 0.2128896117210399,
+            "body": 0.23124014534950332,
+            "symmetry": 0.23515202947492234,
+            "transient_body": 0.10535534778232933,
+            "height_overshoot": 0.0
+          },
+          "passed": true
+        },
+        {
+          "phase": 27,
+          "speed": -0.8,
+          "height": 0.16,
+          "speed_mae": 0.03984937191009526,
+          "speed_p95": 0.04028891324996953,
+          "speed_relative_mae": 0.04981171488761907,
+          "speed_relative_p95": 0.05036114156246191,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.01137535087764261,
+          "height_relative_p95": 0.011440344154834726,
+          "body_abs_max_deg": 1.411659228790004,
+          "leg_difference_max_deg": 0.11406415913921295,
+          "transient_body_abs_max_deg": 2.644090238334054,
+          "height_overshoot_relative": 0.0196347236633301,
+          "leg_length_mae_m": {
+            "left": 0.006691920608282089,
+            "right": 0.004910600781440735
+          },
+          "ratios": {
+            "speed": 1.007222831249238,
+            "height": 0.22880688309669453,
+            "body": 0.4705530762633347,
+            "symmetry": 0.03802138637973765,
+            "transient_body": 0.2644090238334054,
+            "height_overshoot": 0.39269447326660195
+          },
+          "passed": false
+        },
+        {
+          "phase": 28,
+          "speed": -0.8,
+          "height": 0.18,
+          "speed_mae": 0.03853425264358525,
+          "speed_p95": 0.038923549652099654,
+          "speed_relative_mae": 0.04816781580448156,
+          "speed_relative_p95": 0.04865443706512457,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.000943996012210809,
+          "height_relative_p95": 0.0010004904535081281,
+          "body_abs_max_deg": 1.1197278723186677,
+          "leg_difference_max_deg": 0.3125562866089535,
+          "transient_body_abs_max_deg": 1.4175009615210692,
+          "height_overshoot_relative": 0.013570858372582368,
+          "leg_length_mae_m": {
+            "left": 0.006857331693172455,
+            "right": 0.004597328752279282
+          },
+          "ratios": {
+            "speed": 0.9730887413024911,
+            "height": 0.020009809070162563,
+            "body": 0.37324262410622255,
+            "symmetry": 0.10418542886965117,
+            "transient_body": 0.14175009615210693,
+            "height_overshoot": 0.27141716745164735
+          },
+          "passed": true
+        },
+        {
+          "phase": 29,
+          "speed": -0.8,
+          "height": 0.2,
+          "speed_mae": 0.036637455821037335,
+          "speed_p95": 0.036998200416564986,
+          "speed_relative_mae": 0.04579681977629667,
+          "speed_relative_p95": 0.04624775052070623,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.011188665032386835,
+          "height_relative_p95": 0.011229723691940363,
+          "body_abs_max_deg": 0.7395910793798164,
+          "leg_difference_max_deg": 0.7603093376491394,
+          "transient_body_abs_max_deg": 1.1508998951952538,
+          "height_overshoot_relative": 0.0,
+          "leg_length_mae_m": {
+            "left": 0.0070576930046081544,
+            "right": 0.004276321232318878
+          },
+          "ratios": {
+            "speed": 0.9249550104141244,
+            "height": 0.2245944738388072,
+            "body": 0.24653035979327212,
+            "symmetry": 0.2534364458830465,
+            "transient_body": 0.11508998951952538,
+            "height_overshoot": 0.0
+          },
+          "passed": true
+        },
+        {
+          "phase": 30,
+          "speed": 0.0,
+          "height": 0.16,
+          "speed_mae": 0.005298246452584862,
+          "speed_p95": 0.0059739998541772366,
+          "speed_relative_mae": null,
+          "speed_relative_p95": null,
+          "standing_horizontal_p95": 0.006003554041746558,
+          "height_relative_mae": 0.009968029335141161,
+          "height_relative_p95": 0.010011322796344736,
+          "body_abs_max_deg": 0.12292670311327472,
+          "leg_difference_max_deg": 0.4194897282546731,
+          "transient_body_abs_max_deg": 2.3410703899103193,
+          "height_overshoot_relative": 0.026530608534812948,
+          "leg_length_mae_m": {
+            "left": 0.006579617708921432,
+            "right": 0.0050084546208381655
+          },
+          "ratios": {
+            "speed": 0.3001777020873279,
+            "height": 0.20022645592689473,
+            "body": 0.040975567704424905,
+            "symmetry": 0.13982990941822437,
+            "transient_body": 0.23410703899103194,
+            "height_overshoot": 0.5306121706962589
+          },
+          "passed": true
+        },
+        {
+          "phase": 31,
+          "speed": 0.0,
+          "height": 0.18,
+          "speed_mae": 0.006762234079651534,
+          "speed_p95": 0.006893570069223642,
+          "speed_relative_mae": null,
+          "speed_relative_p95": null,
+          "standing_horizontal_p95": 0.007123027847546098,
+          "height_relative_mae": 0.0007898550894524947,
+          "height_relative_p95": 0.0007994903458488943,
+          "body_abs_max_deg": 0.07866379559913932,
+          "leg_difference_max_deg": 0.07319230714585664,
+          "transient_body_abs_max_deg": 0.13731583062122885,
+          "height_overshoot_relative": 0.01307340794139442,
+          "leg_length_mae_m": {
+            "left": 0.006998889297246933,
+            "right": 0.004443482905626297
+          },
+          "ratios": {
+            "speed": 0.3561513923773049,
+            "height": 0.015989806916977885,
+            "body": 0.026221265199713104,
+            "symmetry": 0.024397435715285548,
+            "transient_body": 0.013731583062122885,
+            "height_overshoot": 0.2614681588278884
+          },
+          "passed": true
+        },
+        {
+          "phase": 32,
+          "speed": 0.0,
+          "height": 0.2,
+          "speed_mae": 0.00798000143840909,
+          "speed_p95": 0.008117226883769035,
+          "speed_relative_mae": null,
+          "speed_relative_p95": null,
+          "standing_horizontal_p95": 0.008171577019370718,
+          "height_relative_mae": 0.010168269276619011,
+          "height_relative_p95": 0.010177776217460688,
+          "body_abs_max_deg": 0.06359191597844836,
+          "leg_difference_max_deg": 0.3708178002291623,
+          "transient_body_abs_max_deg": 0.12735510695446273,
+          "height_overshoot_relative": 0.0,
+          "leg_length_mae_m": {
+            "left": 0.0074138793349266055,
+            "right": 0.0038987380266189576
+          },
+          "ratios": {
+            "speed": 0.4085788509685359,
+            "height": 0.20355552434921373,
+            "body": 0.021197305326149454,
+            "symmetry": 0.12360593340972076,
+            "transient_body": 0.012735510695446272,
+            "height_overshoot": 0.0
+          },
+          "passed": true
+        }
+      ],
+      "passed": false
+    },
+    {
+      "trace": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/continuous_optimization_20261001/round0001/seed44.csv",
+      "samples": 8250,
+      "resets": 0,
+      "terminated": 0,
+      "timeouts": 0,
+      "phases": [
+        {
+          "phase": 0,
+          "speed": 0.0,
+          "height": 0.16,
+          "speed_mae": 0.007584695983678102,
+          "speed_p95": 0.007796679623425007,
+          "speed_relative_mae": null,
+          "speed_relative_p95": null,
+          "standing_horizontal_p95": 0.008061889804005426,
+          "height_relative_mae": 0.009837792254984358,
+          "height_relative_p95": 0.009861286729574183,
+          "body_abs_max_deg": 0.16754870248693826,
+          "leg_difference_max_deg": 0.4048389724849958,
+          "transient_body_abs_max_deg": 0.16754870248693826,
+          "height_overshoot_relative": 0.0,
+          "leg_length_mae_m": {
+            "left": 0.006597447544336319,
+            "right": 0.004988366961479187
+          },
+          "ratios": {
+            "speed": 0.40309449020027127,
+            "height": 0.19722573459148365,
+            "body": 0.05584956749564609,
+            "symmetry": 0.13494632416166527,
+            "transient_body": 0.016754870248693828,
+            "height_overshoot": 0.0
+          },
+          "passed": true
+        },
+        {
+          "phase": 1,
+          "speed": 0.0,
+          "height": 0.18,
+          "speed_mae": 0.007272190558724106,
+          "speed_p95": 0.007382738869637251,
+          "speed_relative_mae": null,
+          "speed_relative_p95": null,
+          "standing_horizontal_p95": 0.007602973752730979,
+          "height_relative_mae": 0.0008298878868420549,
+          "height_relative_p95": 0.0008360809750026757,
+          "body_abs_max_deg": 0.0902703547320405,
+          "leg_difference_max_deg": 0.053548683092899965,
+          "transient_body_abs_max_deg": 0.16491954656394614,
+          "height_overshoot_relative": 0.012993521160549625,
+          "leg_length_mae_m": {
+            "left": 0.007010027468204498,
+            "right": 0.0044319117069244384
+          },
+          "ratios": {
+            "speed": 0.38014868763654897,
+            "height": 0.016721619500053516,
+            "body": 0.0300901182440135,
+            "symmetry": 0.017849561030966656,
+            "transient_body": 0.016491954656394615,
+            "height_overshoot": 0.25987042321099246
+          },
+          "passed": true
+        },
+        {
+          "phase": 2,
+          "speed": 0.0,
+          "height": 0.2,
+          "speed_mae": 0.008525029988959432,
+          "speed_p95": 0.008604043163359165,
+          "speed_relative_mae": null,
+          "speed_relative_p95": null,
+          "standing_horizontal_p95": 0.008651224683506837,
+          "height_relative_mae": 0.010192646086216027,
+          "height_relative_p95": 0.010203480720520075,
+          "body_abs_max_deg": 0.058637060632747075,
+          "leg_difference_max_deg": 0.3942999905956661,
+          "transient_body_abs_max_deg": 0.13621388898839573,
+          "height_overshoot_relative": 0.0,
+          "leg_length_mae_m": {
+            "left": 0.007430485785007477,
+            "right": 0.003892710208892822
+          },
+          "ratios": {
+            "speed": 0.4325612341753418,
+            "height": 0.20406961441040147,
+            "body": 0.019545686877582357,
+            "symmetry": 0.13143333019855538,
+            "transient_body": 0.013621388898839574,
+            "height_overshoot": 0.0
+          },
+          "passed": true
+        },
+        {
+          "phase": 3,
+          "speed": 0.2,
+          "height": 0.16,
+          "speed_mae": 0.0014128594100475422,
+          "speed_p95": 0.0018699586391449086,
+          "speed_relative_mae": 0.0070642970502377105,
+          "speed_relative_p95": 0.009349793195724543,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.007678427733480909,
+          "height_relative_p95": 0.007707230746746042,
+          "body_abs_max_deg": 0.4104213714710118,
+          "leg_difference_max_deg": 0.43433172932111086,
+          "transient_body_abs_max_deg": 1.2600117402993845,
+          "height_overshoot_relative": 0.029628094285726568,
+          "leg_length_mae_m": {
+            "left": 0.00609682634472847,
+            "right": 0.005509644448757171
+          },
+          "ratios": {
+            "speed": 0.18699586391449083,
+            "height": 0.15414461493492085,
+            "body": 0.1368071238236706,
+            "symmetry": 0.14477724310703696,
+            "transient_body": 0.12600117402993843,
+            "height_overshoot": 0.5925618857145313
+          },
+          "passed": true
+        },
+        {
+          "phase": 4,
+          "speed": 0.2,
+          "height": 0.18,
+          "speed_mae": 0.0018416395783424488,
+          "speed_p95": 0.0021817207336425892,
+          "speed_relative_mae": 0.009208197891712244,
+          "speed_relative_p95": 0.010908603668212946,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.0023649525311257736,
+          "height_relative_p95": 0.0023796757062275837,
+          "body_abs_max_deg": 0.3632378377151819,
+          "leg_difference_max_deg": 0.21926956292491934,
+          "transient_body_abs_max_deg": 0.42275223748083846,
+          "height_overshoot_relative": 0.01080305046505402,
+          "leg_length_mae_m": {
+            "left": 0.0066782721877098085,
+            "right": 0.00477197140455246
+          },
+          "ratios": {
+            "speed": 0.21817207336425887,
+            "height": 0.04759351412455167,
+            "body": 0.12107927923839397,
+            "symmetry": 0.07308985430830645,
+            "transient_body": 0.042275223748083846,
+            "height_overshoot": 0.21606100930108038
+          },
+          "passed": true
+        },
+        {
+          "phase": 5,
+          "speed": 0.2,
+          "height": 0.2,
+          "speed_mae": 0.0037063008546829334,
+          "speed_p95": 0.003999498486518871,
+          "speed_relative_mae": 0.018531504273414667,
+          "speed_relative_p95": 0.019997492432594355,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.011305984854698236,
+          "height_relative_p95": 0.011325240135192927,
+          "body_abs_max_deg": 0.20952305640208305,
+          "leg_difference_max_deg": 0.17100744624960926,
+          "transient_body_abs_max_deg": 0.4126994530026226,
+          "height_overshoot_relative": 0.0,
+          "leg_length_mae_m": {
+            "left": 0.007173047661781311,
+            "right": 0.004152795672416687
+          },
+          "ratios": {
+            "speed": 0.39994984865188704,
+            "height": 0.22650480270385848,
+            "body": 0.06984101880069435,
+            "symmetry": 0.05700248208320308,
+            "transient_body": 0.04126994530026226,
+            "height_overshoot": 0.0
+          },
+          "passed": true
+        },
+        {
+          "phase": 6,
+          "speed": 0.4,
+          "height": 0.16,
+          "speed_mae": 0.0031514456868171913,
+          "speed_p95": 0.004213178157806419,
+          "speed_relative_mae": 0.007878614217042978,
+          "speed_relative_p95": 0.010532945394516047,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.0010202722623944074,
+          "height_relative_p95": 0.0013232007622718603,
+          "body_abs_max_deg": 0.5270839373417386,
+          "leg_difference_max_deg": 0.11209023446907926,
+          "transient_body_abs_max_deg": 2.1118754949043135,
+          "height_overshoot_relative": 0.03279673308134081,
+          "leg_length_mae_m": {
+            "left": 0.0053837990760803225,
+            "right": 0.006230480968952179
+          },
+          "ratios": {
+            "speed": 0.2106589078903209,
+            "height": 0.026464015245437206,
+            "body": 0.17569464578057956,
+            "symmetry": 0.037363411489693084,
+            "transient_body": 0.21118754949043134,
+            "height_overshoot": 0.6559346616268161
+          },
+          "passed": true
+        },
+        {
+          "phase": 7,
+          "speed": 0.4,
+          "height": 0.18,
+          "speed_mae": 0.0026246723532676918,
+          "speed_p95": 0.0030892133712768777,
+          "speed_relative_mae": 0.006561680883169229,
+          "speed_relative_p95": 0.007723033428192194,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.007517400715086158,
+          "height_relative_p95": 0.007549385229746464,
+          "body_abs_max_deg": 0.3839142077149857,
+          "leg_difference_max_deg": 0.07790513767316544,
+          "transient_body_abs_max_deg": 0.4847751843017409,
+          "height_overshoot_relative": 0.005219999286863576,
+          "leg_length_mae_m": {
+            "left": 0.0061655834317207335,
+            "right": 0.005303530842065811
+          },
+          "ratios": {
+            "speed": 0.15446066856384386,
+            "height": 0.15098770459492927,
+            "body": 0.1279714025716619,
+            "symmetry": 0.02596837922438848,
+            "transient_body": 0.04847751843017409,
+            "height_overshoot": 0.10439998573727151
+          },
+          "passed": true
+        },
+        {
+          "phase": 8,
+          "speed": 0.4,
+          "height": 0.2,
+          "speed_mae": 0.004144251644611381,
+          "speed_p95": 0.0047522425651550515,
+          "speed_relative_mae": 0.010360629111528451,
+          "speed_relative_p95": 0.011880606412887629,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.015383054316043908,
+          "height_relative_p95": 0.01546046137809759,
+          "body_abs_max_deg": 0.21276057940888232,
+          "leg_difference_max_deg": 0.3483942891840104,
+          "transient_body_abs_max_deg": 0.42548476671609314,
+          "height_overshoot_relative": 0.0,
+          "leg_length_mae_m": {
+            "left": 0.006793737113475799,
+            "right": 0.00453983873128891
+          },
+          "ratios": {
+            "speed": 0.23761212825775252,
+            "height": 0.30920922756195174,
+            "body": 0.07092019313629411,
+            "symmetry": 0.11613142972800346,
+            "transient_body": 0.04254847667160931,
+            "height_overshoot": 0.0
+          },
+          "passed": true
+        },
+        {
+          "phase": 9,
+          "speed": 0.6,
+          "height": 0.16,
+          "speed_mae": 0.015222167968749978,
+          "speed_p95": 0.01590309143066404,
+          "speed_relative_mae": 0.02537027994791663,
+          "speed_relative_p95": 0.026505152384440067,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.008989926427602789,
+          "height_relative_p95": 0.00903310626745226,
+          "body_abs_max_deg": 0.22423801861800116,
+          "leg_difference_max_deg": 0.7668116777389915,
+          "transient_body_abs_max_deg": 2.521480018439274,
+          "height_overshoot_relative": 0.04012037441134455,
+          "leg_length_mae_m": {
+            "left": 0.004470964670181274,
+            "right": 0.007161881625652313
+          },
+          "ratios": {
+            "speed": 0.5301030476888013,
+            "height": 0.18066212534904522,
+            "body": 0.07474600620600039,
+            "symmetry": 0.2556038925796638,
+            "transient_body": 0.2521480018439274,
+            "height_overshoot": 0.8024074882268909
+          },
+          "passed": true
+        },
+        {
+          "phase": 10,
+          "speed": 0.6,
+          "height": 0.18,
+          "speed_mae": 0.010529047250747658,
+          "speed_p95": 0.011268591880798318,
+          "speed_relative_mae": 0.017548412084579433,
+          "speed_relative_p95": 0.018780986467997196,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.015007173849476672,
+          "height_relative_p95": 0.01504789789517717,
+          "body_abs_max_deg": 0.24175662674586407,
+          "leg_difference_max_deg": 0.74459990255811,
+          "transient_body_abs_max_deg": 0.2928158392884266,
+          "height_overshoot_relative": 0.0006768835915459897,
+          "leg_length_mae_m": {
+            "left": 0.005581103563308716,
+            "right": 0.005897096544504166
+          },
+          "ratios": {
+            "speed": 0.3756197293599439,
+            "height": 0.3009579579035434,
+            "body": 0.08058554224862136,
+            "symmetry": 0.24819996751937,
+            "transient_body": 0.02928158392884266,
+            "height_overshoot": 0.013537671830919792
+          },
+          "passed": true
+        },
+        {
+          "phase": 11,
+          "speed": 0.6,
+          "height": 0.2,
+          "speed_mae": 0.009297757744789102,
+          "speed_p95": 0.009941911697387673,
+          "speed_relative_mae": 0.015496262907981838,
+          "speed_relative_p95": 0.016569852828979457,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.01453737318515783,
+          "height_relative_p95": 0.014657288789749201,
+          "body_abs_max_deg": 0.18059557776106588,
+          "leg_difference_max_deg": 0.951377049491076,
+          "transient_body_abs_max_deg": 0.2638665093781507,
+          "height_overshoot_relative": 0.0,
+          "leg_length_mae_m": {
+            "left": 0.005659055709838867,
+            "right": 0.0056904062628746034
+          },
+          "ratios": {
+            "speed": 0.3313970565795891,
+            "height": 0.29314577579498396,
+            "body": 0.060198525920355295,
+            "symmetry": 0.317125683163692,
+            "transient_body": 0.02638665093781507,
+            "height_overshoot": 0.0
+          },
+          "passed": true
+        },
+        {
+          "phase": 12,
+          "speed": 0.8,
+          "height": 0.16,
+          "speed_mae": 0.026851490139961288,
+          "speed_p95": 0.02780936956405644,
+          "speed_relative_mae": 0.03356436267495161,
+          "speed_relative_p95": 0.03476171195507055,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.013537612743675728,
+          "height_relative_p95": 0.013611674308776876,
+          "body_abs_max_deg": 0.6015069058378141,
+          "leg_difference_max_deg": 1.5331110912902322,
+          "transient_body_abs_max_deg": 3.798964876739432,
+          "height_overshoot_relative": 0.032841529697179815,
+          "leg_length_mae_m": {
+            "left": 0.005187554806470871,
+            "right": 0.006459880918264389
+          },
+          "ratios": {
+            "speed": 0.6952342391014109,
+            "height": 0.2722334861755375,
+            "body": 0.20050230194593802,
+            "symmetry": 0.5110370304300774,
+            "transient_body": 0.3798964876739432,
+            "height_overshoot": 0.6568305939435962
+          },
+          "passed": true
+        },
+        {
+          "phase": 13,
+          "speed": 0.8,
+          "height": 0.18,
+          "speed_mae": 0.0200336337089539,
+          "speed_p95": 0.020976054668426558,
+          "speed_relative_mae": 0.025042042136192374,
+          "speed_relative_p95": 0.026220068335533198,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.015834906862841676,
+          "height_relative_p95": 0.015952398379643722,
+          "body_abs_max_deg": 0.6164975702404053,
+          "leg_difference_max_deg": 1.469767916927534,
+          "transient_body_abs_max_deg": 0.6759371847707355,
+          "height_overshoot_relative": 0.0,
+          "leg_length_mae_m": {
+            "left": 0.00571865126490593,
+            "right": 0.005767739713191986
+          },
+          "ratios": {
+            "speed": 0.5244013667106638,
+            "height": 0.31904796759287446,
+            "body": 0.2054991900801351,
+            "symmetry": 0.48992263897584465,
+            "transient_body": 0.06759371847707354,
+            "height_overshoot": 0.0
+          },
+          "passed": true
+        },
+        {
+          "phase": 14,
+          "speed": 0.8,
+          "height": 0.2,
+          "speed_mae": 0.015490998029708906,
+          "speed_p95": 0.016378450393676802,
+          "speed_relative_mae": 0.01936374753713613,
+          "speed_relative_p95": 0.020473062992096003,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.01458678841590887,
+          "height_relative_p95": 0.014688879251480158,
+          "body_abs_max_deg": 0.6013691281156501,
+          "leg_difference_max_deg": 1.6076011343783911,
+          "transient_body_abs_max_deg": 0.6359381562481128,
+          "height_overshoot_relative": 0.0,
+          "leg_length_mae_m": {
+            "left": 0.0056544625759124756,
+            "right": 0.005697707533836365
+          },
+          "ratios": {
+            "speed": 0.40946125984192,
+            "height": 0.2937775850296031,
+            "body": 0.20045637603855004,
+            "symmetry": 0.535867044792797,
+            "transient_body": 0.06359381562481128,
+            "height_overshoot": 0.0
+          },
+          "passed": true
+        },
+        {
+          "phase": 15,
+          "speed": 0.0,
+          "height": 0.16,
+          "speed_mae": 0.00844154039863497,
+          "speed_p95": 0.009363788180053234,
+          "speed_relative_mae": null,
+          "speed_relative_p95": null,
+          "standing_horizontal_p95": 0.009385397632830226,
+          "height_relative_mae": 0.009753552265465239,
+          "height_relative_p95": 0.009826734662055948,
+          "body_abs_max_deg": 0.16122640191473941,
+          "leg_difference_max_deg": 0.43912652211845976,
+          "transient_body_abs_max_deg": 2.2627146731953447,
+          "height_overshoot_relative": 0.024957418441772482,
+          "leg_length_mae_m": {
+            "left": 0.006620572507381439,
+            "right": 0.0049644699692726136
+          },
+          "ratios": {
+            "speed": 0.4692698816415113,
+            "height": 0.19653469324111897,
+            "body": 0.05374213397157981,
+            "symmetry": 0.14637550737281993,
+            "transient_body": 0.22627146731953446,
+            "height_overshoot": 0.4991483688354496
+          },
+          "passed": true
+        },
+        {
+          "phase": 16,
+          "speed": 0.0,
+          "height": 0.18,
+          "speed_mae": 0.007336488510482013,
+          "speed_p95": 0.007466122508049011,
+          "speed_relative_mae": null,
+          "speed_relative_p95": null,
+          "standing_horizontal_p95": 0.007650025254048215,
+          "height_relative_mae": 0.0008397003014882035,
+          "height_relative_p95": 0.0008541279368930023,
+          "body_abs_max_deg": 0.08100100762585967,
+          "leg_difference_max_deg": 0.047954758162659525,
+          "transient_body_abs_max_deg": 0.15515453716536998,
+          "height_overshoot_relative": 0.012818349732293061,
+          "leg_length_mae_m": {
+            "left": 0.007017825096845627,
+            "right": 0.004433075338602066
+          },
+          "ratios": {
+            "speed": 0.38250126270241075,
+            "height": 0.017082558737860045,
+            "body": 0.027000335875286555,
+            "symmetry": 0.015984919387553174,
+            "transient_body": 0.015515453716536998,
+            "height_overshoot": 0.2563669946458612
+          },
+          "passed": true
+        },
+        {
+          "phase": 17,
+          "speed": 0.0,
+          "height": 0.2,
+          "speed_mae": 0.008327849488705397,
+          "speed_p95": 0.008417746052145958,
+          "speed_relative_mae": null,
+          "speed_relative_p95": null,
+          "standing_horizontal_p95": 0.008473635910309576,
+          "height_relative_mae": 0.01017709001898771,
+          "height_relative_p95": 0.010187089443206843,
+          "body_abs_max_deg": 0.07524998834470893,
+          "leg_difference_max_deg": 0.39567285861883866,
+          "transient_body_abs_max_deg": 0.12684010802300114,
+          "height_overshoot_relative": 0.0,
+          "leg_length_mae_m": {
+            "left": 0.007431268990039826,
+            "right": 0.0039024293422698975
+          },
+          "ratios": {
+            "speed": 0.4236817955154788,
+            "height": 0.20374178886413682,
+            "body": 0.02508332944823631,
+            "symmetry": 0.13189095287294622,
+            "transient_body": 0.012684010802300114,
+            "height_overshoot": 0.0
+          },
+          "passed": true
+        },
+        {
+          "phase": 18,
+          "speed": -0.2,
+          "height": 0.16,
+          "speed_mae": 0.004234044700860966,
+          "speed_p95": 0.004593509435653675,
+          "speed_relative_mae": 0.02117022350430483,
+          "speed_relative_p95": 0.022967547178268377,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.010846625082194784,
+          "height_relative_p95": 0.010867021977901438,
+          "body_abs_max_deg": 0.5438812401406511,
+          "leg_difference_max_deg": 0.35019745912489375,
+          "transient_body_abs_max_deg": 2.120475770286417,
+          "height_overshoot_relative": 0.02047533541917803,
+          "leg_length_mae_m": {
+            "left": 0.006770017743110657,
+            "right": 0.004829162061214447
+          },
+          "ratios": {
+            "speed": 0.45935094356536743,
+            "height": 0.21734043955802876,
+            "body": 0.18129374671355036,
+            "symmetry": 0.11673248637496458,
+            "transient_body": 0.21204757702864171,
+            "height_overshoot": 0.40950670838356057
+          },
+          "passed": true
+        },
+        {
+          "phase": 19,
+          "speed": -0.2,
+          "height": 0.18,
+          "speed_mae": 0.005350058525800694,
+          "speed_p95": 0.005705419182777394,
+          "speed_relative_mae": 0.02675029262900347,
+          "speed_relative_p95": 0.02852709591388697,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.00041998757256398215,
+          "height_relative_p95": 0.00042927927441063464,
+          "body_abs_max_deg": 0.3606654177190259,
+          "leg_difference_max_deg": 0.07571264694959134,
+          "transient_body_abs_max_deg": 0.5321281387654988,
+          "height_overshoot_relative": 0.013848351107703353,
+          "leg_length_mae_m": {
+            "left": 0.0071037963032722475,
+            "right": 0.004349610060453415
+          },
+          "ratios": {
+            "speed": 0.5705419182777393,
+            "height": 0.008585585488212694,
+            "body": 0.12022180590634196,
+            "symmetry": 0.025237548983197116,
+            "transient_body": 0.05321281387654988,
+            "height_overshoot": 0.27696702215406704
+          },
+          "passed": true
+        },
+        {
+          "phase": 20,
+          "speed": -0.2,
+          "height": 0.2,
+          "speed_mae": 0.006943158209323872,
+          "speed_p95": 0.00742492377758025,
+          "speed_relative_mae": 0.03471579104661936,
+          "speed_relative_p95": 0.03712461888790125,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.010082954913377816,
+          "height_relative_p95": 0.010094627737999018,
+          "body_abs_max_deg": 0.10609622987418399,
+          "leg_difference_max_deg": 0.5198252071621604,
+          "transient_body_abs_max_deg": 0.40242297982908887,
+          "height_overshoot_relative": 0.0,
+          "leg_length_mae_m": {
+            "left": 0.007451379299163818,
+            "right": 0.003872729241847992
+          },
+          "ratios": {
+            "speed": 0.7424923777580249,
+            "height": 0.20189255475998033,
+            "body": 0.03536540995806133,
+            "symmetry": 0.17327506905405346,
+            "transient_body": 0.04024229798290889,
+            "height_overshoot": 0.0
+          },
+          "passed": true
+        },
+        {
+          "phase": 21,
+          "speed": -0.4,
+          "height": 0.16,
+          "speed_mae": 0.0067988315224647745,
+          "speed_p95": 0.007208698987960838,
+          "speed_relative_mae": 0.016997078806161935,
+          "speed_relative_p95": 0.018021747469902094,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.011371774598956087,
+          "height_relative_p95": 0.01142432540655134,
+          "body_abs_max_deg": 1.004195222507902,
+          "leg_difference_max_deg": 0.27187567991235756,
+          "transient_body_abs_max_deg": 2.3991899636618386,
+          "height_overshoot_relative": 0.019876495003700277,
+          "leg_length_mae_m": {
+            "left": 0.0067902208864688875,
+            "right": 0.004804502576589585
+          },
+          "ratios": {
+            "speed": 0.3604349493980418,
+            "height": 0.2284865081310268,
+            "body": 0.33473174083596735,
+            "symmetry": 0.09062522663745252,
+            "transient_body": 0.23991899636618386,
+            "height_overshoot": 0.3975299000740055
+          },
+          "passed": true
+        },
+        {
+          "phase": 22,
+          "speed": -0.4,
+          "height": 0.18,
+          "speed_mae": 0.005234338343143486,
+          "speed_p95": 0.005570822954177879,
+          "speed_relative_mae": 0.013085845857858713,
+          "speed_relative_p95": 0.013927057385444697,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.000351760122511085,
+          "height_relative_p95": 0.00037704242600331315,
+          "body_abs_max_deg": 0.7712859318930259,
+          "leg_difference_max_deg": 0.15659574710088234,
+          "transient_body_abs_max_deg": 1.0031871292750905,
+          "height_overshoot_relative": 0.01400845580630836,
+          "leg_length_mae_m": {
+            "left": 0.007064905315637589,
+            "right": 0.004381113201379776
+          },
+          "ratios": {
+            "speed": 0.2785411477088939,
+            "height": 0.007540848520066264,
+            "body": 0.2570953106310086,
+            "symmetry": 0.05219858236696078,
+            "transient_body": 0.10031871292750905,
+            "height_overshoot": 0.2801691161261672
+          },
+          "passed": true
+        },
+        {
+          "phase": 23,
+          "speed": -0.4,
+          "height": 0.2,
+          "speed_mae": 0.0034466949105262977,
+          "speed_p95": 0.003835880756378196,
+          "speed_relative_mae": 0.008616737276315744,
+          "speed_relative_p95": 0.00958970189094549,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.010235702246427591,
+          "height_relative_p95": 0.010258167982101496,
+          "body_abs_max_deg": 0.4868667162916457,
+          "leg_difference_max_deg": 0.613344157277975,
+          "transient_body_abs_max_deg": 0.810277881039042,
+          "height_overshoot_relative": 0.0,
+          "leg_length_mae_m": {
+            "left": 0.007347447276115418,
+            "right": 0.003975329101085663
+          },
+          "ratios": {
+            "speed": 0.19179403781890977,
+            "height": 0.2051633596420299,
+            "body": 0.16228890543054855,
+            "symmetry": 0.20444805242599165,
+            "transient_body": 0.0810277881039042,
+            "height_overshoot": 0.0
+          },
+          "passed": true
+        },
+        {
+          "phase": 24,
+          "speed": -0.6,
+          "height": 0.16,
+          "speed_mae": 0.021933592557907083,
+          "speed_p95": 0.02250716686248777,
+          "speed_relative_mae": 0.03655598759651181,
+          "speed_relative_p95": 0.037511944770812954,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.011527832597494105,
+          "height_relative_p95": 0.011599693447351435,
+          "body_abs_max_deg": 1.2929364537500194,
+          "leg_difference_max_deg": 0.18585627750521697,
+          "transient_body_abs_max_deg": 2.587398174119067,
+          "height_overshoot_relative": 0.01952156797051432,
+          "leg_length_mae_m": {
+            "left": 0.00674690842628479,
+            "right": 0.004851251095533371
+          },
+          "ratios": {
+            "speed": 0.7502388954162591,
+            "height": 0.2319938689470287,
+            "body": 0.43097881791667314,
+            "symmetry": 0.06195209250173899,
+            "transient_body": 0.2587398174119067,
+            "height_overshoot": 0.39043135941028634
+          },
+          "passed": true
+        },
+        {
+          "phase": 25,
+          "speed": -0.6,
+          "height": 0.18,
+          "speed_mae": 0.020525326728820778,
+          "speed_p95": 0.02100924253463743,
+          "speed_relative_mae": 0.03420887788136796,
+          "speed_relative_p95": 0.03501540422439572,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.0005382969975471127,
+          "height_relative_p95": 0.000588887267642514,
+          "body_abs_max_deg": 1.0225399366797927,
+          "leg_difference_max_deg": 0.24510816855507758,
+          "transient_body_abs_max_deg": 1.2974962453512375,
+          "height_overshoot_relative": 0.013936764664120182,
+          "leg_length_mae_m": {
+            "left": 0.006966273337602615,
+            "right": 0.004483230412006378
+          },
+          "ratios": {
+            "speed": 0.7003080844879144,
+            "height": 0.011777745352850281,
+            "body": 0.3408466455599309,
+            "symmetry": 0.08170272285169253,
+            "transient_body": 0.12974962453512376,
+            "height_overshoot": 0.2787352932824036
+          },
+          "passed": true
+        },
+        {
+          "phase": 26,
+          "speed": -0.6,
+          "height": 0.2,
+          "speed_mae": 0.01856845438480375,
+          "speed_p95": 0.01902017593383787,
+          "speed_relative_mae": 0.030947423974672917,
+          "speed_relative_p95": 0.031700293223063114,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.010609940439462716,
+          "height_relative_p95": 0.010656476020813044,
+          "body_abs_max_deg": 0.6955018347614139,
+          "leg_difference_max_deg": 0.7010232956534287,
+          "transient_body_abs_max_deg": 1.0530539135185304,
+          "height_overshoot_relative": 0.0,
+          "leg_length_mae_m": {
+            "left": 0.007208691835403442,
+            "right": 0.004124987125396729
+          },
+          "ratios": {
+            "speed": 0.6340058644612623,
+            "height": 0.21312952041626085,
+            "body": 0.2318339449204713,
+            "symmetry": 0.23367443188447623,
+            "transient_body": 0.10530539135185304,
+            "height_overshoot": 0.0
+          },
+          "passed": true
+        },
+        {
+          "phase": 27,
+          "speed": -0.8,
+          "height": 0.16,
+          "speed_mae": 0.03985424935817723,
+          "speed_p95": 0.040425348281860396,
+          "speed_relative_mae": 0.04981781169772154,
+          "speed_relative_p95": 0.050531685352325495,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.011375500820577124,
+          "height_relative_p95": 0.011452451348304728,
+          "body_abs_max_deg": 1.4116255047309771,
+          "leg_difference_max_deg": 0.1101846116906457,
+          "transient_body_abs_max_deg": 2.645542934193151,
+          "height_overshoot_relative": 0.019647203385829946,
+          "leg_length_mae_m": {
+            "left": 0.006692700535058976,
+            "right": 0.004910184144973755
+          },
+          "ratios": {
+            "speed": 1.0106337070465097,
+            "height": 0.22904902696609455,
+            "body": 0.4705418349103257,
+            "symmetry": 0.036728203896881896,
+            "transient_body": 0.26455429341931513,
+            "height_overshoot": 0.3929440677165989
+          },
+          "passed": false
+        },
+        {
+          "phase": 28,
+          "speed": -0.8,
+          "height": 0.18,
+          "speed_mae": 0.038555626869201706,
+          "speed_p95": 0.039041090011596724,
+          "speed_relative_mae": 0.04819453358650213,
+          "speed_relative_p95": 0.048801362514495905,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.0009377706382009349,
+          "height_relative_p95": 0.0010092655817667273,
+          "body_abs_max_deg": 1.120656030993849,
+          "leg_difference_max_deg": 0.3077478334332645,
+          "transient_body_abs_max_deg": 1.4160328977363394,
+          "height_overshoot_relative": 0.013516551918453678,
+          "leg_length_mae_m": {
+            "left": 0.00685535654425621,
+            "right": 0.004600502103567123
+          },
+          "ratios": {
+            "speed": 0.9760272502899179,
+            "height": 0.020185311635334546,
+            "body": 0.373552010331283,
+            "symmetry": 0.1025826111444215,
+            "transient_body": 0.14160328977363396,
+            "height_overshoot": 0.2703310383690735
+          },
+          "passed": true
+        },
+        {
+          "phase": 29,
+          "speed": -0.8,
+          "height": 0.2,
+          "speed_mae": 0.03666265010833745,
+          "speed_p95": 0.037151980400085494,
+          "speed_relative_mae": 0.04582831263542181,
+          "speed_relative_p95": 0.04643997550010687,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.011185190826654489,
+          "height_relative_p95": 0.011241570115089472,
+          "body_abs_max_deg": 0.7386660156341028,
+          "leg_difference_max_deg": 0.7566551864431825,
+          "transient_body_abs_max_deg": 1.1511112041727012,
+          "height_overshoot_relative": 0.0,
+          "leg_length_mae_m": {
+            "left": 0.00705585926771164,
+            "right": 0.004278297424316406
+          },
+          "ratios": {
+            "speed": 0.9287995100021371,
+            "height": 0.22483140230178938,
+            "body": 0.2462220052113676,
+            "symmetry": 0.25221839548106084,
+            "transient_body": 0.11511112041727012,
+            "height_overshoot": 0.0
+          },
+          "passed": true
+        },
+        {
+          "phase": 30,
+          "speed": 0.0,
+          "height": 0.16,
+          "speed_mae": 0.005323634692467749,
+          "speed_p95": 0.005988769698888063,
+          "speed_relative_mae": null,
+          "speed_relative_p95": null,
+          "standing_horizontal_p95": 0.006199857767697342,
+          "height_relative_mae": 0.009984117932617644,
+          "height_relative_p95": 0.010014489293098429,
+          "body_abs_max_deg": 0.12147121914961409,
+          "leg_difference_max_deg": 0.4185471621492114,
+          "transient_body_abs_max_deg": 2.34145565526819,
+          "height_overshoot_relative": 0.0265842527151108,
+          "leg_length_mae_m": {
+            "left": 0.006575495600700378,
+            "right": 0.005018976330757141
+          },
+          "ratios": {
+            "speed": 0.3099928883848671,
+            "height": 0.20028978586196858,
+            "body": 0.0404904063832047,
+            "symmetry": 0.1395157207164038,
+            "transient_body": 0.23414556552681903,
+            "height_overshoot": 0.5316850543022159
+          },
+          "passed": true
+        },
+        {
+          "phase": 31,
+          "speed": 0.0,
+          "height": 0.18,
+          "speed_mae": 0.006728622098453343,
+          "speed_p95": 0.006868225988000631,
+          "speed_relative_mae": null,
+          "speed_relative_p95": null,
+          "standing_horizontal_p95": 0.007148475023552328,
+          "height_relative_mae": 0.0007847688264316613,
+          "height_relative_p95": 0.0007925364706250986,
+          "body_abs_max_deg": 0.08043932461822528,
+          "leg_difference_max_deg": 0.07898430756202746,
+          "transient_body_abs_max_deg": 0.13427668992526406,
+          "height_overshoot_relative": 0.01302787661552433,
+          "leg_length_mae_m": {
+            "left": 0.006997228860855103,
+            "right": 0.004444871097803116
+          },
+          "ratios": {
+            "speed": 0.3574237511776164,
+            "height": 0.015850729412501974,
+            "body": 0.026813108206075093,
+            "symmetry": 0.026328102520675817,
+            "transient_body": 0.013427668992526407,
+            "height_overshoot": 0.26055753231048656
+          },
+          "passed": true
+        },
+        {
+          "phase": 32,
+          "speed": 0.0,
+          "height": 0.2,
+          "speed_mae": 0.008052596095949412,
+          "speed_p95": 0.008179167285561562,
+          "speed_relative_mae": null,
+          "speed_relative_p95": null,
+          "standing_horizontal_p95": 0.008232851717689699,
+          "height_relative_mae": 0.010173155367374476,
+          "height_relative_p95": 0.010183289647102411,
+          "body_abs_max_deg": 0.05658967140839608,
+          "leg_difference_max_deg": 0.36120772406695434,
+          "transient_body_abs_max_deg": 0.12905291589131337,
+          "height_overshoot_relative": 0.0,
+          "leg_length_mae_m": {
+            "left": 0.007411332130432129,
+            "right": 0.003896652460098267
+          },
+          "ratios": {
+            "speed": 0.41164258588448494,
+            "height": 0.2036657929420482,
+            "body": 0.018863223802798694,
+            "symmetry": 0.12040257468898478,
+            "transient_body": 0.012905291589131337,
+            "height_overshoot": 0.0
+          },
+          "passed": true
+        }
+      ],
+      "passed": false
+    },
+    {
+      "trace": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/continuous_optimization_20261001/round0001/seed45.csv",
+      "samples": 8250,
+      "resets": 0,
+      "terminated": 0,
+      "timeouts": 0,
+      "phases": [
+        {
+          "phase": 0,
+          "speed": 0.0,
+          "height": 0.16,
+          "speed_mae": 0.008316297847777605,
+          "speed_p95": 0.00861622765660286,
+          "speed_relative_mae": null,
+          "speed_relative_p95": null,
+          "standing_horizontal_p95": 0.008690325822331256,
+          "height_relative_mae": 0.009802689775824526,
+          "height_relative_p95": 0.009852811694145182,
+          "body_abs_max_deg": 0.17256607674190763,
+          "leg_difference_max_deg": 0.41998150187491406,
+          "transient_body_abs_max_deg": 0.17256607674190763,
+          "height_overshoot_relative": 0.0,
+          "leg_length_mae_m": {
+            "left": 0.00661421611905098,
+            "right": 0.004980572760105133
+          },
+          "ratios": {
+            "speed": 0.43451629111656276,
+            "height": 0.19705623388290364,
+            "body": 0.05752202558063588,
+            "symmetry": 0.1399938339583047,
+            "transient_body": 0.017256607674190762,
+            "height_overshoot": 0.0
+          },
+          "passed": true
+        },
+        {
+          "phase": 1,
+          "speed": 0.0,
+          "height": 0.18,
+          "speed_mae": 0.007620503916405142,
+          "speed_p95": 0.007711319252848625,
+          "speed_relative_mae": null,
+          "speed_relative_p95": null,
+          "standing_horizontal_p95": 0.0077470322066238075,
+          "height_relative_mae": 0.0008602970176272552,
+          "height_relative_p95": 0.0008686151769425765,
+          "body_abs_max_deg": 0.0969463577176255,
+          "leg_difference_max_deg": 0.08371079846767628,
+          "transient_body_abs_max_deg": 0.1767144294869119,
+          "height_overshoot_relative": 0.01288987530602353,
+          "leg_length_mae_m": {
+            "left": 0.007026388049125671,
+            "right": 0.004408294558525086
+          },
+          "ratios": {
+            "speed": 0.38735161033119037,
+            "height": 0.017372303538851528,
+            "body": 0.032315452572541835,
+            "symmetry": 0.027903599489225425,
+            "transient_body": 0.01767144294869119,
+            "height_overshoot": 0.2577975061204706
+          },
+          "passed": true
+        },
+        {
+          "phase": 2,
+          "speed": 0.0,
+          "height": 0.2,
+          "speed_mae": 0.008758515985682606,
+          "speed_p95": 0.008901918306946754,
+          "speed_relative_mae": null,
+          "speed_relative_p95": null,
+          "standing_horizontal_p95": 0.008944594087273596,
+          "height_relative_mae": 0.010206672549247797,
+          "height_relative_p95": 0.010218232870101984,
+          "body_abs_max_deg": 0.03836049682322707,
+          "leg_difference_max_deg": 0.36957470580021995,
+          "transient_body_abs_max_deg": 0.14640554508625966,
+          "height_overshoot_relative": 0.0,
+          "leg_length_mae_m": {
+            "left": 0.007423582971096038,
+            "right": 0.003886379599571228
+          },
+          "ratios": {
+            "speed": 0.4472297043636798,
+            "height": 0.20436465740203966,
+            "body": 0.012786832274409023,
+            "symmetry": 0.12319156860007331,
+            "transient_body": 0.014640554508625966,
+            "height_overshoot": 0.0
+          },
+          "passed": true
+        },
+        {
+          "phase": 3,
+          "speed": 0.2,
+          "height": 0.16,
+          "speed_mae": 0.0014171962440013997,
+          "speed_p95": 0.0016664534807205311,
+          "speed_relative_mae": 0.007085981220006999,
+          "speed_relative_p95": 0.008332267403602656,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.0076792389154434,
+          "height_relative_p95": 0.00770108401775358,
+          "body_abs_max_deg": 0.41666896684916366,
+          "leg_difference_max_deg": 0.44805357936366647,
+          "transient_body_abs_max_deg": 1.252198324054007,
+          "height_overshoot_relative": 0.02961980551481249,
+          "leg_length_mae_m": {
+            "left": 0.006097170412540436,
+            "right": 0.005510623455047607
+          },
+          "ratios": {
+            "speed": 0.16664534807205308,
+            "height": 0.1540216803550716,
+            "body": 0.13888965561638789,
+            "symmetry": 0.14935119312122216,
+            "transient_body": 0.12521983240540072,
+            "height_overshoot": 0.5923961102962497
+          },
+          "passed": true
+        },
+        {
+          "phase": 4,
+          "speed": 0.2,
+          "height": 0.18,
+          "speed_mae": 0.0018856267631054036,
+          "speed_p95": 0.002364766597747814,
+          "speed_relative_mae": 0.009428133815527017,
+          "speed_relative_p95": 0.01182383298873907,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.00234816306167175,
+          "height_relative_p95": 0.002376695473988814,
+          "body_abs_max_deg": 0.36776177082325756,
+          "leg_difference_max_deg": 0.2180537892526571,
+          "transient_body_abs_max_deg": 0.4267992312857768,
+          "height_overshoot_relative": 0.010841959052615733,
+          "leg_length_mae_m": {
+            "left": 0.00667007252573967,
+            "right": 0.00478453516960144
+          },
+          "ratios": {
+            "speed": 0.23647665977478133,
+            "height": 0.04753390947977628,
+            "body": 0.12258725694108585,
+            "symmetry": 0.07268459641755236,
+            "transient_body": 0.04267992312857768,
+            "height_overshoot": 0.21683918105231464
+          },
+          "passed": true
+        },
+        {
+          "phase": 5,
+          "speed": 0.2,
+          "height": 0.2,
+          "speed_mae": 0.00375459983944894,
+          "speed_p95": 0.004040253162384044,
+          "speed_relative_mae": 0.0187729991972447,
+          "speed_relative_p95": 0.02020126581192022,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.011304823309183176,
+          "height_relative_p95": 0.011324122548103388,
+          "body_abs_max_deg": 0.20971089994447162,
+          "leg_difference_max_deg": 0.1757475975335981,
+          "transient_body_abs_max_deg": 0.40775818466408864,
+          "height_overshoot_relative": 0.0,
+          "leg_length_mae_m": {
+            "left": 0.007174783051013946,
+            "right": 0.004153279066085816
+          },
+          "ratios": {
+            "speed": 0.4040253162384044,
+            "height": 0.2264824509620677,
+            "body": 0.06990363331482387,
+            "symmetry": 0.05858253251119936,
+            "transient_body": 0.04077581846640886,
+            "height_overshoot": 0.0
+          },
+          "passed": true
+        },
+        {
+          "phase": 6,
+          "speed": 0.4,
+          "height": 0.16,
+          "speed_mae": 0.00312402665615084,
+          "speed_p95": 0.004234158992767356,
+          "speed_relative_mae": 0.0078100666403770995,
+          "speed_relative_p95": 0.01058539748191839,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.0010170005261897833,
+          "height_relative_p95": 0.0013217106461524755,
+          "body_abs_max_deg": 0.5276182395617334,
+          "leg_difference_max_deg": 0.10619578121535825,
+          "transient_body_abs_max_deg": 2.120771816298255,
+          "height_overshoot_relative": 0.0327611565589905,
+          "leg_length_mae_m": {
+            "left": 0.005383445918560028,
+            "right": 0.0062291349470615385
+          },
+          "ratios": {
+            "speed": 0.21170794963836778,
+            "height": 0.02643421292304951,
+            "body": 0.1758727465205778,
+            "symmetry": 0.03539859373845275,
+            "transient_body": 0.21207718162982553,
+            "height_overshoot": 0.6552231311798099
+          },
+          "passed": true
+        },
+        {
+          "phase": 7,
+          "speed": 0.4,
+          "height": 0.18,
+          "speed_mae": 0.0025912368297577124,
+          "speed_p95": 0.0030354499816894753,
+          "speed_relative_mae": 0.006478092074394281,
+          "speed_relative_p95": 0.007588624954223688,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.007518027391698589,
+          "height_relative_p95": 0.007541686296462976,
+          "body_abs_max_deg": 0.38259640809199635,
+          "leg_difference_max_deg": 0.07919604342629785,
+          "transient_body_abs_max_deg": 0.48405737410865485,
+          "height_overshoot_relative": 0.005246738592783648,
+          "leg_length_mae_m": {
+            "left": 0.006164851635694504,
+            "right": 0.005303654819726944
+          },
+          "ratios": {
+            "speed": 0.15177249908447374,
+            "height": 0.15083372592925953,
+            "body": 0.12753213603066546,
+            "symmetry": 0.026398681142099284,
+            "transient_body": 0.048405737410865485,
+            "height_overshoot": 0.10493477185567295
+          },
+          "passed": true
+        },
+        {
+          "phase": 8,
+          "speed": 0.4,
+          "height": 0.2,
+          "speed_mae": 0.00420150697231295,
+          "speed_p95": 0.004632586240768455,
+          "speed_relative_mae": 0.010503767430782374,
+          "speed_relative_p95": 0.011581465601921137,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.015368183702230509,
+          "height_relative_p95": 0.015451818704605158,
+          "body_abs_max_deg": 0.20746547525482992,
+          "leg_difference_max_deg": 0.36137847879620466,
+          "transient_body_abs_max_deg": 0.4226810274226558,
+          "height_overshoot_relative": 0.0,
+          "leg_length_mae_m": {
+            "left": 0.006787724792957306,
+            "right": 0.004552107751369477
+          },
+          "ratios": {
+            "speed": 0.23162931203842269,
+            "height": 0.3090363740921031,
+            "body": 0.06915515841827664,
+            "symmetry": 0.12045949293206822,
+            "transient_body": 0.04226810274226558,
+            "height_overshoot": 0.0
+          },
+          "passed": true
+        },
+        {
+          "phase": 9,
+          "speed": 0.6,
+          "height": 0.16,
+          "speed_mae": 0.01532753288745878,
+          "speed_p95": 0.015997266769409157,
+          "speed_relative_mae": 0.025545888145764632,
+          "speed_relative_p95": 0.026662111282348598,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.008997440338134786,
+          "height_relative_p95": 0.009035341441631338,
+          "body_abs_max_deg": 0.22839696349230423,
+          "leg_difference_max_deg": 0.7655276021750291,
+          "transient_body_abs_max_deg": 2.527215883238204,
+          "height_overshoot_relative": 0.04007092118263247,
+          "leg_length_mae_m": {
+            "left": 0.0044715748727321624,
+            "right": 0.007160842418670654
+          },
+          "ratios": {
+            "speed": 0.533242225646972,
+            "height": 0.18070682883262676,
+            "body": 0.07613232116410142,
+            "symmetry": 0.25517586739167636,
+            "transient_body": 0.2527215883238204,
+            "height_overshoot": 0.8014184236526493
+          },
+          "passed": true
+        },
+        {
+          "phase": 10,
+          "speed": 0.6,
+          "height": 0.18,
+          "speed_mae": 0.010550503134727456,
+          "speed_p95": 0.01119796037673948,
+          "speed_relative_mae": 0.017584171891212426,
+          "speed_relative_p95": 0.0186632672945658,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.015009674761030373,
+          "height_relative_p95": 0.015045166015624964,
+          "body_abs_max_deg": 0.24182554228737244,
+          "leg_difference_max_deg": 0.7445111100988999,
+          "transient_body_abs_max_deg": 0.28412751849905304,
+          "height_overshoot_relative": 0.0006608234511481762,
+          "leg_length_mae_m": {
+            "left": 0.005579432100057602,
+            "right": 0.005896929949522019
+          },
+          "ratios": {
+            "speed": 0.373265345891316,
+            "height": 0.3009033203124993,
+            "body": 0.08060851409579081,
+            "symmetry": 0.24817037003296663,
+            "transient_body": 0.028412751849905306,
+            "height_overshoot": 0.013216469022963523
+          },
+          "passed": true
+        },
+        {
+          "phase": 11,
+          "speed": 0.6,
+          "height": 0.2,
+          "speed_mae": 0.009307267665863015,
+          "speed_p95": 0.00992385149002073,
+          "speed_relative_mae": 0.01551211277643836,
+          "speed_relative_p95": 0.016539752483367885,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.014547624439001138,
+          "height_relative_p95": 0.014650136232376154,
+          "body_abs_max_deg": 0.18294449582488914,
+          "leg_difference_max_deg": 0.9499836909003935,
+          "transient_body_abs_max_deg": 0.2664420243037744,
+          "height_overshoot_relative": 0.0,
+          "leg_length_mae_m": {
+            "left": 0.005656501352787018,
+            "right": 0.0056888660788536076
+          },
+          "ratios": {
+            "speed": 0.3307950496673577,
+            "height": 0.293002724647523,
+            "body": 0.06098149860829638,
+            "symmetry": 0.31666123030013116,
+            "transient_body": 0.02664420243037744,
+            "height_overshoot": 0.0
+          },
+          "passed": true
+        },
+        {
+          "phase": 12,
+          "speed": 0.8,
+          "height": 0.16,
+          "speed_mae": 0.02683548271656041,
+          "speed_p95": 0.02773218154907231,
+          "speed_relative_mae": 0.033544353395700506,
+          "speed_relative_p95": 0.03466522693634039,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.013535373844206354,
+          "height_relative_p95": 0.013603944331407568,
+          "body_abs_max_deg": 0.6010289526784718,
+          "leg_difference_max_deg": 1.5319158081854798,
+          "transient_body_abs_max_deg": 3.7815683849234096,
+          "height_overshoot_relative": 0.03277251869440081,
+          "leg_length_mae_m": {
+            "left": 0.005182144492864609,
+            "right": 0.0064605000615119935
+          },
+          "ratios": {
+            "speed": 0.6933045387268076,
+            "height": 0.27207888662815133,
+            "body": 0.20034298422615726,
+            "symmetry": 0.5106386027284933,
+            "transient_body": 0.37815683849234094,
+            "height_overshoot": 0.6554503738880161
+          },
+          "passed": true
+        },
+        {
+          "phase": 13,
+          "speed": 0.8,
+          "height": 0.18,
+          "speed_mae": 0.020124482512474104,
+          "speed_p95": 0.020899939537048384,
+          "speed_relative_mae": 0.02515560314059263,
+          "speed_relative_p95": 0.02612492442131048,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.015839488142066496,
+          "height_relative_p95": 0.015940891371832917,
+          "body_abs_max_deg": 0.6140552973644497,
+          "leg_difference_max_deg": 1.470881237762246,
+          "transient_body_abs_max_deg": 0.6793268795897659,
+          "height_overshoot_relative": 0.0,
+          "leg_length_mae_m": {
+            "left": 0.005718161910772323,
+            "right": 0.00576650083065033
+          },
+          "ratios": {
+            "speed": 0.5224984884262095,
+            "height": 0.3188178274366584,
+            "body": 0.20468509912148325,
+            "symmetry": 0.49029374592074865,
+            "transient_body": 0.06793268795897658,
+            "height_overshoot": 0.0
+          },
+          "passed": true
+        },
+        {
+          "phase": 14,
+          "speed": 0.8,
+          "height": 0.2,
+          "speed_mae": 0.015553537607193038,
+          "speed_p95": 0.016331839561462447,
+          "speed_relative_mae": 0.019441922008991298,
+          "speed_relative_p95": 0.02041479945182806,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.014576427638530787,
+          "height_relative_p95": 0.014679715037345942,
+          "body_abs_max_deg": 0.6003472677827928,
+          "leg_difference_max_deg": 1.610831813855807,
+          "transient_body_abs_max_deg": 0.6293528933928684,
+          "height_overshoot_relative": 0.0,
+          "leg_length_mae_m": {
+            "left": 0.005656419992446899,
+            "right": 0.005699635148048401
+          },
+          "ratios": {
+            "speed": 0.4082959890365611,
+            "height": 0.2935943007469188,
+            "body": 0.2001157559275976,
+            "symmetry": 0.5369439379519357,
+            "transient_body": 0.06293528933928684,
+            "height_overshoot": 0.0
+          },
+          "passed": true
+        },
+        {
+          "phase": 15,
+          "speed": 0.0,
+          "height": 0.16,
+          "speed_mae": 0.00859233167488128,
+          "speed_p95": 0.009545143693685532,
+          "speed_relative_mae": null,
+          "speed_relative_p95": null,
+          "standing_horizontal_p95": 0.00956238866338446,
+          "height_relative_mae": 0.009765214286744574,
+          "height_relative_p95": 0.009829156100749949,
+          "body_abs_max_deg": 0.16910455821488635,
+          "leg_difference_max_deg": 0.4492420322792487,
+          "transient_body_abs_max_deg": 2.265825824362285,
+          "height_overshoot_relative": 0.024931620806455633,
+          "leg_length_mae_m": {
+            "left": 0.006614928692579269,
+            "right": 0.004969500154256821
+          },
+          "ratios": {
+            "speed": 0.478119433169223,
+            "height": 0.19658312201499897,
+            "body": 0.05636818607162878,
+            "symmetry": 0.1497473440930829,
+            "transient_body": 0.2265825824362285,
+            "height_overshoot": 0.49863241612911263
+          },
+          "passed": true
+        },
+        {
+          "phase": 16,
+          "speed": 0.0,
+          "height": 0.18,
+          "speed_mae": 0.007310962178744376,
+          "speed_p95": 0.007458418607711792,
+          "speed_relative_mae": null,
+          "speed_relative_p95": null,
+          "standing_horizontal_p95": 0.007678628433257758,
+          "height_relative_mae": 0.0008357390761375059,
+          "height_relative_p95": 0.0008457667297786767,
+          "body_abs_max_deg": 0.09559111211612009,
+          "leg_difference_max_deg": 0.0711842315298729,
+          "transient_body_abs_max_deg": 0.16414922929161566,
+          "height_overshoot_relative": 0.01286404662662086,
+          "leg_length_mae_m": {
+            "left": 0.007007517218589783,
+            "right": 0.004432377219200134
+          },
+          "ratios": {
+            "speed": 0.38393142166288785,
+            "height": 0.016915334595573536,
+            "body": 0.0318637040387067,
+            "symmetry": 0.0237280771766243,
+            "transient_body": 0.016414922929161566,
+            "height_overshoot": 0.2572809325324172
+          },
+          "passed": true
+        },
+        {
+          "phase": 17,
+          "speed": 0.0,
+          "height": 0.2,
+          "speed_mae": 0.008150371545925737,
+          "speed_p95": 0.008268667384982109,
+          "speed_relative_mae": null,
+          "speed_relative_p95": null,
+          "standing_horizontal_p95": 0.008326825066690118,
+          "height_relative_mae": 0.010189840197563227,
+          "height_relative_p95": 0.01020295917987829,
+          "body_abs_max_deg": 0.059317078001773244,
+          "leg_difference_max_deg": 0.38044836695888024,
+          "transient_body_abs_max_deg": 0.1414372361355233,
+          "height_overshoot_relative": 0.0,
+          "leg_length_mae_m": {
+            "left": 0.007417673468589783,
+            "right": 0.00389517605304718
+          },
+          "ratios": {
+            "speed": 0.4163412533345059,
+            "height": 0.20405918359756578,
+            "body": 0.019772359333924416,
+            "symmetry": 0.12681612231962675,
+            "transient_body": 0.014143723613552331,
+            "height_overshoot": 0.0
+          },
+          "passed": true
+        },
+        {
+          "phase": 18,
+          "speed": -0.2,
+          "height": 0.16,
+          "speed_mae": 0.0042510811984538925,
+          "speed_p95": 0.004719945788383473,
+          "speed_relative_mae": 0.021255405992269463,
+          "speed_relative_p95": 0.023599728941917364,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.01081467792391775,
+          "height_relative_p95": 0.01083470508456228,
+          "body_abs_max_deg": 0.5344345015491417,
+          "leg_difference_max_deg": 0.35340081784562977,
+          "transient_body_abs_max_deg": 2.1292286577077886,
+          "height_overshoot_relative": 0.02049638330936434,
+          "leg_length_mae_m": {
+            "left": 0.006781909316778183,
+            "right": 0.004808946549892426
+          },
+          "ratios": {
+            "speed": 0.47199457883834717,
+            "height": 0.21669410169124562,
+            "body": 0.1781448338497139,
+            "symmetry": 0.11780027261520992,
+            "transient_body": 0.21292286577077885,
+            "height_overshoot": 0.40992766618728677
+          },
+          "passed": true
+        },
+        {
+          "phase": 19,
+          "speed": -0.2,
+          "height": 0.18,
+          "speed_mae": 0.005392595976591099,
+          "speed_p95": 0.005618128180503834,
+          "speed_relative_mae": 0.02696297988295549,
+          "speed_relative_p95": 0.02809064090251917,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.00045284794436557037,
+          "height_relative_p95": 0.0004638830820719031,
+          "body_abs_max_deg": 0.3527578996095759,
+          "leg_difference_max_deg": 0.06457943860247056,
+          "transient_body_abs_max_deg": 0.5362593893571516,
+          "height_overshoot_relative": 0.013759771982828814,
+          "leg_length_mae_m": {
+            "left": 0.007119343727827072,
+            "right": 0.004324760735034943
+          },
+          "ratios": {
+            "speed": 0.5618128180503833,
+            "height": 0.009277661641438062,
+            "body": 0.1175859665365253,
+            "symmetry": 0.021526479534156855,
+            "transient_body": 0.053625938935715156,
+            "height_overshoot": 0.2751954396565763
+          },
+          "passed": true
+        },
+        {
+          "phase": 20,
+          "speed": -0.2,
+          "height": 0.2,
+          "speed_mae": 0.006996060460805881,
+          "speed_p95": 0.007334056496620167,
+          "speed_relative_mae": 0.034980302304029404,
+          "speed_relative_p95": 0.036670282483100836,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.010085450112819727,
+          "height_relative_p95": 0.010092318058013972,
+          "body_abs_max_deg": 0.10737547628095978,
+          "leg_difference_max_deg": 0.5209112072401925,
+          "transient_body_abs_max_deg": 0.39243366808538654,
+          "height_overshoot_relative": 0.0,
+          "leg_length_mae_m": {
+            "left": 0.007452577948570251,
+            "right": 0.003871937096118927
+          },
+          "ratios": {
+            "speed": 0.7334056496620166,
+            "height": 0.2018463611602794,
+            "body": 0.03579182542698659,
+            "symmetry": 0.17363706908006415,
+            "transient_body": 0.039243366808538654,
+            "height_overshoot": 0.0
+          },
+          "passed": true
+        },
+        {
+          "phase": 21,
+          "speed": -0.4,
+          "height": 0.16,
+          "speed_mae": 0.006848397552967094,
+          "speed_p95": 0.007250452041625999,
+          "speed_relative_mae": 0.017120993882417734,
+          "speed_relative_p95": 0.018126130104064997,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.011399167589843252,
+          "height_relative_p95": 0.011427119374275187,
+          "body_abs_max_deg": 1.0015264328114253,
+          "leg_difference_max_deg": 0.2712746232653964,
+          "transient_body_abs_max_deg": 2.396369735864858,
+          "height_overshoot_relative": 0.0198815241456032,
+          "leg_length_mae_m": {
+            "left": 0.006779993027448654,
+            "right": 0.004821939766407013
+          },
+          "ratios": {
+            "speed": 0.3625226020812999,
+            "height": 0.22854238748550373,
+            "body": 0.3338421442704751,
+            "symmetry": 0.0904248744217988,
+            "transient_body": 0.23963697358648578,
+            "height_overshoot": 0.397630482912064
+          },
+          "passed": true
+        },
+        {
+          "phase": 22,
+          "speed": -0.4,
+          "height": 0.18,
+          "speed_mae": 0.005264883041381858,
+          "speed_p95": 0.005564415454864524,
+          "speed_relative_mae": 0.013162207603454644,
+          "speed_relative_p95": 0.01391103863716131,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.0003560524847772016,
+          "height_relative_p95": 0.0003781186209784244,
+          "body_abs_max_deg": 0.7690609977708942,
+          "leg_difference_max_deg": 0.15719680374784348,
+          "transient_body_abs_max_deg": 0.9985031136083427,
+          "height_overshoot_relative": 0.014053904347949595,
+          "leg_length_mae_m": {
+            "left": 0.007063352912664414,
+            "right": 0.004379988014698029
+          },
+          "ratios": {
+            "speed": 0.27822077274322615,
+            "height": 0.007562372419568488,
+            "body": 0.2563536659236314,
+            "symmetry": 0.05239893458261449,
+            "transient_body": 0.09985031136083426,
+            "height_overshoot": 0.2810780869589919
+          },
+          "passed": true
+        },
+        {
+          "phase": 23,
+          "speed": -0.4,
+          "height": 0.2,
+          "speed_mae": 0.0034215086698532325,
+          "speed_p95": 0.0038514971733093484,
+          "speed_relative_mae": 0.00855377167463308,
+          "speed_relative_p95": 0.009628742933273371,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.010234911739826257,
+          "height_relative_p95": 0.010249674320221003,
+          "body_abs_max_deg": 0.49066739639964047,
+          "leg_difference_max_deg": 0.6147170253011476,
+          "transient_body_abs_max_deg": 0.8082792502940199,
+          "height_overshoot_relative": 0.0,
+          "leg_length_mae_m": {
+            "left": 0.007348277866840363,
+            "right": 0.003976523578166961
+          },
+          "ratios": {
+            "speed": 0.1925748586654674,
+            "height": 0.20499348640442003,
+            "body": 0.16355579879988016,
+            "symmetry": 0.20490567510038252,
+            "transient_body": 0.08082792502940199,
+            "height_overshoot": 0.0
+          },
+          "passed": true
+        },
+        {
+          "phase": 24,
+          "speed": -0.6,
+          "height": 0.16,
+          "speed_mae": 0.021917393803596474,
+          "speed_p95": 0.02240887880325315,
+          "speed_relative_mae": 0.03652898967266079,
+          "speed_relative_p95": 0.03734813133875525,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.01152799930423496,
+          "height_relative_p95": 0.01158916950225828,
+          "body_abs_max_deg": 1.2925001754167849,
+          "leg_difference_max_deg": 0.18669639077312852,
+          "transient_body_abs_max_deg": 2.584730558361354,
+          "height_overshoot_relative": 0.019535072147846243,
+          "leg_length_mae_m": {
+            "left": 0.006749174445867538,
+            "right": 0.0048491968214511875
+          },
+          "ratios": {
+            "speed": 0.746962626775105,
+            "height": 0.2317833900451656,
+            "body": 0.43083339180559493,
+            "symmetry": 0.06223213025770951,
+            "transient_body": 0.2584730558361354,
+            "height_overshoot": 0.3907014429569248
+          },
+          "passed": true
+        },
+        {
+          "phase": 25,
+          "speed": -0.6,
+          "height": 0.18,
+          "speed_mae": 0.020546234250068643,
+          "speed_p95": 0.020933008193969704,
+          "speed_relative_mae": 0.034243723750114405,
+          "speed_relative_p95": 0.03488834698994951,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.0005378549297650286,
+          "height_relative_p95": 0.0005864037407768728,
+          "body_abs_max_deg": 1.021247216657662,
+          "leg_difference_max_deg": 0.24634443279484988,
+          "transient_body_abs_max_deg": 1.2956995854344069,
+          "height_overshoot_relative": 0.013901829719543495,
+          "leg_length_mae_m": {
+            "left": 0.006966084688901902,
+            "right": 0.004483203440904617
+          },
+          "ratios": {
+            "speed": 0.6977669397989902,
+            "height": 0.011728074815537455,
+            "body": 0.34041573888588733,
+            "symmetry": 0.08211481093161663,
+            "transient_body": 0.1295699585434407,
+            "height_overshoot": 0.27803659439086986
+          },
+          "passed": true
+        },
+        {
+          "phase": 26,
+          "speed": -0.6,
+          "height": 0.2,
+          "speed_mae": 0.01861256957054136,
+          "speed_p95": 0.01902196407318113,
+          "speed_relative_mae": 0.0310209492842356,
+          "speed_relative_p95": 0.031703273455301884,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.010614398866891916,
+          "height_relative_p95": 0.010652601718902643,
+          "body_abs_max_deg": 0.6926297402154236,
+          "leg_difference_max_deg": 0.7019317108130404,
+          "transient_body_abs_max_deg": 1.0513585325004864,
+          "height_overshoot_relative": 0.0,
+          "leg_length_mae_m": {
+            "left": 0.007207243144512177,
+            "right": 0.0041223600506782535
+          },
+          "ratios": {
+            "speed": 0.6340654691060377,
+            "height": 0.21305203437805284,
+            "body": 0.23087658007180786,
+            "symmetry": 0.23397723693768013,
+            "transient_body": 0.10513585325004864,
+            "height_overshoot": 0.0
+          },
+          "passed": true
+        },
+        {
+          "phase": 27,
+          "speed": -0.8,
+          "height": 0.16,
+          "speed_mae": 0.03989276528358464,
+          "speed_p95": 0.04035155773162846,
+          "speed_relative_mae": 0.049865956604480795,
+          "speed_relative_p95": 0.05043944716453558,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.011371431872248629,
+          "height_relative_p95": 0.01144239306449888,
+          "body_abs_max_deg": 1.411837987647188,
+          "leg_difference_max_deg": 0.11234978165753974,
+          "transient_body_abs_max_deg": 2.649739445107889,
+          "height_overshoot_relative": 0.019639845937490484,
+          "leg_length_mae_m": {
+            "left": 0.006688830256462097,
+            "right": 0.00490970179438591
+          },
+          "ratios": {
+            "speed": 1.0087889432907113,
+            "height": 0.2288478612899776,
+            "body": 0.4706126625490627,
+            "symmetry": 0.03744992721917991,
+            "transient_body": 0.26497394451078893,
+            "height_overshoot": 0.39279691874980965
+          },
+          "passed": false
+        },
+        {
+          "phase": 28,
+          "speed": -0.8,
+          "height": 0.18,
+          "speed_mae": 0.03857933640480046,
+          "speed_p95": 0.03901396989822392,
+          "speed_relative_mae": 0.04822417050600058,
+          "speed_relative_p95": 0.0487674623727799,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.0009458553459908858,
+          "height_relative_p95": 0.0010070304075876502,
+          "body_abs_max_deg": 1.1200965958121427,
+          "leg_difference_max_deg": 0.3107189657222201,
+          "transient_body_abs_max_deg": 1.4174911431241373,
+          "height_overshoot_relative": 0.01353012853198585,
+          "leg_length_mae_m": {
+            "left": 0.006853444129228592,
+            "right": 0.004597473293542862
+          },
+          "ratios": {
+            "speed": 0.9753492474555978,
+            "height": 0.020140608151753003,
+            "body": 0.3733655319373809,
+            "symmetry": 0.10357298857407336,
+            "transient_body": 0.14174911431241372,
+            "height_overshoot": 0.270602570639717
+          },
+          "passed": true
+        },
+        {
+          "phase": 29,
+          "speed": -0.8,
+          "height": 0.2,
+          "speed_mae": 0.036671645641326946,
+          "speed_p95": 0.037094163894653365,
+          "speed_relative_mae": 0.04583955705165868,
+          "speed_relative_p95": 0.046367704868316706,
+          "standing_horizontal_p95": null,
+          "height_relative_mae": 0.011189621686935481,
+          "height_relative_p95": 0.011234790086746271,
+          "body_abs_max_deg": 0.7375387676167863,
+          "leg_difference_max_deg": 0.7583354129790058,
+          "transient_body_abs_max_deg": 1.1511520785860154,
+          "height_overshoot_relative": 0.0,
+          "leg_length_mae_m": {
+            "left": 0.00705386370420456,
+            "right": 0.00427730143070221
+          },
+          "ratios": {
+            "speed": 0.9273540973663339,
+            "height": 0.22469580173492537,
+            "body": 0.24584625587226208,
+            "symmetry": 0.25277847099300194,
+            "transient_body": 0.11511520785860155,
+            "height_overshoot": 0.0
+          },
+          "passed": true
+        },
+        {
+          "phase": 30,
+          "speed": 0.0,
+          "height": 0.16,
+          "speed_mae": 0.005490445741452276,
+          "speed_p95": 0.006113054230809212,
+          "speed_relative_mae": null,
+          "speed_relative_p95": null,
+          "standing_horizontal_p95": 0.006136414574162006,
+          "height_relative_mae": 0.00996141880750654,
+          "height_relative_p95": 0.010009087622165659,
+          "body_abs_max_deg": 0.10019347900783848,
+          "leg_difference_max_deg": 0.40798768969237165,
+          "transient_body_abs_max_deg": 2.346765060130817,
+          "height_overshoot_relative": 0.026544112712144873,
+          "leg_length_mae_m": {
+            "left": 0.0065926949679851535,
+            "right": 0.00501181349158287
+          },
+          "ratios": {
+            "speed": 0.3068207287081003,
+            "height": 0.20018175244331318,
+            "body": 0.03339782633594616,
+            "symmetry": 0.1359958965641239,
+            "transient_body": 0.2346765060130817,
+            "height_overshoot": 0.5308822542428974
+          },
+          "passed": true
+        },
+        {
+          "phase": 31,
+          "speed": 0.0,
+          "height": 0.18,
+          "speed_mae": 0.007093741716817021,
+          "speed_p95": 0.007229606155306101,
+          "speed_relative_mae": null,
+          "speed_relative_p95": null,
+          "standing_horizontal_p95": 0.007449282602508903,
+          "height_relative_mae": 0.0007833316922187435,
+          "height_relative_p95": 0.0007908807860480045,
+          "body_abs_max_deg": 0.07008473782616612,
+          "leg_difference_max_deg": 0.07158721269090364,
+          "transient_body_abs_max_deg": 0.10798073509508604,
+          "height_overshoot_relative": 0.01298921638064918,
+          "leg_length_mae_m": {
+            "left": 0.007011431902647018,
+            "right": 0.004449382275342941
+          },
+          "ratios": {
+            "speed": 0.37246413012544516,
+            "height": 0.01581761572096009,
+            "body": 0.023361579275388705,
+            "symmetry": 0.023862404230301212,
+            "transient_body": 0.010798073509508604,
+            "height_overshoot": 0.2597843276129836
+          },
+          "passed": true
+        },
+        {
+          "phase": 32,
+          "speed": 0.0,
+          "height": 0.2,
+          "speed_mae": 0.008372392849996685,
+          "speed_p95": 0.008501948788762093,
+          "speed_relative_mae": null,
+          "speed_relative_p95": null,
+          "standing_horizontal_p95": 0.008565738032958207,
+          "height_relative_mae": 0.010157150775194223,
+          "height_relative_p95": 0.010163545608520563,
+          "body_abs_max_deg": 0.0593069327696174,
+          "leg_difference_max_deg": 0.3505936100967545,
+          "transient_body_abs_max_deg": 0.11786535951552338,
+          "height_overshoot_relative": 0.0,
+          "leg_length_mae_m": {
+            "left": 0.007419128715991974,
+            "right": 0.0039047110080718994
+          },
+          "ratios": {
+            "speed": 0.42828690164791033,
+            "height": 0.20327091217041124,
+            "body": 0.019768977589872467,
+            "symmetry": 0.11686453669891816,
+            "transient_body": 0.011786535951552338,
+            "height_overshoot": 0.0
+          },
+          "passed": true
+        }
+      ],
+      "passed": false
+    }
+  ],
+  "seeds": [
+    43,
+    44,
+    45
+  ],
+  "checkpoint": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-10-01_01-10-38_autotune_r0001_20261001_011034/model_4741.pt",
+  "checkpoint_sha256": "47ca4e7b3ae70095b5b815d0f08610bc5fe66e055a1d972b6cd62c843ac89201"
+}

@@ -128,3 +128,37 @@
 - 最差稳态速度 95 分位相对误差约 10.54%，高度约 1.70%；机体角度绝对峰值约 3.55°，腿摆角差峰值约 8.52°；切换方向性高度超调约 3.28%，机体倾角峰值约 4.71°。因此主要改进目标仍是速度、腿角差和姿态。
 - 数据及报告：`evaluation_height_v2/acceptance_smoke/seed43.csv`、`assessment_seed43.json`。该次为新验收代码端到端验证，不能代替三种子的正式比较。
 - 持续优化器将接管 `bootstrap_terminal_v8_resume1500`，状态目录为 `evaluation_height_v2/continuous_optimization_20261001/`；完成当前训练后顺序评估参照与候选，随后按记录的规则持续优化，改善时中文提交并上传 GitHub。界面保持关闭。
+
+### 自动优化 2026-10-01 01:02:28
+
+- 回放 `baseline3742`：异常/超时总次数 0；通过=False。
+- 各项最差阈值倍数（<1 为达标）：`{"speed": 2.112908363342286, "height": 0.3398913807339131, "body": 1.183698107850636, "symmetry": 2.8447715125805875, "transient_body": 0.4708384501045943, "height_overshoot": 0.6568548083305362}`。
+- 完整数据：`/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/continuous_optimization_20261001/baseline3742`。
+
+### 自动优化 2026-10-01 01:10:34
+
+- 回放 `round0000`：异常/超时总次数 95；通过=False。
+- 各项最差阈值倍数（<1 为达标）：`{"speed": 51.493052840232835, "height": 6.038367301225661, "body": 21.047305336204886, "symmetry": 11.676299455325731, "transient_body": 6.353951498057944, "height_overshoot": 4.995356798171998}`。
+- 完整数据：`/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/continuous_optimization_20261001/round0000`。
+
+### 自动优化 2026-10-01 01:10:34
+
+- 本轮未满足明确改善且无明显退步的选择条件，保留原参照，候选及失败数据仍留存。
+
+### 自动优化 2026-10-01 01:10:34
+
+- **训练前目的**：针对 symmetry 检验权重平衡：nominal_state -60.0 → -90.0。
+- **修改内容**：奖励配置 `{'lin_vel_error_sq': -30.0, 'standing_velocity': -50.0, 'base_height_error_sq': -1000.0, 'nominal_state': -90.0, 'orientation': -150.0}`；其余控制与环境配置保持当前代码版本。
+- **起点**：/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/checkpoints/corrected_vmc_height_model_3742.pt；新优化器，12288 环境、1000 次 PPO 迭代、固定学习率 0.0001。
+- **验收重点**：完整速度/高度矩阵、静止、姿态、腿角差和切换，与保留参照比较，不接受以一项改善换取其他未达标项明显退步。
+
+### 自动优化 2026-10-01 01:56:17
+
+- 回放 `round0001`：异常/超时总次数 0；通过=False。
+- 各项最差阈值倍数（<1 为达标）：`{"speed": 1.0106337070465097, "height": 0.31904796759287446, "body": 0.4706126625490627, "symmetry": 0.5369439379519357, "transient_body": 0.3798964876739432, "height_overshoot": 0.8027222752571109}`。
+- 完整数据：`/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/continuous_optimization_20261001/round0001`。
+
+### 自动优化 2026-10-01 01:56:17
+
+- 与保留参照相比有明确改善，留存模型与精确配置：`wheel_legged_isaaclab/checkpoints/optimized/continuous_optimization_20261001_round0001`。
+- 此记录不代表所有目标已达标；以 assessment.json 的 passed 和额外种子验证为准。

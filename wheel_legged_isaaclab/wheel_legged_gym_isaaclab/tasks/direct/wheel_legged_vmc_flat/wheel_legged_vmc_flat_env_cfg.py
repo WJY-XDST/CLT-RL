@@ -64,8 +64,10 @@ class CommandsCfg:
     heading_command = True
     heading_kp = 1.5  # [1/s], heading error -> target yaw rate
     heading_rate_limit = 0.5  # [rad/s], maximum corrective yaw rate
-    ranges_lin_vel_x = (0.3, 0.8)  # [m/s], forward training commands
-    ranges_reverse_lin_vel_x = (-0.8, -0.3)  # [m/s], reverse training commands
+    ranges_lin_vel_x = (0.2, 0.8)  # [m/s], forward training commands
+    ranges_reverse_lin_vel_x = (-0.8, -0.2)  # [m/s], reverse training commands
+    speed_boundary_fraction = 0.3  # main-range samples explicitly at +/- maximum speed
+    height_boundary_fraction = 0.4  # half at each height endpoint; remaining samples uniform
     # Bridge the gap between standing and the positive/negative main ranges.
     ranges_transition_lin_vel_x = (-0.2, 0.2)  # [m/s]
     ranges_ang_vel_yaw = (0.0, 0.0)  # [rad/s]
@@ -92,23 +94,20 @@ class CommandsCfg:
 
 @configclass
 class RewardsCfg:
-    """Reward scales restored from the original Wheel-Legged-Gym task.
-
-    Isaac-Lab-specific safety termination remains outside the reward set,
-    while the learning objective follows the source project.
-    """
+    """Reward scales for flat-terrain velocity, height, posture, and standing control."""
 
     tracking_lin_vel = 1.0
     tracking_lin_vel_enhance = 1.0
     # A narrower tracking kernel and an explicit squared-error term preserve
     # useful gradients both near and far from the commanded forward speed.
     tracking_lin_vel_precise = 1.0
-    lin_vel_error_sq = -1.0
-    base_height_error_sq = -40.0
+    lin_vel_error_sq = -10.0
+    standing_velocity = -50.0  # penalize both horizontal drift axes at a zero-speed command
+    base_height_error_sq = -1000.0  # 1 cm error costs 0.1 reward/s before term clipping
     tracking_ang_vel = 1.0
     yaw_rate_error_sq = -5.0
     base_height = 1.0
-    nominal_state = -2.0
+    nominal_state = -20.0
     lin_vel_z = -2.0
     ang_vel_xy = -0.05
     orientation = -15.0
@@ -120,7 +119,7 @@ class RewardsCfg:
     # Softly discourage virtual-leg length commands from remaining close to
     # their normalized action limits. This still permits unequal leg lengths.
     leg_length_action_saturation = -5.0
-    leg_length_action_difference = -0.5
+    leg_length_action_difference = -2.0
     leg_length_target_underreach = -200.0
     collision = -1.0
     dof_pos_limits = -1.0
@@ -190,7 +189,10 @@ class WheelLeggedVMCFlatEnvCfg(DirectRLEnvCfg):
     l0_ref_min = 0.12  # [m], hard lower bound for the VMC reference
     l0_ref_max = 0.26  # [m], hard upper bound for the VMC reference
     forward_support_speed_threshold = 0.6  # [m/s]
-    forward_support_min_leg_length = 0.23  # [m], applied only above the threshold
+    forward_support_min_leg_length = 0.25  # [m], upper bound of the height-dependent support floor
+    forward_support_height_margin = 0.05  # [m], let low height commands lower the support floor
+    height_feedback_gain = 1.0  # [m/m], outer body-height correction to VMC leg targets
+    height_feedback_max_adjustment = 0.03  # [m], limit abrupt reference changes
     # A 0.0675 m wheel needs 11.85 rad/s for the maximum 0.8 m/s command.
     # Keep some control margin instead of making the fastest command
     # unreachable at action=1.

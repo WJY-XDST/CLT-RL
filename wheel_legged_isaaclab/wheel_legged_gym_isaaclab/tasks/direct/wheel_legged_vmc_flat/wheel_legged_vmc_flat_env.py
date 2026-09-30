@@ -152,6 +152,7 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
                 "track_lin_vel_enhance",
                 "track_lin_vel_precise",
                 "lin_vel_error_sq",
+                "standing_velocity",
                 "base_height_error_sq",
                 "track_ang_vel",
                 "yaw_rate_error_sq",
@@ -220,6 +221,10 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
             raise ValueError("reverse_ramp_steps must be greater than zero.")
         if self.cfg.commands.linear_acceleration_limit <= 0.0:
             raise ValueError("linear_acceleration_limit must be greater than zero.")
+        if not 0.0 <= self.cfg.commands.speed_boundary_fraction <= 1.0:
+            raise ValueError("speed_boundary_fraction must be between zero and one.")
+        if not 0.0 <= self.cfg.commands.height_boundary_fraction <= 1.0:
+            raise ValueError("height_boundary_fraction must be between zero and one.")
 
         transition_min, transition_max = self.cfg.commands.ranges_transition_lin_vel_x
         main_min, main_max = self.cfg.commands.ranges_lin_vel_x
@@ -279,6 +284,10 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
             <= self.cfg.l0_ref_max
         ):
             raise ValueError("forward_support_min_leg_length must be inside the VMC range.")
+        if self.cfg.forward_support_height_margin < 0.0:
+            raise ValueError("forward_support_height_margin must be non-negative.")
+        if self.cfg.height_feedback_gain < 0.0 or self.cfg.height_feedback_max_adjustment < 0.0:
+            raise ValueError("Height feedback gain and adjustment limit must be non-negative.")
         if not fixed_evaluation_command and not (
             main_min <= self.cfg.forward_support_speed_threshold <= main_max
         ):
@@ -432,17 +441,20 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
             min=self.cfg.theta0_ref_min,
             max=self.cfg.theta0_ref_max,
         )
+        # Rebuild from the policy output each substep: _actions records the
+        # applied reference, so using it here would accumulate the correction.
         l0_ref = (
-            torch.cat(
-                (
-                    self._actions[:, 1].unsqueeze(1),
-                    self._actions[:, 4].unsqueeze(1),
-                ),
-                dim=1,
-            )
+            torch.clamp(self._raw_actions[:, (1, 4)], -1.0, 1.0)
             * self.cfg.action_scale_l0
             + self.cfg.l0_offset
         )
+        height_error = self._commands[:, 2] - self._robot.data.root_pos_w[:, 2]
+        height_correction = torch.clamp(
+            height_error * self.cfg.height_feedback_gain,
+            min=-self.cfg.height_feedback_max_adjustment,
+            max=self.cfg.height_feedback_max_adjustment,
+        )
+        l0_ref = l0_ref + height_correction[:, None]
         # The normalized action clamp is not sufficient by itself because
         # scale/offset values may change. Enforce the physical reference range
         # independently at the VMC boundary.
@@ -452,9 +464,13 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
         forward_support = (
             self._commands[:, 0] >= self.cfg.forward_support_speed_threshold
         )
+        support_floor = torch.minimum(
+            torch.full_like(height_error, self.cfg.forward_support_min_leg_length),
+            self._commands[:, 2] + self.cfg.forward_support_height_margin,
+        )
         l0_ref = torch.where(
             forward_support[:, None],
-            torch.clamp(l0_ref, min=self.cfg.forward_support_min_leg_length),
+            torch.maximum(l0_ref, support_floor[:, None]),
             l0_ref,
         )
         self._l0_ref_applied = l0_ref
@@ -717,6 +733,10 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
         r_track_lin_precise = torch.exp(
             -lin_vel_error / self.cfg.rewards.tracking_sigma_precise
         )
+        standing = (torch.abs(self._commands[:, 0]) < 0.01) & (
+            torch.abs(self._target_lin_vel_x) < 0.01
+        )
+        r_standing_velocity = torch.sum(torch.square(heading_velocity), dim=1) * standing
         ang_vel_error = torch.square(self._commands[:, 1] - root_ang_vel_b[:, 2])
         r_track_ang = torch.exp(-ang_vel_error / self.cfg.rewards.tracking_sigma)
 
@@ -826,6 +846,9 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
             * self.step_dt,
             "lin_vel_error_sq": lin_vel_error
             * self.cfg.rewards.lin_vel_error_sq
+            * self.step_dt,
+            "standing_velocity": r_standing_velocity
+            * self.cfg.rewards.standing_velocity
             * self.step_dt,
             "base_height_error_sq": base_height_error
             * self.cfg.rewards.base_height_error_sq
@@ -1137,6 +1160,15 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
             self._commands[env_ids, 2] = progressive_height_min + (
                 progressive_height_max - progressive_height_min
             ) * torch.rand(env_ids.numel(), device=self.device)
+            height_sample = torch.rand(env_ids.numel(), device=self.device)
+            half_boundary_fraction = self.cfg.commands.height_boundary_fraction / 2.0
+            low_height_ids = env_ids[height_sample < half_boundary_fraction]
+            high_height_ids = env_ids[
+                (height_sample >= half_boundary_fraction)
+                & (height_sample < 2.0 * half_boundary_fraction)
+            ]
+            self._commands[low_height_ids, 2] = progressive_height_min
+            self._commands[high_height_ids, 2] = progressive_height_max
             moving_mask = (
                 torch.rand(env_ids.numel(), device=self.device) < moving_fraction
             )
@@ -1187,6 +1219,11 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
                         self._commands[forward_ids, 0] = lin_min + (
                             progressive_vmax - lin_min
                         ) * torch.rand(forward_ids.numel(), device=self.device)
+                        boundary = (
+                            torch.rand(forward_ids.numel(), device=self.device)
+                            < self.cfg.commands.speed_boundary_fraction
+                        )
+                        self._commands[forward_ids[boundary], 0] = progressive_vmax
                     if reverse_ids.numel() > 0:
                         reverse_min, reverse_max = (
                             self.cfg.commands.ranges_reverse_lin_vel_x
@@ -1197,6 +1234,11 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
                         self._commands[reverse_ids, 0] = progressive_reverse_min + (
                             reverse_max - progressive_reverse_min
                         ) * torch.rand(reverse_ids.numel(), device=self.device)
+                        boundary = (
+                            torch.rand(reverse_ids.numel(), device=self.device)
+                            < self.cfg.commands.speed_boundary_fraction
+                        )
+                        self._commands[reverse_ids[boundary], 0] = progressive_reverse_min
                 yaw_min, yaw_max = self.cfg.commands.ranges_ang_vel_yaw
                 self._commands[moving_ids, 1] = yaw_min + (yaw_max - yaw_min) * torch.rand(
                     moving_ids.numel(), device=self.device

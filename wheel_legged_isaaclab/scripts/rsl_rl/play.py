@@ -63,6 +63,14 @@ parser.add_argument(
     ),
 )
 parser.add_argument(
+    "--height_cycle",
+    type=float,
+    nargs="+",
+    default=None,
+    metavar="HEIGHT",
+    help="Cycle body-height commands using --velocity_phase_duration; requires --fixed_command.",
+)
+parser.add_argument(
     "--velocity_phase_duration",
     type=float,
     default=5.0,
@@ -208,8 +216,10 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         raise ValueError("--fixed_wheel_action_start must be non-negative.")
     if args_cli.velocity_phase_duration <= 0.0:
         raise ValueError("--velocity_phase_duration must be greater than zero.")
-    if args_cli.velocity_cycle is not None and args_cli.fixed_command is None:
-        raise ValueError("--velocity_cycle requires --fixed_command for fixed yaw and height.")
+    if (args_cli.velocity_cycle is not None or args_cli.height_cycle is not None) and args_cli.fixed_command is None:
+        raise ValueError("Command cycles require --fixed_command for the remaining command values.")
+    if args_cli.height_cycle is not None and any(height <= 0.0 for height in args_cli.height_cycle):
+        raise ValueError("--height_cycle values must be positive.")
     if args_cli.fixed_wheel_action is not None:
         if any(abs(value) > 1.0 for value in args_cli.fixed_wheel_action):
             raise ValueError("--fixed_wheel_action values must both be in [-1, 1].")
@@ -260,6 +270,10 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                 "The requested physical leg length cannot be represented by the normalized action map; "
                 "check l0_offset/action_scale_l0 against l0_ref_min/l0_ref_max."
             )
+        # A diagnostic fixed target must bypass the outer height correction
+        # and the speed-dependent support floor.
+        env_cfg.height_feedback_gain = 0.0
+        env_cfg.forward_support_min_leg_length = env_cfg.l0_ref_min
         print(
             "[INFO] Fixing both virtual-leg targets at "
             f"{args_cli.fixed_leg_length:.3f} m (normalized action {fixed_leg_action:.3f})."
@@ -364,8 +378,9 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
     velocity_phase_steps = None
     last_velocity_phase = None
-    if args_cli.velocity_cycle is not None:
+    if args_cli.velocity_cycle is not None or args_cli.height_cycle is not None:
         velocity_phase_steps = max(1, round(args_cli.velocity_phase_duration / dt))
+    if args_cli.velocity_cycle is not None:
         reachable_speed = env.unwrapped.cfg.wheel_radius * env.unwrapped.cfg.action_scale_vel
         if any(abs(value) > reachable_speed for value in args_cli.velocity_cycle):
             raise ValueError(
@@ -384,11 +399,17 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         nonlocal last_velocity_phase
         if velocity_phase_steps is None:
             return
-        phase = (step // velocity_phase_steps) % len(args_cli.velocity_cycle)
-        command_speed = args_cli.velocity_cycle[phase]
+        phase = step // velocity_phase_steps
         base_env = env.unwrapped
-        base_env._command_ranges[0, :] = command_speed
-        base_env._target_lin_vel_x[:] = command_speed
+        command_speed = args_cli.fixed_command[0]
+        if args_cli.velocity_cycle is not None:
+            command_speed = args_cli.velocity_cycle[phase % len(args_cli.velocity_cycle)]
+            base_env._command_ranges[0, :] = command_speed
+            base_env._target_lin_vel_x[:] = command_speed
+        if args_cli.height_cycle is not None:
+            command_height = args_cli.height_cycle[phase % len(args_cli.height_cycle)]
+            base_env._command_ranges[2, :] = command_height
+            base_env._commands[:, 2] = command_height
         # The policy receives the ramped command already applied by the environment.
         command_obs = base_env._commands[:, :3] * base_env._commands_scale
         policy_obs = (
@@ -459,6 +480,10 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                     "step": timestep,
                     "sim_time_s": timestep * dt,
                     "env_id": env_id,
+                    # State on a done row is already reset by DirectRLEnv.
+                    "terminated": int(base_env.reset_terminated[env_id].item()),
+                    "time_out": int(base_env.reset_time_outs[env_id].item()),
+                    "episode_step": int(base_env.episode_length_buf[env_id].item()),
                     "cmd_x": base_env._commands[env_id, 0].item(),
                     "cmd_x_target": base_env._target_lin_vel_x[env_id].item(),
                     "cmd_yaw": base_env._commands[env_id, 1].item(),

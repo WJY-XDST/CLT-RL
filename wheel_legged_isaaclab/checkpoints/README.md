@@ -2,6 +2,8 @@
 
 The current leg-length damping is `kd_l0=90.0 N*s/m`, selected in a frozen-model replay comparison after training model 3742. All checkpoints documented below, and the original model 3742 training run, used `kd_l0=20.0`. To reproduce their original controller behavior, add `env.kd_l0=20.0` to the replay commands below. Damping changes are controller changes, not changes to the checkpoint weights.
 
+从 v8 起，默认初始机体高度改为 0.18 m，以降低从零训练的落地冲击。复现下面历史测试的原始初始条件时，再加参数 `'env.robot.init_state.pos=[0.0,0.0,0.25]'`。固定命令回放始终使用各轴 ±0.5 的最终根速度扰动范围。新增失败终止惩罚会改变奖励统计，不改变已加载策略的动作计算。
+
 ## Corrected VMC and height tracking (iteration 3742)
 
 `corrected_vmc_height_model_3742.pt` is a retained intermediate model with the corrected angular Jacobian and a 75% nominal height-based leg reference. SHA-256: `8ea53fa55e2195410f639be5f49b0cc9b5261ebdf75c26a55d13e448ec1373b2`.

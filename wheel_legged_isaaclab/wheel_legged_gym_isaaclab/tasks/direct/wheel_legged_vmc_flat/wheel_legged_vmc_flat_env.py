@@ -173,6 +173,7 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
                 "leg_length_target_underreach",
                 "collision",
                 "dof_pos_limits",
+                "termination",
             ]
         }
         self._last_reward_terms: dict[str, torch.Tensor] = {}
@@ -184,6 +185,10 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
         """Fail early when coupled command/action settings become inconsistent."""
         if self._action_dim != 6:
             raise ValueError(f"WheelLeggedVMC expects 6 actions, got {self._action_dim}.")
+        if not 0.0 <= self.cfg.reset_velocity_initial <= self.cfg.reset_velocity_final:
+            raise ValueError("Reset velocity magnitudes must satisfy 0 <= initial <= final.")
+        if self.cfg.rewards.termination > 0.0:
+            raise ValueError("Unsafe termination must not receive a positive reward.")
 
         mapped_l0_min = self.cfg.l0_offset - self.cfg.action_scale_l0
         mapped_l0_max = self.cfg.l0_offset + self.cfg.action_scale_l0
@@ -911,6 +916,10 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
             )
             for key, value in rewards.items()
         }
+        # DirectRLEnv sets reset_terminated before calling _get_rewards. A
+        # terminal event has a fixed cost regardless of the control timestep;
+        # applying step_dt or the per-step cap would erase this learning signal.
+        rewards["termination"] = self.reset_terminated.float() * self.cfg.rewards.termination
         self._last_reward_terms = {
             key: value.detach() for key, value in rewards.items()
         }
@@ -1046,10 +1055,21 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
         # reset root state
         default_root_state = self._robot.data.default_root_state[env_ids].clone()
         default_root_state[:, :3] += self._terrain.env_origins[env_ids]
-        # randomize base velocities
+        # Start fresh training with gentle perturbations. Fixed-command replay
+        # always tests the final disturbance range, not the easier first stage.
+        fixed_command = float(self._command_ranges[0, 0].item()) == float(
+            self._command_ranges[0, 1].item()
+        )
+        progress = 1.0 if fixed_command else min(max(
+            (self.common_step_counter - self.cfg.commands.standing_only_steps)
+            / max(self.cfg.commands.motion_ramp_steps, 1), 0.0
+        ), 1.0)
+        reset_velocity = self.cfg.reset_velocity_initial + progress * (
+            self.cfg.reset_velocity_final - self.cfg.reset_velocity_initial
+        )
         default_root_state[:, 7:13] = (
-            torch.rand(len(env_ids), 6, device=self.device) - 0.5
-        )  # [-0.5, 0.5]
+            2.0 * torch.rand(len(env_ids), 6, device=self.device) - 1.0
+        ) * reset_velocity
         self._robot.write_root_pose_to_sim(default_root_state[:, :7], env_ids)
         self._robot.write_root_velocity_to_sim(default_root_state[:, 7:], env_ids)
         self._robot.write_joint_state_to_sim(joint_pos, joint_vel, None, env_ids)

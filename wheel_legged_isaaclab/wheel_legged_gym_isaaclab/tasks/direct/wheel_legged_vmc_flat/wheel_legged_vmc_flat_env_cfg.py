@@ -75,9 +75,9 @@ class CommandsCfg:
     # expands progressively from the midpoint to this complete interval using
     # the same curriculum progress as the velocity commands.
     ranges_height = (0.16, 0.20)  # [m]
-    # Environment control steps. Start introducing motion immediately and
-    # reach the full command mixture after 500 PPO iterations (48 steps each).
-    standing_only_steps = 0
+    # Learn to balance for 200 PPO iterations before ramping motion and height
+    # for another 500 iterations (48 control steps per iteration).
+    standing_only_steps = 9_600
     motion_ramp_steps = 24_000
     # Explicit zero-speed population retained after motion is introduced.
     standing_env_fraction = 0.25
@@ -85,10 +85,9 @@ class CommandsCfg:
     # bidirectional low-speed transition range. Main-range samples are split
     # between forward and reverse as the reverse curriculum progresses.
     transition_env_fraction = 0.25
-    # Introduce reverse motion from the start of fresh training and reach
-    # the complete bidirectional range after 500 PPO iterations (48 steps each).
+    # Introduce forward and reverse motion together after the balance phase.
     reverse_env_fraction = 0.25
-    reverse_ramp_start_steps = 0
+    reverse_ramp_start_steps = 9_600
     reverse_ramp_steps = 24_000
 
 
@@ -123,6 +122,9 @@ class RewardsCfg:
     leg_length_target_underreach = -200.0
     collision = -1.0
     dof_pos_limits = -1.0
+    # One-time cost for unsafe termination, not a per-second reward scale.
+    # Timeouts alone do not receive this cost; it bypasses per-step clipping.
+    termination = -10.0
 
     # parameters
     clip_single_reward = 1.0
@@ -152,6 +154,10 @@ class WheelLeggedVMCFlatEnvCfg(DirectRLEnvCfg):
     action_space = 6
     observation_space = 27
     state_space = 0
+    # Root linear [m/s] and angular [rad/s] velocity perturbations at reset.
+    # Ramp with the motion curriculum; fixed-command replay uses the final range.
+    reset_velocity_initial = 0.05
+    reset_velocity_final = 0.5
     # A nearly inverted body retains the original delayed failure condition.
     fail_to_terminal_time_s = 1.0
     # Base-link contact is unsafe even when the robot is not fully inverted.
@@ -238,7 +244,7 @@ class WheelLeggedVMCFlatEnvCfg(DirectRLEnvCfg):
             ),
         ),
         init_state=ArticulationCfg.InitialStateCfg(
-            pos=(0.0, 0.0, 0.25),
+            pos=(0.0, 0.0, 0.18),
             joint_pos={
                 "lf0_Joint": 0.5,
                 "lf1_Joint": 0.35,

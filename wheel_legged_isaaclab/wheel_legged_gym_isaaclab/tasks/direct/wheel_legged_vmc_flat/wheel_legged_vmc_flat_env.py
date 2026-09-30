@@ -321,6 +321,8 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
             raise ValueError("base_height_sigma must be greater than zero.")
         if self.cfg.rewards.nominal_state_penalty_clip <= 0.0:
             raise ValueError("nominal_state_penalty_clip must be greater than zero.")
+        if self.cfg.rewards.orientation_penalty_clip <= 0.0:
+            raise ValueError("orientation_penalty_clip must be greater than zero.")
         if self.cfg.rewards.tracking_sigma <= 0.0:
             raise ValueError(
                 "tracking_sigma must be greater than zero, "
@@ -889,15 +891,18 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
             * self.step_dt,
         }
 
-        # Keep a wider negative bound for angle asymmetry so increasing its
-        # weight does not flatten the reward around the observed 6-9 deg error.
+        # Keep wider negative bounds for symmetry and attitude penalties so
+        # their increased weights retain useful differences at observed errors.
         reward_bound = self.cfg.rewards.clip_single_reward * self.step_dt
-        symmetry_penalty_bound = self.cfg.rewards.nominal_state_penalty_clip * self.step_dt
+        penalty_bounds = {
+            "nominal_state": self.cfg.rewards.nominal_state_penalty_clip * self.step_dt,
+            "orientation": self.cfg.rewards.orientation_penalty_clip * self.step_dt,
+        }
         rewards = {
             key: torch.nan_to_num(
                 torch.clamp(
                     value,
-                    min=-(symmetry_penalty_bound if key == "nominal_state" else reward_bound),
+                    min=-penalty_bounds.get(key, reward_bound),
                     max=reward_bound,
                 ),
                 nan=0.0,

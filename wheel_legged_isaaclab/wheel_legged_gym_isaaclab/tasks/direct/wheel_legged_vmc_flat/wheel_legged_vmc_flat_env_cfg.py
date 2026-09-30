@@ -85,11 +85,11 @@ class CommandsCfg:
     # bidirectional low-speed transition range. Main-range samples are split
     # between forward and reverse as the reverse curriculum progresses.
     transition_env_fraction = 0.25
-    # Resume from the 2000-iteration forward policy, then introduce reverse
-    # commands gradually over another 1000 iterations (48 steps per iteration).
+    # Introduce reverse motion from the start of fresh training and reach
+    # the complete bidirectional range after 500 PPO iterations (48 steps each).
     reverse_env_fraction = 0.25
-    reverse_ramp_start_steps = 96_000
-    reverse_ramp_steps = 48_000
+    reverse_ramp_start_steps = 0
+    reverse_ramp_steps = 24_000
 
 
 @configclass
@@ -110,7 +110,7 @@ class RewardsCfg:
     nominal_state = -60.0
     lin_vel_z = -2.0
     ang_vel_xy = -0.05
-    orientation = -50.0
+    orientation = -150.0
     dof_vel = -5e-5
     dof_acc = -2.5e-7
     torques = -0.0001
@@ -127,6 +127,7 @@ class RewardsCfg:
     # parameters
     clip_single_reward = 1.0
     nominal_state_penalty_clip = 3.0  # keep the 6-9 degree asymmetry penalty below its cap
+    orientation_penalty_clip = 3.0  # retain a gradient at the observed 5-6 degree pitch
     tracking_sigma = 0.25
     tracking_sigma_enhance = 0.025
     tracking_sigma_precise = 0.01

@@ -16,6 +16,8 @@ from isaaclab.envs import DirectRLEnv
 from isaaclab.sensors import ContactSensor
 from isaaclab.utils.math import quat_apply, wrap_to_pi
 
+from wheel_legged_gym_isaaclab.vmc import leg_coordinates, virtual_leg_torques
+
 from .wheel_legged_vmc_flat_env_cfg import WheelLeggedVMCFlatEnvCfg
 
 
@@ -288,6 +290,10 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
             raise ValueError("forward_support_height_margin must be non-negative.")
         if self.cfg.height_feedback_gain < 0.0 or self.cfg.height_feedback_max_adjustment < 0.0:
             raise ValueError("Height feedback gain and adjustment limit must be non-negative.")
+        if not 0.0 <= self.cfg.height_reference_blend <= 1.0:
+            raise ValueError("height_reference_blend must be between zero and one.")
+        if self.cfg.leg_length_height_offset < 0.0:
+            raise ValueError("leg_length_height_offset must be non-negative.")
         if not fixed_evaluation_command and not (
             main_min <= self.cfg.forward_support_speed_threshold <= main_max
         ):
@@ -313,6 +319,8 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
 
         if self.cfg.rewards.base_height_sigma <= 0.0:
             raise ValueError("base_height_sigma must be greater than zero.")
+        if self.cfg.rewards.nominal_state_penalty_clip <= 0.0:
+            raise ValueError("nominal_state_penalty_clip must be greater than zero.")
         if self.cfg.rewards.tracking_sigma <= 0.0:
             raise ValueError(
                 "tracking_sigma must be greater than zero, "
@@ -448,6 +456,11 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
             * self.cfg.action_scale_l0
             + self.cfg.l0_offset
         )
+        nominal_l0_ref = self._commands[:, 2:3] + self.cfg.leg_length_height_offset
+        l0_ref = (
+            (1.0 - self.cfg.height_reference_blend) * l0_ref
+            + self.cfg.height_reference_blend * nominal_l0_ref
+        )
         height_error = self._commands[:, 2] - self._robot.data.root_pos_w[:, 2]
         height_correction = torch.clamp(
             height_error * self.cfg.height_feedback_gain,
@@ -582,35 +595,17 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
             self._L0_dot[env_ids] = L0_dot
 
     def _forward_kinematics(self, theta1: torch.Tensor, theta2: torch.Tensor):
-        end_x = (
-            self.cfg.offset
-            + self.cfg.l1 * torch.cos(theta1)
-            + self.cfg.l2 * torch.cos(theta1 + theta2)
+        return leg_coordinates(
+            theta1, theta2, l1=self.cfg.l1, l2=self.cfg.l2, offset=self.cfg.offset
         )
-        end_y = self.cfg.l1 * torch.sin(theta1) + self.cfg.l2 * torch.sin(
-            theta1 + theta2
-        )
-        L0 = torch.sqrt(end_x**2 + end_y**2)
-        theta0 = torch.arctan2(end_y, end_x) - self.pi / 2
-        return L0, theta0
 
     def _vmc(self, F: torch.Tensor, T: torch.Tensor):
         """Map virtual force F and torque T to joint torques T1, T2 (per leg side)."""
-        theta0 = self._theta0 + self.pi / 2
-        t11 = self.cfg.l1 * torch.sin(theta0 - self._theta1) - self.cfg.l2 * torch.sin(
-            self._theta1 + self._theta2 - theta0
+        return virtual_leg_torques(
+            self._theta1, self._theta2, self._L0, self._theta0, F, T,
+            l1=self.cfg.l1, l2=self.cfg.l2,
+            legacy_angular_mapping=self.cfg.vmc_legacy_angular_mapping,
         )
-        t12 = (
-            self.cfg.l1 * torch.cos(theta0 - self._theta1)
-            - self.cfg.l2 * torch.cos(self._theta1 + self._theta2 - theta0)
-        ) / self._L0
-        t21 = -self.cfg.l2 * torch.sin(self._theta1 + self._theta2 - theta0)
-        t22 = (
-            -self.cfg.l2 * torch.cos(self._theta1 + self._theta2 - theta0)
-        ) / self._L0
-        T1 = t11 * F - t12 * T
-        T2 = t21 * F - t22 * T
-        return T1, T2
 
     # ------------------------------------------------------------------
     # Observations
@@ -894,11 +889,17 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
             * self.step_dt,
         }
 
-        # Match Wheel-Legged-Gym's symmetric per-term clipping.
+        # Keep a wider negative bound for angle asymmetry so increasing its
+        # weight does not flatten the reward around the observed 6-9 deg error.
         reward_bound = self.cfg.rewards.clip_single_reward * self.step_dt
+        symmetry_penalty_bound = self.cfg.rewards.nominal_state_penalty_clip * self.step_dt
         rewards = {
             key: torch.nan_to_num(
-                torch.clamp(value, min=-reward_bound, max=reward_bound),
+                torch.clamp(
+                    value,
+                    min=-(symmetry_penalty_bound if key == "nominal_state" else reward_bound),
+                    max=reward_bound,
+                ),
                 nan=0.0,
                 posinf=0.0,
                 neginf=0.0,

@@ -101,16 +101,16 @@ class RewardsCfg:
     # A narrower tracking kernel and an explicit squared-error term preserve
     # useful gradients both near and far from the commanded forward speed.
     tracking_lin_vel_precise = 1.0
-    lin_vel_error_sq = -10.0
+    lin_vel_error_sq = -30.0
     standing_velocity = -50.0  # penalize both horizontal drift axes at a zero-speed command
     base_height_error_sq = -1000.0  # 1 cm error costs 0.1 reward/s before term clipping
     tracking_ang_vel = 1.0
     yaw_rate_error_sq = -5.0
     base_height = 1.0
-    nominal_state = -20.0
+    nominal_state = -60.0
     lin_vel_z = -2.0
     ang_vel_xy = -0.05
-    orientation = -15.0
+    orientation = -50.0
     dof_vel = -5e-5
     dof_acc = -2.5e-7
     torques = -0.0001
@@ -126,9 +126,10 @@ class RewardsCfg:
 
     # parameters
     clip_single_reward = 1.0
+    nominal_state_penalty_clip = 3.0  # keep the 6-9 degree asymmetry penalty below its cap
     tracking_sigma = 0.25
     tracking_sigma_enhance = 0.025
-    tracking_sigma_precise = 0.04
+    tracking_sigma_precise = 0.01
     # Projected-gravity y is dominated by body roll; weight it more strongly
     # without constraining the two virtual-leg lengths to be identical.
     orientation_roll_multiplier = 4.0
@@ -189,10 +190,12 @@ class WheelLeggedVMCFlatEnvCfg(DirectRLEnvCfg):
     l0_ref_min = 0.12  # [m], hard lower bound for the VMC reference
     l0_ref_max = 0.26  # [m], hard upper bound for the VMC reference
     forward_support_speed_threshold = 0.6  # [m/s]
-    forward_support_min_leg_length = 0.25  # [m], upper bound of the height-dependent support floor
-    forward_support_height_margin = 0.05  # [m], let low height commands lower the support floor
+    forward_support_min_leg_length = 0.255  # [m], upper bound of the height-dependent support floor
+    forward_support_height_margin = 0.055  # [m], let low height commands lower the support floor
     height_feedback_gain = 1.0  # [m/m], outer body-height correction to VMC leg targets
     height_feedback_max_adjustment = 0.03  # [m], limit abrupt reference changes
+    height_reference_blend = 0.75  # blend nominal height-based leg targets with policy targets
+    leg_length_height_offset = 0.055  # [m], nominal virtual-leg target above body-height command
     # A 0.0675 m wheel needs 11.85 rad/s for the maximum 0.8 m/s command.
     # Keep some control margin instead of making the fastest command
     # unreachable at action=1.
@@ -205,8 +208,9 @@ class WheelLeggedVMCFlatEnvCfg(DirectRLEnvCfg):
     feedforward_force = 50.0  # [N]
     kp_theta = 50.0  # [N*m/rad]
     kd_theta = 3.0  # [N*m*s/rad]
+    vmc_legacy_angular_mapping = False  # compatibility switch for pre-fix checkpoints only
     kp_l0 = 900.0  # [N/m]
-    kd_l0 = 20.0  # [N*s/m]
+    kd_l0 = 90.0  # [N*s/m], reduced height-step oscillation in the model-3742 replay sweep
     wheel_damping = 0.5  # [N*m*s/rad]
 
     # leg kinematic parameters (from `wheel_legged_config.py`)

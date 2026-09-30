@@ -159,6 +159,10 @@ parser.add_argument(
     help="Environment index recorded by --trace_csv (default: 0).",
 )
 parser.add_argument("--real-time", action="store_true", default=False, help="Run in real-time, if possible.")
+parser.add_argument(
+    "--live_stats", action="store_true", default=False,
+    help="Show simulation progress, speed, height, and leg states in a GUI panel.",
+)
 # append RSL-RL cli arguments
 cli_args.add_rsl_rl_args(parser)
 # append AppLauncher cli args
@@ -273,6 +277,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         # A diagnostic fixed target must bypass the outer height correction
         # and the speed-dependent support floor.
         env_cfg.height_feedback_gain = 0.0
+        env_cfg.height_reference_blend = 0.0
         env_cfg.forward_support_min_leg_length = env_cfg.l0_ref_min
         print(
             "[INFO] Fixing both virtual-leg targets at "
@@ -441,6 +446,20 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         trace_file = trace_path.open("w", newline="", encoding="utf-8")
         print(f"[INFO] Writing replay diagnostics to: {trace_path}")
 
+    live_window = None
+    live_labels = {}
+    next_live_update = 0.0
+    live_wall_start = time.monotonic()
+    if args_cli.live_stats and not args_cli.headless:
+        import omni.ui as ui
+
+        live_window = ui.Window("Wheel-legged live data", width=470, height=310)
+        with live_window.frame:
+            with ui.VStack(spacing=7):
+                for field in ("progress", "speed", "height", "body", "angles", "left", "right"):
+                    live_labels[field] = ui.Label("Waiting for simulation...", height=28)
+        print("[INFO] Live data panel enabled (simulation time, measured states and targets).", flush=True)
+
     # reset environment
     obs = env.get_observations()
     timestep = 0
@@ -467,7 +486,9 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
             # env stepping
             obs, _, _, _ = env.step(actions)
             apply_velocity_cycle_command(obs, timestep)
-            if trace_file is not None and timestep % args_cli.trace_interval == 0:
+            write_trace = trace_file is not None and timestep % args_cli.trace_interval == 0
+            update_live = bool(live_labels) and time.monotonic() >= next_live_update
+            if write_trace or update_live:
                 base_env = env.unwrapped
                 env_id = args_cli.trace_env_id
                 heading_velocity = base_env._get_heading_frame_horizontal_velocity()[env_id]
@@ -523,11 +544,40 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                 row["reward_total"] = sum(
                     row[key] for key in row if key.startswith("reward_")
                 )
-                if trace_writer is None:
-                    trace_writer = csv.DictWriter(trace_file, fieldnames=list(row))
-                    trace_writer.writeheader()
-                trace_writer.writerow(row)
-                trace_file.flush()
+                if write_trace:
+                    if trace_writer is None:
+                        trace_writer = csv.DictWriter(trace_file, fieldnames=list(row))
+                        trace_writer.writeheader()
+                    trace_writer.writerow(row)
+                    trace_file.flush()
+                if update_live:
+                    elapsed = time.monotonic() - live_wall_start
+                    live_labels["progress"].text = (
+                        f"Sim {(timestep + 1) * dt:.1f} s | step {timestep + 1} | "
+                        f"{(timestep + 1) / max(elapsed, 1e-6):.1f} steps/s"
+                    )
+                    live_labels["speed"].text = (
+                        f"Speed: {row['vel_x_heading']:+.3f} / target {row['cmd_x_target']:+.2f} m/s"
+                    )
+                    live_labels["height"].text = (
+                        f"Body height: {1000 * row['base_height']:.1f} / "
+                        f"target {1000 * row['height_cmd']:.0f} mm"
+                    )
+                    live_labels["body"].text = (
+                        f"Pitch {57.29578 * row['pitch_est_rad']:+.2f} | "
+                        f"Roll {57.29578 * row['roll_est_rad']:+.2f} deg"
+                    )
+                    live_labels["angles"].text = (
+                        f"Leg angle L {57.29578 * row['theta_left']:+.2f} | "
+                        f"R {57.29578 * row['theta_right']:+.2f} | "
+                        f"diff {57.29578 * abs(row['theta_left'] - row['theta_right']):.2f} deg"
+                    )
+                    for side in ("left", "right"):
+                        live_labels[side].text = (
+                            f"{side.title()} leg: {1000 * row[f'length_{side}']:.1f} / "
+                            f"target {1000 * row[f'target_length_{side}']:.1f} mm"
+                        )
+                    next_live_update = time.monotonic() + 0.1
             if args_cli.print_obs and timestep % args_cli.print_obs_interval == 0:
                 policy_obs = obs["policy"] if hasattr(obs, "keys") and "policy" in obs.keys() else obs
                 obs_values = policy_obs[0].detach().cpu().tolist()
@@ -577,6 +627,8 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     # close diagnostics and simulator
     if trace_file is not None:
         trace_file.close()
+    if live_window is not None:
+        live_window.destroy()
     env.close()
 
 

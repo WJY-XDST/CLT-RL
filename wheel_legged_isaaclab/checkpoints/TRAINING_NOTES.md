@@ -162,3 +162,21 @@
 
 - 与保留参照相比有明确改善，留存模型与精确配置：`wheel_legged_isaaclab/checkpoints/optimized/continuous_optimization_20261001_round0001`。
 - 此记录不代表所有目标已达标；以 assessment.json 的 passed 和额外种子验证为准。
+
+### 自动优化 2026-10-01 01:56:32
+
+- **训练前目的**：完整配置继续学习。
+- **修改内容**：奖励配置 `{'lin_vel_error_sq': -30.0, 'standing_velocity': -50.0, 'base_height_error_sq': -1000.0, 'nominal_state': -90.0, 'orientation': -150.0}`；其余控制与环境配置保持当前代码版本。
+- **起点**：/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-10-01_01-10-38_autotune_r0001_20261001_011034/model_4741.pt；新优化器，12288 环境、1000 次 PPO 迭代、固定学习率 0.0001。
+- **验收重点**：完整速度/高度矩阵、静止、姿态、腿角差和切换，与保留参照比较，不接受以一项改善换取其他未达标项明显退步。
+
+### 自动优化 2026-10-01 02:42:11
+
+- 回放 `round0002`：异常/超时总次数 0；通过=True。
+- 各项最差阈值倍数（<1 为达标）：`{"speed": 0.7717195153236377, "height": 0.3185901045799251, "body": 0.3312944837100604, "symmetry": 0.23921371530135657, "transient_body": 0.24310427642996046, "height_overshoot": 0.7913228869438175}`。
+- 完整数据：`/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/continuous_optimization_20261001/round0002`。
+
+### 自动优化 2026-10-01 02:42:11
+
+- 与保留参照相比有明确改善，留存模型与精确配置：`wheel_legged_isaaclab/checkpoints/optimized/continuous_optimization_20261001_round0002`。
+- 此记录不代表所有目标已达标；以 assessment.json 的 passed 和额外种子验证为准。

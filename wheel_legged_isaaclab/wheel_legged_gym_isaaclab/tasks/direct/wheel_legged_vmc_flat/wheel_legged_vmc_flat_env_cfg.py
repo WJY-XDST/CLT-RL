@@ -77,6 +77,8 @@ class CommandsCfg:
     yaw_boundary_fraction = 0.2
     yaw_start_steps = 0
     yaw_ramp_steps = 9_600
+    grouped_training = False  # six equal groups: stand, spin, forward/reverse straight and turning
+    grouped_low_speed_fraction = 1.0 / 3.0  # within each moving group, remaining samples cover main range
     # Introduce height control around the nominal 0.18 m stance.  The sampler
     # expands progressively from the midpoint to this complete interval using
     # the same curriculum progress as the velocity commands.

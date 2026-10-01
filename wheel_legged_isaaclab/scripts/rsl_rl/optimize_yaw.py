@@ -56,6 +56,7 @@ class YawOptimizer(Optimizer):
                     "rewards": dict(rewards),
                     "purpose": "学习原地双轮反向转与行进转弯，降低角速度误差，同时保持直行、腿长和姿态",
                     "env_overrides": {"commands.heading_command": False,
+                                      "commands.grouped_training": True,
                                       "commands.ranges_ang_vel_yaw": "[-0.5,0.5]",
                                       "commands.yaw_env_fraction": .5,
                                       "commands.yaw_start_steps": best_iteration * 48 if best_checkpoint == ACCEPTED else 0,

@@ -17,7 +17,9 @@ from isaaclab.sensors import ContactSensor
 from isaaclab.utils.math import quat_apply, wrap_to_pi
 
 from wheel_legged_gym_isaaclab.vmc import leg_coordinates, virtual_leg_torques
-from wheel_legged_gym_isaaclab.yaw_training import sample_yaw_rates, spin_center_velocity_penalty
+from wheel_legged_gym_isaaclab.yaw_training import (
+    TASK_NAMES, sample_grouped_motion, sample_yaw_rates, spin_center_velocity_penalty,
+)
 
 from .wheel_legged_vmc_flat_env_cfg import WheelLeggedVMCFlatEnvCfg
 
@@ -111,6 +113,7 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
         # commands: [lin_vel_x, ang_vel_yaw (or heading-error), height, heading]
         self._commands = torch.zeros(self.num_envs, 4, device=self.device)
         self._target_lin_vel_x = torch.zeros(self.num_envs, device=self.device)
+        self._last_grouped_command_phase = -1
         self._command_ranges = torch.tensor(
             [
                 list(self.cfg.commands.ranges_lin_vel_x),
@@ -119,6 +122,9 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
             ],
             device=self.device,
         )
+        if self.cfg.commands.grouped_training:
+            counts = torch.bincount(torch.arange(self.num_envs) % len(TASK_NAMES), minlength=len(TASK_NAMES))
+            print(f"[INFO] Command task groups: {dict(zip(TASK_NAMES, counts.tolist()))}", flush=True)
         # obs scale for commands: [lin_vel, ang_vel, height]
         self._commands_scale = torch.tensor(
             [
@@ -214,6 +220,13 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
                 raise ValueError("Yaw training needs both turn directions and a minimum within its range.")
         if self.cfg.commands.yaw_ramp_steps <= 0 or self.cfg.commands.yaw_start_steps < 0:
             raise ValueError("Yaw curriculum requires a nonnegative start and positive ramp duration.")
+        if not 0 <= self.cfg.commands.grouped_low_speed_fraction <= 1:
+            raise ValueError("grouped_low_speed_fraction must be in [0, 1].")
+        if self.cfg.commands.grouped_training and not fixed_speed:
+            if yaw_low == yaw_high == 0.0:
+                raise ValueError("Grouped turning training requires nonzero yaw ranges.")
+            if not (self.cfg.commands.ranges_transition_lin_vel_x[0] < 0 < self.cfg.commands.ranges_transition_lin_vel_x[1]):
+                raise ValueError("Grouped low-speed practice requires both forward and reverse transition ranges.")
         if not (0 <= self.cfg.commands.yaw_env_fraction <= 1 and 0 <= self.cfg.commands.yaw_boundary_fraction <= 1):
             raise ValueError("Yaw population and boundary fractions must be in [0, 1].")
         if self.cfg.rewards.tracking_sigma_ang <= 0 or self.cfg.rewards.spin_center_velocity > 0:
@@ -711,6 +724,14 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
 
     def _update_commands(self):
         """Resample commands for environments that reached the resampling time."""
+        if self.cfg.commands.grouped_training and self.cfg.commands.ranges_lin_vel_x[0] != self.cfg.commands.ranges_lin_vel_x[1]:
+            phase = self.common_step_counter // max(1, int(self.cfg.commands.resampling_time / self.step_dt))
+            if phase != self._last_grouped_command_phase:
+                self._last_grouped_command_phase = phase
+                # Rotate all groups together, retaining exact population counts while
+                # teaching starts/stops, reversals and transitions into/out of turns.
+                self._resample_commands_for(torch.arange(self.num_envs, device=self.device))
+            return
         env_ids = (
             self.episode_length_buf
             % int(self.cfg.commands.resampling_time / self.step_dt)
@@ -1215,90 +1236,99 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
             ]
             self._commands[low_height_ids, 2] = progressive_height_min
             self._commands[high_height_ids, 2] = progressive_height_max
-            moving_mask = (
-                torch.rand(env_ids.numel(), device=self.device) < moving_fraction
-            )
-            moving_ids = env_ids[moving_mask]
-            if moving_ids.numel() > 0:
-                # At full progress the population is split into explicit
-                # standing, bidirectional low-speed transition, and the main
-                # forward/reverse ranges.
-                non_standing_fraction = 1.0 - self.cfg.commands.standing_env_fraction
-                transition_share = (
-                    self.cfg.commands.transition_env_fraction / non_standing_fraction
-                )
-                transition_mask = (
-                    torch.rand(moving_ids.numel(), device=self.device) < transition_share
-                )
-                transition_ids = moving_ids[transition_mask]
-                main_ids = moving_ids[~transition_mask]
-
-                if transition_ids.numel() > 0:
-                    transition_min, transition_max = (
-                        self.cfg.commands.ranges_transition_lin_vel_x
-                    )
-                    progressive_transition_min = transition_min * progress
-                    progressive_transition_max = (
-                        transition_max * progress
-                    )
-                    self._commands[transition_ids, 0] = progressive_transition_min + (
-                        progressive_transition_max - progressive_transition_min
-                    ) * torch.rand(transition_ids.numel(), device=self.device)
-
-                if main_ids.numel() > 0:
-                    main_fraction = (
-                        non_standing_fraction
-                        - self.cfg.commands.transition_env_fraction
-                    )
-                    reverse_share = (
-                        self.cfg.commands.reverse_env_fraction
-                        / max(main_fraction, 1.0e-6)
-                        * reverse_progress
-                    )
-                    reverse_mask = (
-                        torch.rand(main_ids.numel(), device=self.device) < reverse_share
-                    )
-                    reverse_ids = main_ids[reverse_mask]
-                    forward_ids = main_ids[~reverse_mask]
-                    progressive_vmax = lin_min + (lin_max - lin_min) * progress
-                    if forward_ids.numel() > 0:
-                        self._commands[forward_ids, 0] = lin_min + (
-                            progressive_vmax - lin_min
-                        ) * torch.rand(forward_ids.numel(), device=self.device)
-                        boundary = (
-                            torch.rand(forward_ids.numel(), device=self.device)
-                            < self.cfg.commands.speed_boundary_fraction
-                        )
-                        self._commands[forward_ids[boundary], 0] = progressive_vmax
-                    if reverse_ids.numel() > 0:
-                        reverse_min, reverse_max = (
-                            self.cfg.commands.ranges_reverse_lin_vel_x
-                        )
-                        progressive_reverse_min = reverse_max + (
-                            reverse_min - reverse_max
-                        ) * reverse_progress
-                        self._commands[reverse_ids, 0] = progressive_reverse_min + (
-                            reverse_max - progressive_reverse_min
-                        ) * torch.rand(reverse_ids.numel(), device=self.device)
-                        boundary = (
-                            torch.rand(reverse_ids.numel(), device=self.device)
-                            < self.cfg.commands.speed_boundary_fraction
-                        )
-                        self._commands[reverse_ids[boundary], 0] = progressive_reverse_min
-                yaw_min, yaw_max = self.cfg.commands.ranges_ang_vel_yaw
-                self._commands[moving_ids, 1] = yaw_min + (yaw_max - yaw_min) * torch.rand(
-                    moving_ids.numel(), device=self.device
-                )
-            yaw_min, yaw_max = self.cfg.commands.ranges_ang_vel_yaw
-            if yaw_min != 0.0 or yaw_max != 0.0:
-                # Apply to ALL resampled environments, including zero-speed spins.
-                # Preserve zero-yaw samples for straight motion and stationary balance.
+            if self.cfg.commands.grouped_training:
                 yaw_progress = (step - self.cfg.commands.yaw_start_steps) / self.cfg.commands.yaw_ramp_steps
-                self._commands[env_ids, 1] = sample_yaw_rates(
-                    env_ids.numel(), device=self.device, low=yaw_min, high=yaw_max,
-                    fraction=self.cfg.commands.yaw_env_fraction, minimum=self.cfg.commands.yaw_min_abs_rate,
-                    boundary_fraction=self.cfg.commands.yaw_boundary_fraction,
-                    progress=min(progress, yaw_progress),
+                speed, yaw = sample_grouped_motion(
+                    env_ids, self.cfg.commands, progress, reverse_progress, yaw_progress,
+                    phase=self.common_step_counter // max(1, int(self.cfg.commands.resampling_time / self.step_dt)),
                 )
+                self._commands[env_ids, 0] = speed
+                self._commands[env_ids, 1] = yaw
+            else:
+                moving_mask = (
+                    torch.rand(env_ids.numel(), device=self.device) < moving_fraction
+                )
+                moving_ids = env_ids[moving_mask]
+                if moving_ids.numel() > 0:
+                    # At full progress the population is split into explicit
+                    # standing, bidirectional low-speed transition, and the main
+                    # forward/reverse ranges.
+                    non_standing_fraction = 1.0 - self.cfg.commands.standing_env_fraction
+                    transition_share = (
+                        self.cfg.commands.transition_env_fraction / non_standing_fraction
+                    )
+                    transition_mask = (
+                        torch.rand(moving_ids.numel(), device=self.device) < transition_share
+                    )
+                    transition_ids = moving_ids[transition_mask]
+                    main_ids = moving_ids[~transition_mask]
+
+                    if transition_ids.numel() > 0:
+                        transition_min, transition_max = (
+                            self.cfg.commands.ranges_transition_lin_vel_x
+                        )
+                        progressive_transition_min = transition_min * progress
+                        progressive_transition_max = (
+                            transition_max * progress
+                        )
+                        self._commands[transition_ids, 0] = progressive_transition_min + (
+                            progressive_transition_max - progressive_transition_min
+                        ) * torch.rand(transition_ids.numel(), device=self.device)
+
+                    if main_ids.numel() > 0:
+                        main_fraction = (
+                            non_standing_fraction
+                            - self.cfg.commands.transition_env_fraction
+                        )
+                        reverse_share = (
+                            self.cfg.commands.reverse_env_fraction
+                            / max(main_fraction, 1.0e-6)
+                            * reverse_progress
+                        )
+                        reverse_mask = (
+                            torch.rand(main_ids.numel(), device=self.device) < reverse_share
+                        )
+                        reverse_ids = main_ids[reverse_mask]
+                        forward_ids = main_ids[~reverse_mask]
+                        progressive_vmax = lin_min + (lin_max - lin_min) * progress
+                        if forward_ids.numel() > 0:
+                            self._commands[forward_ids, 0] = lin_min + (
+                                progressive_vmax - lin_min
+                            ) * torch.rand(forward_ids.numel(), device=self.device)
+                            boundary = (
+                                torch.rand(forward_ids.numel(), device=self.device)
+                                < self.cfg.commands.speed_boundary_fraction
+                            )
+                            self._commands[forward_ids[boundary], 0] = progressive_vmax
+                        if reverse_ids.numel() > 0:
+                            reverse_min, reverse_max = (
+                                self.cfg.commands.ranges_reverse_lin_vel_x
+                            )
+                            progressive_reverse_min = reverse_max + (
+                                reverse_min - reverse_max
+                            ) * reverse_progress
+                            self._commands[reverse_ids, 0] = progressive_reverse_min + (
+                                reverse_max - progressive_reverse_min
+                            ) * torch.rand(reverse_ids.numel(), device=self.device)
+                            boundary = (
+                                torch.rand(reverse_ids.numel(), device=self.device)
+                                < self.cfg.commands.speed_boundary_fraction
+                            )
+                            self._commands[reverse_ids[boundary], 0] = progressive_reverse_min
+                    yaw_min, yaw_max = self.cfg.commands.ranges_ang_vel_yaw
+                    self._commands[moving_ids, 1] = yaw_min + (yaw_max - yaw_min) * torch.rand(
+                        moving_ids.numel(), device=self.device
+                    )
+                yaw_min, yaw_max = self.cfg.commands.ranges_ang_vel_yaw
+                if yaw_min != 0.0 or yaw_max != 0.0:
+                    # Apply to ALL resampled environments, including zero-speed spins.
+                    # Preserve zero-yaw samples for straight motion and stationary balance.
+                    yaw_progress = (step - self.cfg.commands.yaw_start_steps) / self.cfg.commands.yaw_ramp_steps
+                    self._commands[env_ids, 1] = sample_yaw_rates(
+                        env_ids.numel(), device=self.device, low=yaw_min, high=yaw_max,
+                        fraction=self.cfg.commands.yaw_env_fraction, minimum=self.cfg.commands.yaw_min_abs_rate,
+                        boundary_fraction=self.cfg.commands.yaw_boundary_fraction,
+                        progress=min(progress, yaw_progress),
+                    )
         self._target_lin_vel_x[env_ids] = self._commands[env_ids, 0]
         self._commands[env_ids, 0] = previous_speed

@@ -105,6 +105,22 @@ class TestYawAcceptance(unittest.TestCase):
         self.assertEqual(optimizer.training_plan["iterations"], 2000)
         self.assertEqual(optimizer.training_plan["env_overrides"]["commands.yaw_start_steps"], 0)
 
+    def test_recovery_applies_selected_speed_penalty_without_fresh_start(self):
+        optimizer = SimulatedYawOptimizer(straight_passed=False)
+        optimizer.args.initial_speed_penalty = 45.
+        optimizer.main()
+        self.assertEqual(optimizer.training_plan["rewards"]["lin_vel_error_sq"], -45.)
+        self.assertFalse(optimizer.training_plan["fresh"])
+        self.assertEqual(optimizer.training_plan["env_overrides"]["commands.yaw_start_steps"], 5740 * 48)
+
+    def test_invalid_initial_speed_penalty_is_rejected_before_training(self):
+        for value in (0, -45, 121, float("nan"), float("inf")):
+            optimizer = SimulatedYawOptimizer()
+            optimizer.args.initial_speed_penalty = value
+            with self.assertRaises(ValueError):
+                optimizer.main()
+            self.assertFalse(hasattr(optimizer, "training_plan"))
+
 
 if __name__ == "__main__":
     unittest.main()

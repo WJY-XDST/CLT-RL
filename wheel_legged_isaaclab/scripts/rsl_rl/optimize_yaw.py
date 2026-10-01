@@ -68,7 +68,10 @@ class YawOptimizer(Optimizer):
     def main(self):
         best_checkpoint = ACCEPTED
         best_iteration = 5740
-        rewards = {"nominal_state": -90., "lin_vel_error_sq": -30., "standing_velocity": -100.,
+        speed_penalty = getattr(self.args, "initial_speed_penalty", 30.)
+        if not 0 < speed_penalty <= 120:
+            raise ValueError("initial_speed_penalty must be in (0, 120]")
+        rewards = {"nominal_state": -90., "lin_vel_error_sq": -speed_penalty, "standing_velocity": -100.,
                    "base_height_error_sq": -1000., "orientation": -150., "yaw_rate_error_sq": -30.,
                    "tracking_sigma_ang": .01, "spin_center_velocity": -100.}
         best_yaw = self.evaluate_yaw(best_checkpoint, "baseline5740_yaw")
@@ -148,10 +151,14 @@ if __name__ == "__main__":
     parser.add_argument("--max-rounds", type=int, default=4)
     parser.add_argument("--from-scratch", action="store_true", help="Train the first candidate from random initialization for 2000 iterations.")
     parser.add_argument("--baseline-cache", type=Path, help="Reuse completed baseline traces after verifying checkpoint, seeds and simulation sources.")
+    parser.add_argument("--initial-speed-penalty", type=float, default=30.,
+                        help="Initial positive magnitude of the linear-speed squared-error penalty (0, 120].")
     parser.add_argument("--publish", action="store_true")
     args = parser.parse_args()
     if args.max_rounds < 1:
         parser.error("--max-rounds must be positive")
+    if not 0 < args.initial_speed_penalty <= 120:
+        parser.error("--initial-speed-penalty must be in (0, 120]")
     optimizer = YawOptimizer(args)
     try:
         optimizer.main()

@@ -24,6 +24,10 @@ parser.add_argument(
     "--disable_fabric", action="store_true", default=False, help="Disable fabric and use USD I/O operations."
 )
 parser.add_argument("--num_envs", type=int, default=None, help="Number of environments to simulate.")
+parser.add_argument(
+    "--camera_mode", choices=("free", "follow"), default="free",
+    help="Interactive camera: free allows mouse navigation; follow locks the view to the robot.",
+)
 parser.add_argument("--task", type=str, default=None, help="Name of the task.")
 parser.add_argument(
     "--agent", type=str, default="rsl_rl_cfg_entry_point", help="Name of the RL agent configuration entry point."
@@ -446,6 +450,32 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         trace_file = trace_path.open("w", newline="", encoding="utf-8")
         print(f"[INFO] Writing replay diagnostics to: {trace_path}")
 
+    camera_controller = getattr(env.unwrapped, "viewport_camera_controller", None)
+
+    def set_camera_mode(mode):
+        if camera_controller is None:
+            return
+        if mode == "follow":
+            camera_controller.update_view_to_asset_root(env_cfg.viewer.asset_name or "robot")
+        else:
+            # Keep the current view, but stop the per-frame asset tracking callback
+            # from overwriting mouse orbit/pan/zoom edits.
+            camera_controller.cfg.origin_type = "world"
+
+    def center_camera():
+        if camera_controller is None:
+            return
+        mode = camera_controller.cfg.origin_type
+        camera_controller.update_view_to_asset_root(env_cfg.viewer.asset_name or "robot")
+        if mode not in ("asset_root", "asset_body"):
+            set_camera_mode("free")
+
+    if camera_controller is not None and not args_cli.headless and not args_cli.video:
+        # Place the camera at the familiar robot view once, then release it for navigation.
+        center_camera()
+        set_camera_mode(args_cli.camera_mode)
+        print(f"[INFO] Interactive camera mode: {args_cli.camera_mode}.", flush=True)
+
     live_window = None
     live_labels = {}
     live_plots = {}
@@ -479,6 +509,11 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         with live_window.frame:
             with ui.ScrollingFrame():
                 with ui.VStack(spacing=4):
+                    with ui.HStack(height=24, spacing=5):
+                        ui.Button("Free camera", clicked_fn=lambda: set_camera_mode("free"))
+                        ui.Button("Center robot", clicked_fn=center_camera)
+                        ui.Button("Fixed follow", clicked_fn=lambda: set_camera_mode("follow"))
+                    ui.Label("Free view: Alt + left drag to orbit; middle drag to pan; wheel to zoom.", height=20)
                     for field in ("progress", "speed", "yaw", "height", "body", "angles", "left", "right", "status"):
                         live_labels[field] = ui.Label("Waiting for simulation...", height=20)
                     live_labels["plot_time"] = ui.Label("Time window: waiting for samples", height=20)

@@ -429,3 +429,18 @@
 - 5740：零初始速度峰值1.19/0.83/0.65度；带扰动峰值9.85/8.57/7.54度，支持增加阻尼降低启动大幅回摆的方向。
 - 将Kd6列为整机矩阵验证候选；仅通过临时Hydra覆盖做检验，当前训练与默认Kp50/Kd3没有修改。后续应用前需检查速度、高度和转向。
 - 留存：checkpoints/diagnostics/startup_damping_sweep_6739_20261001，含曲线、准确指标、命令、模型哈希和压缩原始数据。
+
+### 自动优化 2026-10-01 20:57:46
+
+- 转向回放 `round0001_yaw`：重置 0，通过=False；最坏门槛倍数 `{'yaw': 0.4517785708109531, 'speed': 1.2721928954124437, 'height': 0.08798890643649558, 'body': 0.3965905585668534, 'symmetry': 0.4155145581577257, 'spin_center': 0.4094695150852204, 'transient_body': 0.17175784925164092}`。
+
+### 自动优化 2026-10-01 21:06:22
+
+- 回放 `round0001_straight`：异常/超时总次数 0；通过=True。
+- 各项最差阈值倍数（<1 为达标）：`{"speed": 0.839262008666991, "height": 0.3128140419721599, "body": 0.3452657779529291, "symmetry": 0.21526934880101523, "transient_body": 0.12697016442975168, "height_overshoot": 0.7727038860321048}`。
+- 完整数据：`/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/yaw_heading_followup_20261001_200205/round0001_straight`。
+
+### 自动优化 2026-10-01 21:06:22
+
+- 与保留参照相比有明确改善，留存模型与精确配置：`wheel_legged_isaaclab/checkpoints/optimized/yaw_heading_followup_20261001_200205_round0001_improved`。
+- 此记录不代表所有目标已达标；以 assessment.json 的 passed 和额外种子验证为准。

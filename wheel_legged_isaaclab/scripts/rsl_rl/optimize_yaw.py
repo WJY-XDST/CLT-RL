@@ -8,6 +8,7 @@ All-seed acceptance is required before declaring the new task complete.
 
 import argparse
 import json
+import shutil
 from pathlib import Path
 
 from assess_yaw import assess_yaw, yaw_sequence
@@ -23,8 +24,25 @@ class YawOptimizer(Optimizer):
         directory.mkdir(parents=True, exist_ok=True)
         sequence = yaw_sequence(extended)
         reports = []
+        cache = getattr(self.args, "baseline_cache", None) if label == "baseline5740_yaw" else None
+        if cache:
+            cache = cache.resolve()
+            metadata = json.loads((cache / "assessment.json").read_text())
+            previous_code = json.loads((cache.parent / "state.json").read_text())["source_hashes"]
+            if metadata["checkpoint_sha256"] != sha256(checkpoint) or metadata["seeds"] != list(seeds):
+                raise ValueError("Cached baseline checkpoint or seeds do not match")
+            # Orchestration changes may alter this file; simulation and analysis sources must match.
+            changed = [p for p, digest in self.code.items() if not p.endswith("/optimize_yaw.py")
+                       and previous_code.get(p) != digest]
+            if changed:
+                raise ValueError(f"Cached baseline source mismatch: {changed}")
         for seed in seeds:
             trace = directory / f"seed{seed}.csv"
+            if cache:
+                shutil.copy2(cache / f"seed{seed}.csv", trace)
+                shutil.copy2(cache / f"seed{seed}_command.json", directory / f"seed{seed}_source_command.json")
+                reports.append(assess_yaw(trace, extended))
+                continue
             command = [str(ROOT / "play_wheel.sh"), "--headless", "--device", "cuda:0", "--num_envs", "1",
                        "--seed", str(seed), "--checkpoint_path", str(checkpoint), "--fixed_command", "0", "0", ".18",
                        "--velocity_cycle", *[str(s[0]) for s in sequence],
@@ -41,6 +59,9 @@ class YawOptimizer(Optimizer):
                   "traces": reports, "worst_ratios": worst, "score": max(worst.values()),
                   "resets": sum(r["resets"] for r in reports), "passed": all(r["passed"] for r in reports)}
         write_json(directory / "assessment.json", result)
+        if cache:
+            write_json(directory / "reused_baseline.json", {"source": str(cache), "checkpoint_sha256": sha256(checkpoint),
+                                                         "source_checked": True, "traces_reassessed": True})
         self.note(f"- 转向回放 `{label}`：重置 {result['resets']}，通过={result['passed']}；最坏门槛倍数 `{worst}`。")
         return result
 
@@ -126,6 +147,7 @@ if __name__ == "__main__":
     parser.add_argument("--state-dir", type=Path, required=True)
     parser.add_argument("--max-rounds", type=int, default=4)
     parser.add_argument("--from-scratch", action="store_true", help="Train the first candidate from random initialization for 2000 iterations.")
+    parser.add_argument("--baseline-cache", type=Path, help="Reuse completed baseline traces after verifying checkpoint, seeds and simulation sources.")
     parser.add_argument("--publish", action="store_true")
     args = parser.parse_args()
     if args.max_rounds < 1:

@@ -1,0 +1,29 @@
+{
+  "saved_at": "2026-10-01T14:00:25",
+  "purpose": "分组转向续训前封存当前正式模型，作为回退基线",
+  "iteration": 5740,
+  "checkpoint_source": "wheel_legged_isaaclab/checkpoints/optimized/continuous_optimization_20261001_round0002_accepted/model.pt",
+  "model_sha256": "d1dd713a6ee08974dc7146f51a67cf2d1cb78744e97cf1c002d555bec35d6d58",
+  "repository_revision_before_archive": "717e81f8e54cda1f6a51a3b616f3116a0eccc13e",
+  "original_training_manifest": "original_manifest.json",
+  "new_grouped_yaw_training_applied": false,
+  "smoke_checkpoints_excluded": true,
+  "straight_evaluation": "已通过原六种子速度/高度矩阵，零角度使用绝对3度门槛；追加seed49也通过",
+  "turn_evaluation": "seed49第一轮新增转向段，共11阶段2750点；yaw误差尚未达5%，原地转存在平移漂移",
+  "yaw_trace_sha256_uncompressed": "ff45d4ebae1b4308fb42fa8d7833db20ddc3a24a926a93a4b258b9c902e496f5",
+  "yaw_trace_rows": 2750,
+  "yaw_phase_seconds": 5,
+  "files": {
+    "agent.yaml": "4faa074804adf5fc8a86eeec4850d8ad55637741523a649561fe0ced8cc97f5a",
+    "assessment.json": "4704169304a3a69dd298d44798cfba9484b80a93fe84a11bdd07ec94c1d93f91",
+    "assessment_seed49.json": "5f14e745ffd54b4d8e1011061252929096154e7e7f62966ff2d662b31f4fce52",
+    "env.yaml": "6beee57452b85ee907911708f725cef10f2d62c9ca8258d23bd36947ff08de31",
+    "model.pt": "d1dd713a6ee08974dc7146f51a67cf2d1cb78744e97cf1c002d555bec35d6d58",
+    "original_manifest.json": "c46257e3c60bc24792c2e22b1ef1eae3aafebe299249aa6a833fc22fc02cc0c3",
+    "summary_seed49.json": "59db9164b9b3bbc1655ded0cc05168e511a3abf8434e09ca6839adcc4f451ddf",
+    "yaw_assessment.json": "daa29a61d04cd22c9bde9b11fddd7432666bd800e67303c0b228a00c9bce5cdc",
+    "yaw_command.json": "4d6374d5f359d143cbb2f8d9af90cf4ad7fb0a987bb719acbe1510d2c0fc10ef",
+    "yaw_first_cycle.csv.gz": "7edf727c052ad4a2083609369a52ccd49fd9ed4a134dc586d6ee54b16b499df4",
+    "yaw_schedule.json": "c3055f9fe29f43d2226f370f1d2e494df336aad4f93016b87b519b0cb32497a9"
+  }
+}

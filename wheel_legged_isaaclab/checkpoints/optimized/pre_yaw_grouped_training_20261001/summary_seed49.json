@@ -1,0 +1,12 @@
+{
+  "samples": 8250,
+  "resets": 0,
+  "passed": true,
+  "speed_p95_relative_max": 0.03778809309005732,
+  "height_p95_relative_max": 0.0159008204936981,
+  "standing_drift_p95_max": 0.004714173112229355,
+  "body_max_deg": 0.9863558356128865,
+  "leg_difference_max_deg": 0.7256939389355148,
+  "transient_body_max_deg": 2.4333428305026064,
+  "height_overshoot_relative_max": 0.03951287269592287
+}

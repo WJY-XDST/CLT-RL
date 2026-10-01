@@ -448,17 +448,67 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
     live_window = None
     live_labels = {}
+    live_plots = {}
+    live_history = {}
+    live_chart_titles = {}
+    live_error_labels = {}
+    live_error_plots = {}
     next_live_update = 0.0
     live_wall_start = time.monotonic()
     if args_cli.live_stats and not args_cli.headless:
         import omni.ui as ui
+        import omni.appwindow
+        from collections import deque
 
-        live_window = ui.Window("Wheel-legged live data", width=470, height=310)
+        live_chart_specs = {
+            "speed": ("Forward speed (m/s)", -1.0, 1.0, ("cmd_x_target", "vel_x_heading", "cmd_x"),
+                      ("Target", "Measured", "Ramped cmd")),
+            "height": ("Body height (mm)", 140.0, 220.0, ("height_target_mm", "height_measured_mm"),
+                       ("Target", "Measured")),
+            "yaw": ("Yaw rate (rad/s)", -0.5, 0.5, ("cmd_yaw", "yaw_rate_body"), ("Command", "Measured")),
+            "body": ("Body angle (deg)", -5.0, 5.0, ("zero", "pitch_deg", "roll_deg"),
+                     ("Upright target", "Pitch", "Roll")),
+            "symmetry": ("Left - right leg angle (deg)", -3.0, 3.0, ("zero", "leg_difference_deg"),
+                         ("Target", "Measured")),
+        }
+        colors = (0xFF43C8FF, 0xFFFFAD54, 0xFF8DD781)
+        app_window = omni.appwindow.get_default_app_window()
+        live_window = ui.Window("Wheel-legged commands and feedback", width=760,
+                               height=min(1200, app_window.get_height() - 80),
+                               position_x=max(0, app_window.get_width() - 784), position_y=40)
         with live_window.frame:
-            with ui.VStack(spacing=7):
-                for field in ("progress", "speed", "height", "body", "angles", "left", "right"):
-                    live_labels[field] = ui.Label("Waiting for simulation...", height=28)
-        print("[INFO] Live data panel enabled (simulation time, measured states and targets).", flush=True)
+            with ui.ScrollingFrame():
+                with ui.VStack(spacing=4):
+                    for field in ("progress", "speed", "yaw", "height", "body", "angles", "left", "right", "status"):
+                        live_labels[field] = ui.Label("Waiting for simulation...", height=20)
+                    live_labels["plot_time"] = ui.Label("Time window: waiting for samples", height=20)
+                    ui.Label("Right plots: error in pink; limits in gray. Orange number = outside band.", height=20)
+                    for name, (title, low, high, keys, legends) in live_chart_specs.items():
+                        live_chart_titles[name] = ui.Label(title, height=20)
+                        with ui.HStack(height=18):
+                            for legend, color in zip(legends, colors):
+                                ui.Label(legend, style={"color": color})
+                        with ui.HStack(height=125, spacing=10):
+                            with ui.ZStack():
+                                ui.Rectangle(style={"background_color": 0xFF242424})
+                                for key, color in zip(keys, colors):
+                                    plot = ui.Plot(ui.Type.LINE, low, high, 0.0, 0.0,
+                                                   style={"color": color, "background_color": 0x0})
+                                    live_plots[(name, key)] = plot
+                                    live_history.setdefault(key, deque(maxlen=200))
+                            with ui.VStack(width=235, spacing=2):
+                                for field in ("value", "band", "peak"):
+                                    live_error_labels[(name, field)] = ui.Label("Waiting...", height=20)
+                                with ui.ZStack(height=55):
+                                    ui.Rectangle(style={"background_color": 0xFF191919})
+                                    for suffix, color in (("zero", 0xFF555555), ("low", 0xFF999999),
+                                                          ("high", 0xFF999999), ("value", 0xFF8982FF)):
+                                        key = f"error_{name}_{suffix}"
+                                        live_history[key] = deque(maxlen=200)
+                                        live_error_plots[(name, suffix)] = ui.Plot(
+                                            ui.Type.LINE, -1.0, 1.0, 0.0, 0.0,
+                                            style={"color": color, "background_color": 0x0})
+        print("[INFO] Live command/feedback panel enabled: five rolling charts, 10 Hz simulation samples.", flush=True)
 
     # reset environment
     obs = env.get_observations()
@@ -488,7 +538,8 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
             apply_velocity_cycle_command(obs, timestep)
             write_trace = trace_file is not None and timestep % args_cli.trace_interval == 0
             update_live = bool(live_labels) and time.monotonic() >= next_live_update
-            if write_trace or update_live:
+            sample_live = bool(live_labels) and timestep % max(1, round(0.1 / dt)) == 0
+            if write_trace or update_live or sample_live:
                 base_env = env.unwrapped
                 env_id = args_cli.trace_env_id
                 heading_velocity = base_env._get_heading_frame_horizontal_velocity()[env_id]
@@ -550,6 +601,27 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                         trace_writer.writeheader()
                     trace_writer.writerow(row)
                     trace_file.flush()
+                if live_labels:
+                    error_values = {
+                        "speed": (row["vel_x_heading"] - row["cmd_x_target"],
+                                  abs(row["cmd_x_target"]) * 0.05 if abs(row["cmd_x_target"]) > 1e-6 else 0.02),
+                        "height": (1000 * (row["base_height"] - row["height_cmd"]), 50 * row["height_cmd"]),
+                        "yaw": (row["yaw_rate_body"] - row["cmd_yaw"], 0.0),
+                        "body": (57.29578 * max(abs(row["pitch_est_rad"]), abs(row["roll_est_rad"])), 3.0),
+                        "symmetry": (57.29578 * (row["theta_left"] - row["theta_right"]), 3.0),
+                    }
+                if sample_live:
+                    chart_row = dict(row, zero=0.0,
+                                     height_target_mm=1000 * row["height_cmd"],
+                                     height_measured_mm=1000 * row["base_height"],
+                                     pitch_deg=57.29578 * row["pitch_est_rad"],
+                                     roll_deg=57.29578 * row["roll_est_rad"],
+                                     leg_difference_deg=57.29578 * (row["theta_left"] - row["theta_right"]))
+                    for name, (value, band) in error_values.items():
+                        chart_row.update({f"error_{name}_value": value, f"error_{name}_high": band,
+                                          f"error_{name}_low": -band, f"error_{name}_zero": 0.0})
+                    for key, history in live_history.items():
+                        history.append(chart_row[key])
                 if update_live:
                     elapsed = time.monotonic() - live_wall_start
                     live_labels["progress"].text = (
@@ -557,7 +629,12 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                         f"{(timestep + 1) / max(elapsed, 1e-6):.1f} steps/s"
                     )
                     live_labels["speed"].text = (
-                        f"Speed: {row['vel_x_heading']:+.3f} / target {row['cmd_x_target']:+.2f} m/s"
+                        f"Vx measured {row['vel_x_heading']:+.3f} | target {row['cmd_x_target']:+.2f} | "
+                        f"ramped cmd {row['cmd_x']:+.3f} m/s"
+                    )
+                    live_labels["yaw"].text = (
+                        f"Yaw rate measured {row['yaw_rate_body']:+.3f} | cmd {row['cmd_yaw']:+.3f} rad/s | "
+                        f"Vy {row['vel_y_heading']:+.3f} m/s"
                     )
                     live_labels["height"].text = (
                         f"Body height: {1000 * row['base_height']:.1f} / "
@@ -565,18 +642,69 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                     )
                     live_labels["body"].text = (
                         f"Pitch {57.29578 * row['pitch_est_rad']:+.2f} | "
-                        f"Roll {57.29578 * row['roll_est_rad']:+.2f} deg"
+                        f"Roll {57.29578 * row['roll_est_rad']:+.2f} deg | target 0"
                     )
                     live_labels["angles"].text = (
                         f"Leg angle L {57.29578 * row['theta_left']:+.2f} | "
                         f"R {57.29578 * row['theta_right']:+.2f} | "
-                        f"diff {57.29578 * abs(row['theta_left'] - row['theta_right']):.2f} deg"
+                        f"diff {57.29578 * abs(row['theta_left'] - row['theta_right']):.2f} deg | target diff 0"
                     )
                     for side in ("left", "right"):
                         live_labels[side].text = (
                             f"{side.title()} leg: {1000 * row[f'length_{side}']:.1f} / "
                             f"target {1000 * row[f'target_length_{side}']:.1f} mm"
                         )
+                    live_labels["status"].text = (
+                        f"Errors: Vx {row['vel_x_heading'] - row['cmd_x_target']:+.3f} m/s | "
+                        f"height {1000 * (row['base_height'] - row['height_cmd']):+.1f} mm"
+                    )
+                    count = len(live_history["zero"])
+                    sample_step = max(1, round(0.1 / dt))
+                    last_sample_time = (timestep // sample_step) * sample_step * dt
+                    live_labels["plot_time"].text = (
+                        f"Charts (10 Hz): simulation {max(0.0, last_sample_time - (count - 1) * sample_step * dt):.1f}"
+                        f" to {last_sample_time:.1f} s, oldest at left / newest at right"
+                    )
+                    for name, (title, low, high, keys, _) in live_chart_specs.items():
+                        values = [v for key in keys for v in live_history[key]]
+                        if values:
+                            low, high = min(low, min(values)), max(high, max(values))
+                            margin = (high - low) * 0.03
+                            live_chart_titles[name].text = f"{title} | range {low:.2f} to {high:.2f}"
+                            for key in keys:
+                                plot = live_plots[(name, key)]
+                                plot.scale_min, plot.scale_max = low - margin, high + margin
+                                plot.set_data(*live_history[key])
+                        error_samples = live_history[f"error_{name}_value"]
+                        if error_samples:
+                            error, band = error_values[name]
+                            peak = max(abs(v) for v in error_samples)
+                            unit = {"speed": "m/s", "height": "mm", "yaw": "rad/s",
+                                    "body": "deg", "symmetry": "deg"}[name]
+                            decimals = 3 if name in ("speed", "yaw") else 2
+                            live_error_labels[(name, "value")].text = f"Error {error:+.{decimals}f} {unit}"
+                            if name == "speed" and abs(row["cmd_x_target"]) < 1e-6:
+                                drift = (row["vel_x_heading"] ** 2 + row["vel_y_heading"] ** 2) ** 0.5
+                                detail = f"Drift {drift:.3f} / limit 0.020"
+                                outside = drift > .02
+                            elif name in ("speed", "height"):
+                                percent = abs(error) / band * 5.0
+                                detail = f"{percent:.2f}% / limit 5%"
+                                outside = abs(error) > band
+                            elif name == "yaw":
+                                detail, outside = "Rate error; zero reference", False
+                            else:
+                                detail, outside = f"|error| {abs(error):.2f} / limit 3 deg", abs(error) > band
+                            live_error_labels[(name, "band")].text = detail
+                            live_error_labels[(name, "value")].style = {
+                                "color": 0xFFE0E0E0 if name == "yaw" else (0xFF55A5FF if outside else 0xFF8DD781)
+                            }
+                            live_error_labels[(name, "peak")].text = f"Sampled peak {peak:.{decimals}f} {unit}"
+                            span = max(peak, max(live_history[f"error_{name}_high"]), .01) * 1.15
+                            for suffix in ("zero", "low", "high", "value"):
+                                plot = live_error_plots[(name, suffix)]
+                                plot.scale_min, plot.scale_max = -span, span
+                                plot.set_data(*live_history[f"error_{name}_{suffix}"])
                     next_live_update = time.monotonic() + 0.1
             if args_cli.print_obs and timestep % args_cli.print_obs_interval == 0:
                 policy_obs = obs["policy"] if hasattr(obs, "keys") and "policy" in obs.keys() else obs

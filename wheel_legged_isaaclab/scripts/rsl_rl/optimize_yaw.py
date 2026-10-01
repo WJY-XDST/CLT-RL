@@ -1,6 +1,7 @@
 """Fine-tune centered spins and turning; protect the accepted straight-motion model.
 
-Each 1000-iteration trial is followed by yaw and the original straight matrix.
+Each trial is followed by yaw and the original straight matrix. An optional
+first run trains from random initialization for 2000 iterations; continuation runs use 1000.
 Only promote a candidate that improves turning without losing straight acceptance.
 All-seed acceptance is required before declaring the new task complete.
 """
@@ -52,14 +53,17 @@ class YawOptimizer(Optimizer):
         best_yaw = self.evaluate_yaw(best_checkpoint, "baseline5740_yaw")
         failures = 0
         for number in range(1, self.args.max_rounds + 1):
-            plan = {"fresh": False, "iterations": 1000, "learning_rate": .0001,
+            fresh = bool(getattr(self.args, "from_scratch", False)) and number == 1
+            plan = {"fresh": fresh, "iterations": 2000 if fresh else 1000,
+                    "learning_rate": .0003 if fresh else .0001,
                     "rewards": dict(rewards),
-                    "purpose": "学习原地双轮反向转与行进转弯，降低角速度误差，同时保持直行、腿长和姿态",
+                    "purpose": ("按用户要求从随机初始化重练六类工况，与封存5740比较" if fresh else
+                                "学习原地双轮反向转与行进转弯，降低角速度误差，同时保持直行、腿长和姿态"),
                     "env_overrides": {"commands.heading_command": False,
                                       "commands.grouped_training": True,
                                       "commands.ranges_ang_vel_yaw": "[-0.5,0.5]",
                                       "commands.yaw_env_fraction": .5,
-                                      "commands.yaw_start_steps": best_iteration * 48 if best_checkpoint == ACCEPTED else 0,
+                                      "commands.yaw_start_steps": best_iteration * 48 if not fresh and best_checkpoint == ACCEPTED else 0,
                                       "commands.yaw_ramp_steps": 9600}}
             self.save(round=number, best_checkpoint=str(best_checkpoint), plan=plan)
             checkpoint, run = self.train(best_checkpoint, plan, number)
@@ -121,6 +125,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--state-dir", type=Path, required=True)
     parser.add_argument("--max-rounds", type=int, default=4)
+    parser.add_argument("--from-scratch", action="store_true", help="Train the first candidate from random initialization for 2000 iterations.")
     parser.add_argument("--publish", action="store_true")
     args = parser.parse_args()
     if args.max_rounds < 1:

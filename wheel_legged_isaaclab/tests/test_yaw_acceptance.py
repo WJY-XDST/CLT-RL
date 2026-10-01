@@ -22,7 +22,9 @@ class SimulatedYawOptimizer(YawOptimizer):
 
     def save(self, **fields): self.status.update(fields)
     def note(self, message): pass
-    def train(self, *args): return Path("model_6739.pt"), Path("run")
+    def train(self, checkpoint, plan, number):
+        self.training_plan = plan
+        return Path("model_1999.pt" if plan["fresh"] else "model_6739.pt"), Path("run")
     def publish(self, checkpoint, rewards, report, label, run): self.published.append(label)
     def evaluate_yaw(self, checkpoint, label, seeds=(), extended=False):
         passed = "baseline" not in label and (not extended or self.extra_passed)
@@ -94,6 +96,14 @@ class TestYawAcceptance(unittest.TestCase):
         optimizer.main()
         self.assertEqual(optimizer.published, ["round0001_improved"])
         self.assertEqual(optimizer.status["state"], "needs_attention")
+
+    def test_requested_scratch_run_does_not_resume_or_skip_curriculum(self):
+        optimizer = SimulatedYawOptimizer(straight_passed=False)
+        optimizer.args.from_scratch = True
+        optimizer.main()
+        self.assertTrue(optimizer.training_plan["fresh"])
+        self.assertEqual(optimizer.training_plan["iterations"], 2000)
+        self.assertEqual(optimizer.training_plan["env_overrides"]["commands.yaw_start_steps"], 0)
 
 
 if __name__ == "__main__":

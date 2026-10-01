@@ -306,3 +306,23 @@
 - 三个种子的 5740 转向基准已完整完成且无重置，将校验 checkpoint SHA256、种子和仿真/分析代码哈希，并重新分析原始 CSV 后复用。未重复消耗 GPU 重测相同基准。
 - 正式方案恢复为：5740 权重、全新优化器、12288 环境、六类轮换分组各 2048、首轮追加 1000 次，固定学习率 0.0001。恢复原课程计数 275520，因此不重复前 200 次全静止或后 500 次运动课程；仅新增 yaw 范围以 9600 控制步逐渐放开。
 - 分组训练本身允许从第一轮直接混合运动，课程不是硬性要求。先静止是之前从随机初始化方案的保守安排；当前明确选择续训，不因讨论原理再自动切换训练起点。
+
+### 自动优化 2026-10-01 14:14:04
+
+- 转向回放 `baseline5740_yaw`：重置 0，通过=False；最坏门槛倍数 `{'yaw': 7.4228477478027335, 'speed': 3.1054171919822675, 'height': 0.092707607481214, 'body': 0.35380081079889864, 'symmetry': 0.44201113867792846, 'spin_center': 2.850566061213613, 'transient_body': 0.23397557919385034}`。
+
+### 自动优化 2026-10-01 14:14:04
+
+- **训练前目的**：学习原地双轮反向转与行进转弯，降低角速度误差，同时保持直行、腿长和姿态。
+- **修改内容**：奖励配置 `{'nominal_state': -90.0, 'lin_vel_error_sq': -30.0, 'standing_velocity': -100.0, 'base_height_error_sq': -1000.0, 'orientation': -150.0, 'yaw_rate_error_sq': -30.0, 'tracking_sigma_ang': 0.01, 'spin_center_velocity': -100.0}`；额外环境配置 `{'commands.heading_command': False, 'commands.grouped_training': True, 'commands.ranges_ang_vel_yaw': '[-0.5,0.5]', 'commands.yaw_env_fraction': 0.5, 'commands.yaw_start_steps': 275520, 'commands.yaw_ramp_steps': 9600}`；其余配置保持当前代码版本。
+- **起点**：/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/checkpoints/optimized/continuous_optimization_20261001_round0002_accepted/model.pt；新优化器，12288 环境、1000 次 PPO 迭代、固定学习率 0.0001。
+- **验收重点**：完整速度/高度矩阵、静止、姿态、腿角差和切换，与保留参照比较，不接受以一项改善换取其他未达标项明显退步。
+
+## 安排本轮训练结束后的 yaw 可视化测试（2026-10-01）
+
+- **用户要求**：训练完成时可视化测试，重点检测 yaw 跟踪。
+- **执行安排**：独立 watch_yaw_visualization.py 已启动，等待当前 5740→6739 的 1000 次续训正常结束并确认最终 checkpoint 完整保存；不会把中间 checkpoint 或异常退出当作训练完成。
+- **资源安排**：训练进程退出后，仅暂缓已核对身份的优化器调度进程；若已开始一次无窗口评估，让它先结束，再单独启动 GUI。可视化共 15 阶段、75 秒仿真时间，结束保存数据并自动恢复后续调度，避免一边大量采集一边渲染。
+- **工况与指标**：seed 53，与 5740 基准相同；原地左右转、前进/后退左右转及停止转向保向，yaw ±0.3 rad/s、行进 ±0.4 m/s、高度 0.18 m。重点报告 yaw-rate 稳态 P95 相对误差、累计转角偏差、原地平移漂移、左右轮速度及姿态/腿角差，并检查重置。误差图保留全部瞬态。
+- **界面与留存**：继续使用 Follow + orbit、实时目标/反馈/误差图，不录像、不调整渲染画质。结果保存在 yaw_grouped_resume_20261001/visual_after_round0001/，包含 CSV、comparison.json、REPORT.md、yaw_comparison.png。本次单种子可视化不代替调度器的正式多种子验收。
+- **检查**：完成门槛 4 项检查通过，现有基准数据的完整报告和曲线生成检查通过。监听器已确认 waiting_for_training，当前训练正常继续；没有修改运行中仿真的源码。

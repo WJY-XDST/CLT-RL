@@ -1,0 +1,235 @@
+{
+  "candidate": {
+    "trace": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/yaw_grouped_recovery_20261001_190548/heading_feedback_gui/seed53.csv",
+    "resets": 0.0,
+    "max_angle_error_deg": 0.5467235059704478,
+    "final_angle_error_deg": -0.04109858559161239,
+    "worst_steady_angle_p95_deg": 0.27556458312030685,
+    "provisional_angle_limit_deg": 1.0,
+    "passed": true,
+    "phases": [
+      {
+        "phase": 0,
+        "speed": 0,
+        "yaw_rate": 0,
+        "angle_p95_deg": 0.10971639021707347,
+        "angle_final_deg": 0.02567241325417058
+      },
+      {
+        "phase": 1,
+        "speed": 0,
+        "yaw_rate": 0.3,
+        "angle_p95_deg": 0.077516417946633,
+        "angle_final_deg": -0.04556419195284889
+      },
+      {
+        "phase": 2,
+        "speed": 0,
+        "yaw_rate": 0,
+        "angle_p95_deg": 0.07943510004781729,
+        "angle_final_deg": 0.04085136142609258
+      },
+      {
+        "phase": 3,
+        "speed": 0,
+        "yaw_rate": -0.3,
+        "angle_p95_deg": 0.11098694035169387,
+        "angle_final_deg": -0.06734790637190713
+      },
+      {
+        "phase": 4,
+        "speed": 0,
+        "yaw_rate": 0,
+        "angle_p95_deg": 0.028389314428892476,
+        "angle_final_deg": 0.008274229732592175
+      },
+      {
+        "phase": 5,
+        "speed": 0.4,
+        "yaw_rate": 0,
+        "angle_p95_deg": 0.047625338272979434,
+        "angle_final_deg": 0.002682317923813571
+      },
+      {
+        "phase": 6,
+        "speed": 0.4,
+        "yaw_rate": 0.3,
+        "angle_p95_deg": 0.27556458312030685,
+        "angle_final_deg": -0.13189095287276587
+      },
+      {
+        "phase": 7,
+        "speed": 0.4,
+        "yaw_rate": 0,
+        "angle_p95_deg": 0.25677413165763596,
+        "angle_final_deg": 0.14532593497062862
+      },
+      {
+        "phase": 8,
+        "speed": 0.4,
+        "yaw_rate": -0.3,
+        "angle_p95_deg": 0.009456997963006586,
+        "angle_final_deg": -0.001496572757901049
+      },
+      {
+        "phase": 9,
+        "speed": 0.4,
+        "yaw_rate": 0,
+        "angle_p95_deg": 0.010048513942990667,
+        "angle_final_deg": 0.009969599077862767
+      },
+      {
+        "phase": 10,
+        "speed": -0.4,
+        "yaw_rate": 0,
+        "angle_p95_deg": 0.05784024969651114,
+        "angle_final_deg": 0.029714077644058534
+      },
+      {
+        "phase": 11,
+        "speed": -0.4,
+        "yaw_rate": 0.3,
+        "angle_p95_deg": 0.037150109234701745,
+        "angle_final_deg": -0.013271057556863752
+      },
+      {
+        "phase": 12,
+        "speed": -0.4,
+        "yaw_rate": 0,
+        "angle_p95_deg": 0.06421060838789572,
+        "angle_final_deg": 0.01811366167950723
+      },
+      {
+        "phase": 13,
+        "speed": -0.4,
+        "yaw_rate": -0.3,
+        "angle_p95_deg": 0.03138532029367269,
+        "angle_final_deg": 0.011784198246772348
+      },
+      {
+        "phase": 14,
+        "speed": 0,
+        "yaw_rate": 0,
+        "angle_p95_deg": 0.03634786552370883,
+        "angle_final_deg": -0.04109858559161239
+      }
+    ]
+  },
+  "rate_only": {
+    "trace": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/yaw_grouped_recovery_20261001_190548/visual_after_round0001/seed53_gui.csv",
+    "resets": 0.0,
+    "max_angle_error_deg": 3.5382727778193725,
+    "final_angle_error_deg": 3.2252678331593643,
+    "worst_steady_angle_p95_deg": 3.25603570093611,
+    "provisional_angle_limit_deg": 1.0,
+    "passed": false,
+    "phases": [
+      {
+        "phase": 0,
+        "speed": 0,
+        "yaw_rate": 0,
+        "angle_p95_deg": 0.25286817058670863,
+        "angle_final_deg": 0.2393833494527371
+      },
+      {
+        "phase": 1,
+        "speed": 0,
+        "yaw_rate": 0.3,
+        "angle_p95_deg": 0.8726539283628085,
+        "angle_final_deg": 0.8892428186113364
+      },
+      {
+        "phase": 2,
+        "speed": 0,
+        "yaw_rate": 0,
+        "angle_p95_deg": 1.066028604899003,
+        "angle_final_deg": 1.0675653974622605
+      },
+      {
+        "phase": 3,
+        "speed": 0,
+        "yaw_rate": -0.3,
+        "angle_p95_deg": 2.1033960967953083,
+        "angle_final_deg": 2.1171287641499816
+      },
+      {
+        "phase": 4,
+        "speed": 0,
+        "yaw_rate": 0,
+        "angle_p95_deg": 2.2019437053856166,
+        "angle_final_deg": 2.202777842238021
+      },
+      {
+        "phase": 5,
+        "speed": 0.4,
+        "yaw_rate": 0,
+        "angle_p95_deg": 2.4435610069446625,
+        "angle_final_deg": 2.4326875592294925
+      },
+      {
+        "phase": 6,
+        "speed": 0.4,
+        "yaw_rate": 0.3,
+        "angle_p95_deg": 1.1365326315502742,
+        "angle_final_deg": 0.2785556049207685
+      },
+      {
+        "phase": 7,
+        "speed": 0.4,
+        "yaw_rate": 0,
+        "angle_p95_deg": 0.503084413506599,
+        "angle_final_deg": 0.5029683002907177
+      },
+      {
+        "phase": 8,
+        "speed": 0.4,
+        "yaw_rate": -0.3,
+        "angle_p95_deg": 2.4483526663925947,
+        "angle_final_deg": 2.4859047647040313
+      },
+      {
+        "phase": 9,
+        "speed": 0.4,
+        "yaw_rate": 0,
+        "angle_p95_deg": 2.708206718176939,
+        "angle_final_deg": 2.7086645542946997
+      },
+      {
+        "phase": 10,
+        "speed": -0.4,
+        "yaw_rate": 0,
+        "angle_p95_deg": 2.7225240753376454,
+        "angle_final_deg": 2.720411412450005
+      },
+      {
+        "phase": 11,
+        "speed": -0.4,
+        "yaw_rate": 0.3,
+        "angle_p95_deg": 2.107105927703209,
+        "angle_final_deg": 1.7594089188708892
+      },
+      {
+        "phase": 12,
+        "speed": -0.4,
+        "yaw_rate": 0,
+        "angle_p95_deg": 1.812144809452576,
+        "angle_final_deg": 1.7990308462462394
+      },
+      {
+        "phase": 13,
+        "speed": -0.4,
+        "yaw_rate": -0.3,
+        "angle_p95_deg": 2.985281094123167,
+        "angle_final_deg": 3.0115396880854064
+      },
+      {
+        "phase": 14,
+        "speed": 0,
+        "yaw_rate": 0,
+        "angle_p95_deg": 3.25603570093611,
+        "angle_final_deg": 3.2252678331593643
+      }
+    ]
+  },
+  "scope": "same checkpoint and seed; heading controller comparison, not policy-training improvement or navigation acceptance"
+}

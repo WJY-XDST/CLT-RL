@@ -368,3 +368,38 @@
 - **修改内容**：奖励配置 `{'nominal_state': -90.0, 'lin_vel_error_sq': -45.0, 'standing_velocity': -100.0, 'base_height_error_sq': -1000.0, 'orientation': -150.0, 'yaw_rate_error_sq': -30.0, 'tracking_sigma_ang': 0.01, 'spin_center_velocity': -100.0}`；额外环境配置 `{'commands.heading_command': False, 'commands.grouped_training': True, 'commands.ranges_ang_vel_yaw': '[-0.5,0.5]', 'commands.yaw_env_fraction': 0.5, 'commands.yaw_start_steps': 275520, 'commands.yaw_ramp_steps': 9600}`；其余配置保持当前代码版本。
 - **起点**：/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/checkpoints/optimized/continuous_optimization_20261001_round0002_accepted/model.pt；新优化器，12288 环境、1000 次 PPO 迭代、固定学习率 0.0001。
 - **验收重点**：完整速度/高度矩阵、静止、姿态、腿角差和切换，与保留参照比较，不接受以一项改善换取其他未达标项明显退步。
+
+## 本轮完成后先可视化，再修改（2026-10-01 19:13:07）
+
+- **用户指定顺序**：本轮训练完成→可视化测试并检查数据→再修改。当前5740起点、速度惩罚-45的训练保持运行，不在中途更改配置。
+- **执行安排**：已核对训练进程、调度器身份及冻结源码，启动watch_yaw_visualization.py（PID 8912），等待本轮最终model_6739.pt与训练正常结束。随后暂停调度器、完成15阶段GUI测试、生成误差报告后恢复正式多种子评估与后续调参。
+- **界面与数据**：原画质，无录像；Follow + orbit可拖动视角，显示command、反馈和误差曲线。重点原地/前后行进左右转、yaw rate与累计转角误差、漂移和左右轮速度，同时检查姿态。单种子可视化不代替直行/高度完整验收。
+- **结果目录**：`/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/yaw_grouped_recovery_20261001_190548/visual_after_round0001`。
+
+### 训练结束后的 yaw 可视化测试 2026-10-01 19:53:27
+
+- 模型 `model_6739.pt`，seed 53，15 阶段；重置 0，本次矩阵通过=False。
+- 数据、对比曲线和误差报告：`/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/yaw_grouped_recovery_20261001_190548/visual_after_round0001`。该单种子可视化不代替正式多种子验收。
+
+### 自动优化 2026-10-01 19:54:40
+
+- 转向优化停止，需要检查：InterruptedError('STOP file requested termination of the optimization loop')。未宣称验收通过。
+
+## yaw角稳态误差修正与下一轮计划（2026-10-01 20:02:05）
+
+- **证据与根因**：本轮6739可视化完整结束、零重置；原来的保向逻辑在转完后重新捕获实际朝向，不追补目标转角。另有图表问题：把保向补偿角速度也积分到参考角，导致13.19度不是相对原始用户指令的航向偏差。重算同一原始目标后，原模式最终偏差3.225度、稳态P95最坏3.256度。
+- **修改**：play.py新增独立--heading_feedback单机器人测试，目标仅按原始yaw-rate指令积分，PI用航向误差输出有界角速度修正（Kp=1.5、Ki=0.5、角速度限幅0.5rad/s、积分补偿限幅0.1rad/s并抗饱和）。默认原始策略评估不启用该闭环，训练观测、动作和网络不变。所有回放曲线参考改为原始指令积分；GUI区分原始目标、修正后指令和反馈。
+- **验证**：38项测试通过；同模型同seed53的75秒独立仿真，航向闭环最终误差-0.041度、稳态P95最坏0.276度、全程峰值0.547度、无重置。此为上层控制器改善，不是底层策略重新训练效果，也不能替代导航路径或多种子验收。
+- **用户要求的顺序**：原始GUI已结束后才暂停旧调度并修改代码。现在用最终代码再做一轮带曲线GUI，完整测试并通过暂定1度稳态门槛后，自动恢复训练。结果目录 `/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/yaw_grouped_recovery_20261001_190548/heading_feedback_gui`。
+- **下一轮训练目的和修改**：最新原始GUI原地漂移约0.0295m/s、前进左转速度MAE约0.0281m/s，仍未达标；计划lin_vel_error_sq -45→-67.5、standing_velocity -100→-150、spin_center_velocity -100→-150，同时改善行进误差和偏心转。5740起点、12288环境、六组轮换、1000次、学习率0.0001；不将未通过的6739提升为正式模型。
+- **下一轮验收**：底层yaw/直行均禁用新增航向修正，防止闭环掩盖策略误差。评估源码有变化，重新运行5740基准，不复用旧源码缓存。后续训练目录 `/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/yaw_heading_followup_20261001_200205`；有明确策略提升且通过保护项才上传模型。
+
+- 新航向闭环GUI已完成且通过暂定1度稳态角度门槛：{"trace": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/yaw_grouped_recovery_20261001_190548/heading_feedback_gui/seed53.csv", "resets": 0.0, "max_angle_error_deg": 0.5467235059704478, "final_angle_error_deg": -0.04109858559161239, "worst_steady_angle_p95_deg": 0.27556458312030685, "provisional_angle_limit_deg": 1.0, "passed": true}。随后恢复底层策略优化；GUI闭环改善不能算策略训练改善。
+
+## 用户反馈初始腿摆角收敛慢：实测对照（2026-10-01 20:07:50）
+
+- 本轮同模型seed53，原始回放设置6维初始线/角速度随机扰动幅值0.5；实测第一帧水平速度约0.362m/s。策略在初始0.1秒也给出约-11.46°摆角目标，不是始终要求零角度而执行器无法跟随。
+- 带扰动：单腿绝对峰值10.49°，相对各腿最终稳态均值±1°约0.78秒、±0.5°约1.02秒；左右角差1°带约0.08秒。零初始速度对照：峰值2.42°，对应0.24秒/0.64秒，两腿角差全程小于1°。两组均无重置。以上为仿真时间，时序采样间隔0.02秒。
+- 因此暂不将问题归因于腿角PD增益不足，不修改kp_theta=50/kd_theta=3。保留启动瞬态作对照，后续优化要防止幅度/收敛退化，同时避免提高增益损害抗扰能力。
+- 航向闭环GUI复核完整通过，自动后续优化器已启动，当前重新测5740基准，完成后按既定67.5/150/150惩罚方案续训。
+- 数据及曲线留存 `wheel_legged_isaaclab/checkpoints/diagnostics/heading_feedback_20261001/`，控制器改善和底层策略训练成绩分别标记。

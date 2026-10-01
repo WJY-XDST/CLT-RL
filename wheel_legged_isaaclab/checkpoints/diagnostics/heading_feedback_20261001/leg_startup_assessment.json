@@ -1,0 +1,50 @@
+{
+  "Perturbed startup": {
+    "trace": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/yaw_grouped_recovery_20261001_190548/heading_feedback_gui/seed53.csv",
+    "resets": 0.0,
+    "legs": {
+      "theta_left": {
+        "steady_mean_deg": 0.15526625077893935,
+        "absolute_peak_deg": 10.028917022491463,
+        "settle_1deg_s": 0.78,
+        "settle_half_deg_s": 1.02,
+        "peak_target_tracking_error_deg": 6.1712548660627755
+      },
+      "theta_right": {
+        "steady_mean_deg": -0.45870464465727606,
+        "absolute_peak_deg": 10.485078036399933,
+        "settle_1deg_s": 0.78,
+        "settle_half_deg_s": 1.0,
+        "peak_target_tracking_error_deg": 10.176623961406492
+      }
+    },
+    "settling_definition": "Final observed angle +/- band, held until end of first 5 s with minimum 0.5 s; not tracking-error relative to policy target.",
+    "symmetry_settle_1deg_s": 0.08,
+    "symmetry_peak_deg": 2.128129851025063,
+    "initial_horizontal_speed_m_s": 0.3623446914493557
+  },
+  "Zero initial velocity": {
+    "trace": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/yaw_grouped_recovery_20261001_190548/leg_startup_test/zero_velocity.csv",
+    "resets": 0.0,
+    "legs": {
+      "theta_left": {
+        "steady_mean_deg": 0.18245641424205972,
+        "absolute_peak_deg": 2.138784946130283,
+        "settle_1deg_s": 0.24,
+        "settle_half_deg_s": 0.64,
+        "peak_target_tracking_error_deg": 1.5922581389363333
+      },
+      "theta_right": {
+        "steady_mean_deg": -0.48879989248007794,
+        "absolute_peak_deg": 2.417067343484112,
+        "settle_1deg_s": 0.24,
+        "settle_half_deg_s": 0.64,
+        "peak_target_tracking_error_deg": 1.6295270661425079
+      }
+    },
+    "settling_definition": "Final observed angle +/- band, held until end of first 5 s with minimum 0.5 s; not tracking-error relative to policy target.",
+    "symmetry_settle_1deg_s": 0.0,
+    "symmetry_peak_deg": 0.7379336379281776,
+    "initial_horizontal_speed_m_s": 0.002561875208201354
+  }
+}

@@ -15,6 +15,7 @@ from isaaclab.app import AppLauncher
 
 # local imports
 import cli_args  # isort: skip
+from heading_feedback import HeadingFeedback
 
 # add argparse arguments
 parser = argparse.ArgumentParser(description="Train an RL agent with RSL-RL.")
@@ -70,6 +71,8 @@ parser.add_argument(
     "--yaw_cycle", type=float, nargs="+", default=None, metavar="YAW_RATE",
     help="Cycle yaw-rate commands [rad/s] alongside velocity/height; zero holds the heading reached at phase entry.",
 )
+parser.add_argument("--heading_feedback", action="store_true",
+                    help="Single-robot navigation test: track the integral of requested yaw rate with bounded PI heading feedback.")
 parser.add_argument(
     "--height_cycle",
     type=float,
@@ -248,12 +251,16 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     # override configurations with non-hydra CLI arguments
     agent_cfg: RslRlBaseRunnerCfg = cli_args.update_rsl_rl_cfg(agent_cfg, args_cli)
     env_cfg.scene.num_envs = args_cli.num_envs if args_cli.num_envs is not None else env_cfg.scene.num_envs
+    if args_cli.heading_feedback and (env_cfg.scene.num_envs != 1 or args_cli.fixed_command is None):
+        raise ValueError("--heading_feedback requires --num_envs 1 and --fixed_command")
+    if args_cli.heading_feedback and any(abs(v) > .5 for v in (args_cli.yaw_cycle or [args_cli.fixed_command[1]])):
+        raise ValueError("Heading feedback test supports requested yaw rates within +/-0.5 rad/s")
 
     # Zero yaw holds the initial world-frame heading. Nonzero yaw turns at a
     # constant commanded rate.
     if args_cli.fixed_command is not None:
         lin_vel_x, yaw_rate, height = args_cli.fixed_command
-        env_cfg.commands.heading_command = yaw_rate == 0.0
+        env_cfg.commands.heading_command = yaw_rate == 0.0 and not args_cli.heading_feedback
         env_cfg.commands.ranges_lin_vel_x = (lin_vel_x, lin_vel_x)
         env_cfg.commands.ranges_ang_vel_yaw = (yaw_rate, yaw_rate)
         env_cfg.commands.ranges_height = (height, height)
@@ -427,10 +434,10 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         if args_cli.yaw_cycle is not None:
             command_yaw = args_cli.yaw_cycle[phase % len(args_cli.yaw_cycle)]
             base_env._command_ranges[1, :] = command_yaw
-            base_env.cfg.commands.heading_command = command_yaw == 0.0
-            if command_yaw != 0.0:
+            base_env.cfg.commands.heading_command = command_yaw == 0.0 and not args_cli.heading_feedback
+            if command_yaw != 0.0 or args_cli.heading_feedback:
                 base_env._commands[:, 1] = command_yaw
-            elif phase != last_velocity_phase:
+            elif phase != last_velocity_phase and not args_cli.heading_feedback:
                 # Hold the heading reached after a turn, instead of returning to the initial heading.
                 q = base_env._robot.data.root_quat_w
                 base_env._commands[:, 3] = torch.atan2(
@@ -564,7 +571,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
             "yaw": ("Yaw rate (rad/s)", -0.5, 0.5, ("cmd_yaw", "yaw_rate_body"), ("Command", "Measured")),
             "yaw_angle": ("Yaw turn since reset (deg)", -90.0, 90.0,
                           ("yaw_turn_reference_deg", "yaw_turn_measured_deg"),
-                          ("Rate integral (reference)", "Measured turn")),
+                          (("Target turn" if args_cli.heading_feedback else "Requested rate integral"), "Measured turn")),
             "speed": ("Forward speed (m/s)", -1.0, 1.0, ("cmd_x_target", "vel_x_heading", "cmd_x"),
                       ("Target", "Measured", "Ramped cmd")),
             "height": ("Body height (mm)", 140.0, 220.0, ("height_target_mm", "height_measured_mm"),
@@ -574,6 +581,10 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
             "symmetry": ("Left - right leg angle (deg)", -3.0, 3.0, ("zero", "leg_difference_deg"),
                          ("Target", "Measured")),
         }
+        if args_cli.heading_feedback:
+            live_chart_specs["yaw"] = ("Yaw rate (rad/s)", -0.5, 0.5,
+                                       ("yaw_rate_requested", "yaw_rate_body", "cmd_yaw"),
+                                       ("Requested", "Measured", "Corrected cmd"))
         colors = (0xFF43C8FF, 0xFFFFAD54, 0xFF8DD781)
         app_window = omni.appwindow.get_default_app_window()
         live_window = ui.Window("Wheel-legged commands and feedback", width=760,
@@ -616,7 +627,8 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
     # reset environment
     obs = env.get_observations()
-    track_yaw = trace_file is not None or bool(live_labels)
+    track_yaw = trace_file is not None or bool(live_labels) or args_cli.heading_feedback
+    heading_feedback = HeadingFeedback() if args_cli.heading_feedback else None
     yaw_turn_reference = 0.0
     yaw_turn_measured = 0.0
 
@@ -634,6 +646,15 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         # run everything in inference mode
         with torch.inference_mode():
             apply_velocity_cycle_command(obs, timestep)
+            requested_yaw_rate = (args_cli.yaw_cycle[(timestep // velocity_phase_steps) % len(args_cli.yaw_cycle)]
+                                  if args_cli.yaw_cycle is not None else
+                                  (args_cli.fixed_command[1] if args_cli.fixed_command is not None else
+                                   env.unwrapped._commands[args_cli.trace_env_id, 1].item()))
+            if heading_feedback is not None:
+                corrected_yaw_rate = heading_feedback.step(requested_yaw_rate, math.radians(yaw_turn_measured), dt)
+                env.unwrapped._commands[:, 1] = corrected_yaw_rate
+                policy_obs = obs["policy"] if hasattr(obs, "keys") and "policy" in obs.keys() else obs
+                policy_obs[:, 7] = corrected_yaw_rate * env.unwrapped._commands_scale[1]
             if track_yaw:
                 # Capture the command actually presented to the policy for this step.
                 yaw_rate_applied = env.unwrapped._commands[args_cli.trace_env_id, 1].item()
@@ -660,10 +681,15 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                 )
                 if did_reset:
                     yaw_turn_reference = yaw_turn_measured = 0.0
+                    if heading_feedback is not None:
+                        heading_feedback.reset()
                     for history in live_history.values():
                         history.clear()
                 else:
-                    yaw_turn_reference += math.degrees(yaw_rate_applied * dt)
+                    if heading_feedback is not None:
+                        yaw_turn_reference = math.degrees(heading_feedback.reference)
+                    else:
+                        yaw_turn_reference += math.degrees(requested_yaw_rate * dt)
                     # Unwrap +/-180-degree crossings before accumulating the measured turn.
                     yaw_turn_measured += (yaw_degrees - previous_yaw + 180.0) % 360.0 - 180.0
                 previous_yaw = yaw_degrees
@@ -690,13 +716,15 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                     "episode_step": int(base_env.episode_length_buf[env_id].item()),
                     "cmd_x": base_env._commands[env_id, 0].item(),
                     "cmd_x_target": base_env._target_lin_vel_x[env_id].item(),
-                    "cmd_yaw": base_env._commands[env_id, 1].item(),
+                    "cmd_yaw": yaw_rate_applied if heading_feedback is not None else base_env._commands[env_id, 1].item(),
                     "yaw_world_deg": yaw_degrees,
                     "yaw_rate_applied": yaw_rate_applied,
                     "yaw_turn_reference_deg": yaw_turn_reference,
                     "yaw_turn_measured_deg": yaw_turn_measured,
                     "yaw_turn_error_deg": yaw_turn_measured - yaw_turn_reference,
                     "heading_hold": int(base_env.cfg.commands.heading_command),
+                    "heading_feedback": int(heading_feedback is not None),
+                    "yaw_rate_requested": requested_yaw_rate,
                     "height_cmd": base_env._commands[env_id, 2].item(),
                     "vel_x_heading": heading_velocity[0].item(),
                     "vel_y_heading": heading_velocity[1].item(),
@@ -773,11 +801,13 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                     )
                     live_labels["yaw"].text = (
                         f"Yaw rate measured {row['yaw_rate_body']:+.3f} | cmd {row['cmd_yaw']:+.3f} rad/s | "
-                        f"Vy {row['vel_y_heading']:+.3f} m/s"
+                        + (f"requested {row['yaw_rate_requested']:+.3f}" if heading_feedback is not None else
+                           f"Vy {row['vel_y_heading']:+.3f} m/s")
                     )
                     live_labels["heading"].text = (
                         f"Yaw angle {row['yaw_world_deg']:+.1f} deg | "
-                        + ("Holding reached heading" if row["heading_hold"] else "Turning (yaw-rate command)")
+                        + ("Tracking target heading (PI)" if heading_feedback is not None else
+                           ("Holding reached heading" if row["heading_hold"] else "Turning (yaw-rate command)"))
                     )
                     live_labels["height"].text = (
                         f"Body height: {1000 * row['base_height']:.1f} / "

@@ -25,8 +25,8 @@ parser.add_argument(
 )
 parser.add_argument("--num_envs", type=int, default=None, help="Number of environments to simulate.")
 parser.add_argument(
-    "--camera_mode", choices=("free", "follow"), default="free",
-    help="Interactive camera: free allows mouse navigation; follow locks the view to the robot.",
+    "--camera_mode", choices=("orbit", "free", "follow"), default="orbit",
+    help="Interactive camera: orbit follows position with mouse navigation; free stops tracking; follow locks the angle.",
 )
 parser.add_argument("--task", type=str, default=None, help="Name of the task.")
 parser.add_argument(
@@ -65,6 +65,10 @@ parser.add_argument(
         "Cycle through forward-velocity commands during one replay. Requires "
         "--fixed_command to provide the fixed yaw-rate and height values."
     ),
+)
+parser.add_argument(
+    "--yaw_cycle", type=float, nargs="+", default=None, metavar="YAW_RATE",
+    help="Cycle yaw-rate commands [rad/s] alongside velocity/height; zero holds the heading reached at phase entry.",
 )
 parser.add_argument(
     "--height_cycle",
@@ -224,7 +228,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         raise ValueError("--fixed_wheel_action_start must be non-negative.")
     if args_cli.velocity_phase_duration <= 0.0:
         raise ValueError("--velocity_phase_duration must be greater than zero.")
-    if (args_cli.velocity_cycle is not None or args_cli.height_cycle is not None) and args_cli.fixed_command is None:
+    if any(cycle is not None for cycle in (args_cli.velocity_cycle, args_cli.height_cycle, args_cli.yaw_cycle)) and args_cli.fixed_command is None:
         raise ValueError("Command cycles require --fixed_command for the remaining command values.")
     if args_cli.height_cycle is not None and any(height <= 0.0 for height in args_cli.height_cycle):
         raise ValueError("--height_cycle values must be positive.")
@@ -387,7 +391,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
     velocity_phase_steps = None
     last_velocity_phase = None
-    if args_cli.velocity_cycle is not None or args_cli.height_cycle is not None:
+    if any(cycle is not None for cycle in (args_cli.velocity_cycle, args_cli.height_cycle, args_cli.yaw_cycle)):
         velocity_phase_steps = max(1, round(args_cli.velocity_phase_duration / dt))
     if args_cli.velocity_cycle is not None:
         reachable_speed = env.unwrapped.cfg.wheel_radius * env.unwrapped.cfg.action_scale_vel
@@ -419,6 +423,20 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
             command_height = args_cli.height_cycle[phase % len(args_cli.height_cycle)]
             base_env._command_ranges[2, :] = command_height
             base_env._commands[:, 2] = command_height
+        if args_cli.yaw_cycle is not None:
+            command_yaw = args_cli.yaw_cycle[phase % len(args_cli.yaw_cycle)]
+            base_env._command_ranges[1, :] = command_yaw
+            base_env.cfg.commands.heading_command = command_yaw == 0.0
+            if command_yaw != 0.0:
+                base_env._commands[:, 1] = command_yaw
+            elif phase != last_velocity_phase:
+                # Hold the heading reached after a turn, instead of returning to the initial heading.
+                q = base_env._robot.data.root_quat_w
+                base_env._commands[:, 3] = torch.atan2(
+                    2 * (q[:, 0] * q[:, 3] + q[:, 1] * q[:, 2]),
+                    1 - 2 * (q[:, 2] ** 2 + q[:, 3] ** 2),
+                )
+                base_env._commands[:, 1] = 0.0
         # The policy receives the ramped command already applied by the environment.
         command_obs = base_env._commands[:, :3] * base_env._commands_scale
         policy_obs = (
@@ -451,29 +469,80 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         print(f"[INFO] Writing replay diagnostics to: {trace_path}")
 
     camera_controller = getattr(env.unwrapped, "viewport_camera_controller", None)
+    camera_mode = "free"
+    camera_window = None
+    camera_status = None
+    camera_subscription = None
+    previous_robot_position = None
+
+    def robot_camera_position():
+        return env.unwrapped.scene[env_cfg.viewer.asset_name or "robot"].data.root_pos_w[
+            env_cfg.viewer.env_index
+        ].detach().cpu().tolist()
 
     def set_camera_mode(mode):
+        nonlocal camera_mode, previous_robot_position
         if camera_controller is None:
             return
+        camera_mode = mode
+        previous_robot_position = robot_camera_position()
         if mode == "follow":
             camera_controller.update_view_to_asset_root(env_cfg.viewer.asset_name or "robot")
         else:
             # Keep the current view, but stop the per-frame asset tracking callback
             # from overwriting mouse orbit/pan/zoom edits.
             camera_controller.cfg.origin_type = "world"
+        if camera_status is not None:
+            camera_status.text = {
+                "orbit": "Mode: Follow + orbit (angle and zoom remain adjustable)",
+                "free": "Mode: Free view (camera stays in world space)",
+                "follow": "Mode: Fixed follow (angle locked)",
+            }[mode]
 
     def center_camera():
         if camera_controller is None:
             return
-        mode = camera_controller.cfg.origin_type
+        mode = camera_mode
         camera_controller.update_view_to_asset_root(env_cfg.viewer.asset_name or "robot")
-        if mode not in ("asset_root", "asset_body"):
-            set_camera_mode("free")
+        set_camera_mode(mode)
+
+    def update_orbit_camera(event):
+        nonlocal previous_robot_position
+        if camera_mode != "orbit":
+            return
+        position = robot_camera_position()
+        delta = Gf.Vec3d(*(now - old for now, old in zip(position, previous_robot_position)))
+        previous_robot_position = position
+        viewport = get_active_viewport()
+        if viewport is not None:
+            state = ViewportCameraState(viewport=viewport)
+            # Translate the *current* mouse-edited camera and its orbit pivot together.
+            # rotate=False preserves orientation, zoom distance and local center of interest.
+            state.set_position_world(state.position_world + delta, False)
 
     if camera_controller is not None and not args_cli.headless and not args_cli.video:
+        import omni.ui as ui
+        import omni.kit.app
+        from omni.kit.viewport.utility import get_active_viewport
+        from omni.kit.viewport.utility.camera_state import ViewportCameraState
+        from pxr import Gf
+
         # Place the camera at the familiar robot view once, then release it for navigation.
         center_camera()
+        camera_window = ui.Window("Camera controls", width=480, height=125, position_x=340, position_y=60)
+        with camera_window.frame:
+            with ui.VStack(spacing=5):
+                camera_status = ui.Label("", height=22)
+                with ui.HStack(height=30, spacing=5):
+                    ui.Button("Follow + orbit", clicked_fn=lambda: set_camera_mode("orbit"))
+                    ui.Button("Free view", clicked_fn=lambda: set_camera_mode("free"))
+                    ui.Button("Fixed follow", clicked_fn=lambda: set_camera_mode("follow"))
+                    ui.Button("Center robot", clicked_fn=center_camera)
+                ui.Label("Over scene: Alt + left drag = orbit; wheel = zoom.", height=22)
         set_camera_mode(args_cli.camera_mode)
+        camera_subscription = omni.kit.app.get_app_interface().get_post_update_event_stream().create_subscription_to_pop(
+            update_orbit_camera
+        )
         print(f"[INFO] Interactive camera mode: {args_cli.camera_mode}.", flush=True)
 
     live_window = None
@@ -509,12 +578,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         with live_window.frame:
             with ui.ScrollingFrame():
                 with ui.VStack(spacing=4):
-                    with ui.HStack(height=24, spacing=5):
-                        ui.Button("Free camera", clicked_fn=lambda: set_camera_mode("free"))
-                        ui.Button("Center robot", clicked_fn=center_camera)
-                        ui.Button("Fixed follow", clicked_fn=lambda: set_camera_mode("follow"))
-                    ui.Label("Free view: Alt + left drag to orbit; middle drag to pan; wheel to zoom.", height=20)
-                    for field in ("progress", "speed", "yaw", "height", "body", "angles", "left", "right", "status"):
+                    for field in ("progress", "speed", "yaw", "heading", "height", "body", "angles", "left", "right", "status"):
                         live_labels[field] = ui.Label("Waiting for simulation...", height=20)
                     live_labels["plot_time"] = ui.Label("Time window: waiting for samples", height=20)
                     ui.Label("Right plots: error in pink; limits in gray. Orange number = outside band.", height=20)
@@ -579,6 +643,8 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                 env_id = args_cli.trace_env_id
                 heading_velocity = base_env._get_heading_frame_horizontal_velocity()[env_id]
                 gravity = base_env._robot.data.projected_gravity_b[env_id]
+                q = base_env._robot.data.root_quat_w[env_id]
+                yaw_world = torch.atan2(2 * (q[0] * q[3] + q[1] * q[2]), 1 - 2 * (q[2] ** 2 + q[3] ** 2))
                 wheel_velocity = base_env._get_wheel_vel_forward_positive()[env_id]
                 logical_torque = base_env._robot.data.applied_torque[
                     env_id, base_env._torque_joint_ids
@@ -594,6 +660,8 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                     "cmd_x": base_env._commands[env_id, 0].item(),
                     "cmd_x_target": base_env._target_lin_vel_x[env_id].item(),
                     "cmd_yaw": base_env._commands[env_id, 1].item(),
+                    "yaw_world_deg": 57.29578 * yaw_world.item(),
+                    "heading_hold": int(base_env.cfg.commands.heading_command),
                     "height_cmd": base_env._commands[env_id, 2].item(),
                     "vel_x_heading": heading_velocity[0].item(),
                     "vel_y_heading": heading_velocity[1].item(),
@@ -670,6 +738,10 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                     live_labels["yaw"].text = (
                         f"Yaw rate measured {row['yaw_rate_body']:+.3f} | cmd {row['cmd_yaw']:+.3f} rad/s | "
                         f"Vy {row['vel_y_heading']:+.3f} m/s"
+                    )
+                    live_labels["heading"].text = (
+                        f"Yaw angle {row['yaw_world_deg']:+.1f} deg | "
+                        + ("Holding reached heading" if row["heading_hold"] else "Turning (yaw-rate command)")
                     )
                     live_labels["height"].text = (
                         f"Body height: {1000 * row['base_height']:.1f} / "
@@ -792,6 +864,10 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         trace_file.close()
     if live_window is not None:
         live_window.destroy()
+    if camera_subscription is not None:
+        camera_subscription.unsubscribe()
+    if camera_window is not None:
+        camera_window.destroy()
     env.close()
 
 

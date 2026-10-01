@@ -17,6 +17,7 @@ from isaaclab.sensors import ContactSensor
 from isaaclab.utils.math import quat_apply, wrap_to_pi
 
 from wheel_legged_gym_isaaclab.vmc import leg_coordinates, virtual_leg_torques
+from wheel_legged_gym_isaaclab.yaw_training import sample_yaw_rates, spin_center_velocity_penalty
 
 from .wheel_legged_vmc_flat_env_cfg import WheelLeggedVMCFlatEnvCfg
 
@@ -158,6 +159,7 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
                 "base_height_error_sq",
                 "track_ang_vel",
                 "yaw_rate_error_sq",
+                "spin_center_velocity",
                 "base_height",
                 "nominal_state",
                 "lin_vel_z",
@@ -203,6 +205,19 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
             )
 
         standing_fraction = float(self.cfg.commands.standing_env_fraction)
+        yaw_low, yaw_high = self.cfg.commands.ranges_ang_vel_yaw
+        fixed_speed = self.cfg.commands.ranges_lin_vel_x[0] == self.cfg.commands.ranges_lin_vel_x[1]
+        if not fixed_speed and (yaw_low != 0.0 or yaw_high != 0.0):
+            if self.cfg.commands.heading_command:
+                raise ValueError("Yaw-rate training requires heading_command=False; heading hold would overwrite turn commands.")
+            if not (yaw_low < 0 < yaw_high and 0 <= self.cfg.commands.yaw_min_abs_rate <= min(-yaw_low, yaw_high)):
+                raise ValueError("Yaw training needs both turn directions and a minimum within its range.")
+        if self.cfg.commands.yaw_ramp_steps <= 0 or self.cfg.commands.yaw_start_steps < 0:
+            raise ValueError("Yaw curriculum requires a nonnegative start and positive ramp duration.")
+        if not (0 <= self.cfg.commands.yaw_env_fraction <= 1 and 0 <= self.cfg.commands.yaw_boundary_fraction <= 1):
+            raise ValueError("Yaw population and boundary fractions must be in [0, 1].")
+        if self.cfg.rewards.tracking_sigma_ang <= 0 or self.cfg.rewards.spin_center_velocity > 0:
+            raise ValueError("Yaw tracking width must be positive and spin drift penalty nonpositive.")
         transition_fraction = float(self.cfg.commands.transition_env_fraction)
         reverse_fraction = float(self.cfg.commands.reverse_env_fraction)
         if not 0.0 <= standing_fraction < 1.0:
@@ -740,7 +755,11 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
         )
         r_standing_velocity = torch.sum(torch.square(heading_velocity), dim=1) * standing
         ang_vel_error = torch.square(self._commands[:, 1] - root_ang_vel_b[:, 2])
-        r_track_ang = torch.exp(-ang_vel_error / self.cfg.rewards.tracking_sigma)
+        r_track_ang = torch.exp(-ang_vel_error / self.cfg.rewards.tracking_sigma_ang)
+        r_spin_center = spin_center_velocity_penalty(
+            self._get_wheel_vel_forward_positive(), self.cfg.wheel_radius,
+            self._commands[:, 0], self._target_lin_vel_x, self._commands[:, 1],
+        )
 
         base_height_error = torch.square(
             self._robot.data.root_pos_w[:, 2] - self._commands[:, 2]
@@ -861,6 +880,7 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
             "yaw_rate_error_sq": ang_vel_error
             * self.cfg.rewards.yaw_rate_error_sq
             * self.step_dt,
+            "spin_center_velocity": r_spin_center * self.cfg.rewards.spin_center_velocity * self.step_dt,
             "base_height": r_base_height
             * self.cfg.rewards.base_height
             * self.step_dt,
@@ -1268,6 +1288,17 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
                 yaw_min, yaw_max = self.cfg.commands.ranges_ang_vel_yaw
                 self._commands[moving_ids, 1] = yaw_min + (yaw_max - yaw_min) * torch.rand(
                     moving_ids.numel(), device=self.device
+                )
+            yaw_min, yaw_max = self.cfg.commands.ranges_ang_vel_yaw
+            if yaw_min != 0.0 or yaw_max != 0.0:
+                # Apply to ALL resampled environments, including zero-speed spins.
+                # Preserve zero-yaw samples for straight motion and stationary balance.
+                yaw_progress = (step - self.cfg.commands.yaw_start_steps) / self.cfg.commands.yaw_ramp_steps
+                self._commands[env_ids, 1] = sample_yaw_rates(
+                    env_ids.numel(), device=self.device, low=yaw_min, high=yaw_max,
+                    fraction=self.cfg.commands.yaw_env_fraction, minimum=self.cfg.commands.yaw_min_abs_rate,
+                    boundary_fraction=self.cfg.commands.yaw_boundary_fraction,
+                    progress=min(progress, yaw_progress),
                 )
         self._target_lin_vel_x[env_ids] = self._commands[env_ids, 0]
         self._commands[env_ids, 0] = previous_speed

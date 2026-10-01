@@ -71,6 +71,12 @@ class CommandsCfg:
     # Bridge the gap between standing and the positive/negative main ranges.
     ranges_transition_lin_vel_x = (-0.2, 0.2)  # [m/s]
     ranges_ang_vel_yaw = (0.0, 0.0)  # [rad/s]
+    # Opt in through the yaw-training run configuration; keep old straight replay compatible.
+    yaw_env_fraction = 0.5  # sampled independently for standing and moving populations
+    yaw_min_abs_rate = 0.15  # [rad/s], before curriculum scaling
+    yaw_boundary_fraction = 0.2
+    yaw_start_steps = 0
+    yaw_ramp_steps = 9_600
     # Introduce height control around the nominal 0.18 m stance.  The sampler
     # expands progressively from the midpoint to this complete interval using
     # the same curriculum progress as the velocity commands.
@@ -105,6 +111,7 @@ class RewardsCfg:
     base_height_error_sq = -1000.0  # 1 cm error costs 0.1 reward/s before term clipping
     tracking_ang_vel = 1.0
     yaw_rate_error_sq = -5.0
+    spin_center_velocity = 0.0  # wheel common-mode speed penalty; only active on stationary turns
     base_height = 1.0
     nominal_state = -60.0
     lin_vel_z = -2.0
@@ -131,6 +138,7 @@ class RewardsCfg:
     nominal_state_penalty_clip = 3.0  # keep the 6-9 degree asymmetry penalty below its cap
     orientation_penalty_clip = 3.0  # retain a gradient at the observed 5-6 degree pitch
     tracking_sigma = 0.25
+    tracking_sigma_ang = 0.25  # separate yaw width so turning can be trained without changing linear tracking
     tracking_sigma_enhance = 0.025
     tracking_sigma_precise = 0.01
     # Projected-gravity y is dominated by body roll; weight it more strongly

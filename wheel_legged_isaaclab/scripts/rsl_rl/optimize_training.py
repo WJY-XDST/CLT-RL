@@ -241,9 +241,10 @@ class Optimizer:
         if not plan["fresh"]:
             command += ["--checkpoint_path", str(checkpoint), "--reset_optimizer"]
         command += [f"env.rewards.{key}={value}" for key, value in plan["rewards"].items()]
+        command += [f"env.{key}={value}" for key, value in plan.get("env_overrides", {}).items()]
         write_json(directory / "plan.json", dict(plan, command=command, parent_checkpoint=str(checkpoint), source_hashes=self.code))
         self.note(f"- **训练前目的**：{plan['purpose']}。\n- **修改内容**：奖励配置 `{plan['rewards']}`；"
-                  f"其余控制与环境配置保持当前代码版本。\n- **起点**：{'随机初始化' if plan['fresh'] else str(checkpoint)}；"
+                  f"额外环境配置 `{plan.get('env_overrides', {})}`；其余配置保持当前代码版本。\n- **起点**：{'随机初始化' if plan['fresh'] else str(checkpoint)}；"
                   f"{'新优化器' if not plan['fresh'] else '不加载模型'}，12288 环境、{plan['iterations']} 次 PPO 迭代、"
                   f"固定学习率 {plan['learning_rate']}。\n- **验收重点**：完整速度/高度矩阵、静止、姿态、腿角差和切换，"
                   "与保留参照比较，不接受以一项改善换取其他未达标项明显退步。")

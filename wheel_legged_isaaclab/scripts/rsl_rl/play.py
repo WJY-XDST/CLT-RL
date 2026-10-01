@@ -191,6 +191,7 @@ simulation_app = app_launcher.app
 """Rest everything follows."""
 
 import gymnasium as gym
+import math
 import os
 import time
 import torch
@@ -560,11 +561,14 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         from collections import deque
 
         live_chart_specs = {
+            "yaw": ("Yaw rate (rad/s)", -0.5, 0.5, ("cmd_yaw", "yaw_rate_body"), ("Command", "Measured")),
+            "yaw_angle": ("Yaw turn since reset (deg)", -90.0, 90.0,
+                          ("yaw_turn_reference_deg", "yaw_turn_measured_deg"),
+                          ("Rate integral (reference)", "Measured turn")),
             "speed": ("Forward speed (m/s)", -1.0, 1.0, ("cmd_x_target", "vel_x_heading", "cmd_x"),
                       ("Target", "Measured", "Ramped cmd")),
             "height": ("Body height (mm)", 140.0, 220.0, ("height_target_mm", "height_measured_mm"),
                        ("Target", "Measured")),
-            "yaw": ("Yaw rate (rad/s)", -0.5, 0.5, ("cmd_yaw", "yaw_rate_body"), ("Command", "Measured")),
             "body": ("Body angle (deg)", -5.0, 5.0, ("zero", "pitch_deg", "roll_deg"),
                      ("Upright target", "Pitch", "Roll")),
             "symmetry": ("Left - right leg angle (deg)", -3.0, 3.0, ("zero", "leg_difference_deg"),
@@ -582,12 +586,13 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                         live_labels[field] = ui.Label("Waiting for simulation...", height=20)
                     live_labels["plot_time"] = ui.Label("Time window: waiting for samples", height=20)
                     ui.Label("Right plots: error in pink; limits in gray. Orange number = outside band.", height=20)
+                    ui.Label("Yaw turn reference integrates rate commands; it is not an angle command.", height=20)
                     for name, (title, low, high, keys, legends) in live_chart_specs.items():
                         live_chart_titles[name] = ui.Label(title, height=20)
                         with ui.HStack(height=18):
                             for legend, color in zip(legends, colors):
                                 ui.Label(legend, style={"color": color})
-                        with ui.HStack(height=125, spacing=10):
+                        with ui.HStack(height=100, spacing=10):
                             with ui.ZStack():
                                 ui.Rectangle(style={"background_color": 0xFF242424})
                                 for key, color in zip(keys, colors):
@@ -598,7 +603,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                             with ui.VStack(width=235, spacing=2):
                                 for field in ("value", "band", "peak"):
                                     live_error_labels[(name, field)] = ui.Label("Waiting...", height=20)
-                                with ui.ZStack(height=55):
+                                with ui.ZStack(height=38):
                                     ui.Rectangle(style={"background_color": 0xFF191919})
                                     for suffix, color in (("zero", 0xFF555555), ("low", 0xFF999999),
                                                           ("high", 0xFF999999), ("value", 0xFF8982FF)):
@@ -607,10 +612,21 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                                         live_error_plots[(name, suffix)] = ui.Plot(
                                             ui.Type.LINE, -1.0, 1.0, 0.0, 0.0,
                                             style={"color": color, "background_color": 0x0})
-        print("[INFO] Live command/feedback panel enabled: five rolling charts, 10 Hz simulation samples.", flush=True)
+        print("[INFO] Live command/feedback panel enabled: six rolling charts including yaw angle, 10 Hz simulation samples.", flush=True)
 
     # reset environment
     obs = env.get_observations()
+    track_yaw = trace_file is not None or bool(live_labels)
+    yaw_turn_reference = 0.0
+    yaw_turn_measured = 0.0
+
+    def measured_yaw_degrees():
+        q = env.unwrapped._robot.data.root_quat_w[args_cli.trace_env_id]
+        return math.degrees(torch.atan2(
+            2 * (q[0] * q[3] + q[1] * q[2]), 1 - 2 * (q[2] ** 2 + q[3] ** 2)
+        ).item())
+
+    previous_yaw = measured_yaw_degrees() if track_yaw else 0.0
     timestep = 0
     # simulate environment
     while simulation_app.is_running():
@@ -618,6 +634,9 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         # run everything in inference mode
         with torch.inference_mode():
             apply_velocity_cycle_command(obs, timestep)
+            if track_yaw:
+                # Capture the command actually presented to the policy for this step.
+                yaw_rate_applied = env.unwrapped._commands[args_cli.trace_env_id, 1].item()
             # agent stepping
             actions = policy(obs)
             if args_cli.zero_actions:
@@ -634,6 +653,20 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                 actions[:, 5] = args_cli.fixed_wheel_action[1]
             # env stepping
             obs, _, _, _ = env.step(actions)
+            if track_yaw:
+                yaw_degrees = measured_yaw_degrees()
+                did_reset = bool(env.unwrapped.reset_terminated[args_cli.trace_env_id]) or bool(
+                    env.unwrapped.reset_time_outs[args_cli.trace_env_id]
+                )
+                if did_reset:
+                    yaw_turn_reference = yaw_turn_measured = 0.0
+                    for history in live_history.values():
+                        history.clear()
+                else:
+                    yaw_turn_reference += math.degrees(yaw_rate_applied * dt)
+                    # Unwrap +/-180-degree crossings before accumulating the measured turn.
+                    yaw_turn_measured += (yaw_degrees - previous_yaw + 180.0) % 360.0 - 180.0
+                previous_yaw = yaw_degrees
             apply_velocity_cycle_command(obs, timestep)
             write_trace = trace_file is not None and timestep % args_cli.trace_interval == 0
             update_live = bool(live_labels) and time.monotonic() >= next_live_update
@@ -643,8 +676,6 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                 env_id = args_cli.trace_env_id
                 heading_velocity = base_env._get_heading_frame_horizontal_velocity()[env_id]
                 gravity = base_env._robot.data.projected_gravity_b[env_id]
-                q = base_env._robot.data.root_quat_w[env_id]
-                yaw_world = torch.atan2(2 * (q[0] * q[3] + q[1] * q[2]), 1 - 2 * (q[2] ** 2 + q[3] ** 2))
                 wheel_velocity = base_env._get_wheel_vel_forward_positive()[env_id]
                 logical_torque = base_env._robot.data.applied_torque[
                     env_id, base_env._torque_joint_ids
@@ -660,7 +691,11 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                     "cmd_x": base_env._commands[env_id, 0].item(),
                     "cmd_x_target": base_env._target_lin_vel_x[env_id].item(),
                     "cmd_yaw": base_env._commands[env_id, 1].item(),
-                    "yaw_world_deg": 57.29578 * yaw_world.item(),
+                    "yaw_world_deg": yaw_degrees,
+                    "yaw_rate_applied": yaw_rate_applied,
+                    "yaw_turn_reference_deg": yaw_turn_reference,
+                    "yaw_turn_measured_deg": yaw_turn_measured,
+                    "yaw_turn_error_deg": yaw_turn_measured - yaw_turn_reference,
                     "heading_hold": int(base_env.cfg.commands.heading_command),
                     "height_cmd": base_env._commands[env_id, 2].item(),
                     "vel_x_heading": heading_velocity[0].item(),
@@ -710,6 +745,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                                   abs(row["cmd_x_target"]) * 0.05 if abs(row["cmd_x_target"]) > 1e-6 else 0.02),
                         "height": (1000 * (row["base_height"] - row["height_cmd"]), 50 * row["height_cmd"]),
                         "yaw": (row["yaw_rate_body"] - row["cmd_yaw"], 0.0),
+                        "yaw_angle": (row["yaw_turn_error_deg"], 0.0),
                         "body": (57.29578 * max(abs(row["pitch_est_rad"]), abs(row["roll_est_rad"])), 3.0),
                         "symmetry": (57.29578 * (row["theta_left"] - row["theta_right"]), 3.0),
                     }
@@ -786,7 +822,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                         if error_samples:
                             error, band = error_values[name]
                             peak = max(abs(v) for v in error_samples)
-                            unit = {"speed": "m/s", "height": "mm", "yaw": "rad/s",
+                            unit = {"speed": "m/s", "height": "mm", "yaw": "rad/s", "yaw_angle": "deg",
                                     "body": "deg", "symmetry": "deg"}[name]
                             decimals = 3 if name in ("speed", "yaw") else 2
                             live_error_labels[(name, "value")].text = f"Error {error:+.{decimals}f} {unit}"
@@ -799,12 +835,17 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                                 detail = f"{percent:.2f}% / limit 5%"
                                 outside = abs(error) > band
                             elif name == "yaw":
-                                detail, outside = "Rate error; zero reference", False
+                                detail = (f"{100 * abs(error / row['cmd_yaw']):.1f}% of command"
+                                          if not row["heading_hold"] and abs(row["cmd_yaw"]) > 1e-6
+                                          else "Heading hold: absolute error")
+                                outside = False
+                            elif name == "yaw_angle":
+                                detail, outside = "Measured - rate integral", False
                             else:
                                 detail, outside = f"|error| {abs(error):.2f} / limit 3 deg", abs(error) > band
                             live_error_labels[(name, "band")].text = detail
                             live_error_labels[(name, "value")].style = {
-                                "color": 0xFFE0E0E0 if name == "yaw" else (0xFF55A5FF if outside else 0xFF8DD781)
+                                "color": 0xFFE0E0E0 if name in ("yaw", "yaw_angle") else (0xFF55A5FF if outside else 0xFF8DD781)
                             }
                             live_error_labels[(name, "peak")].text = f"Sampled peak {peak:.{decimals}f} {unit}"
                             span = max(peak, max(live_history[f"error_{name}_high"]), .01) * 1.15

@@ -308,7 +308,7 @@ class AutonomousOptimizer(YawOptimizer):
             self.set_gains(gains)
             label = f"control_preflight{time.time_ns()}"
             yaw = self.evaluate_yaw(checkpoint, label + "_yaw", seeds=(53,))
-            straight = self.evaluate(checkpoint, label + "_straight", seeds=(43,))
+            straight = self.evaluate(checkpoint, label + "_straight", seeds=(43, 44, 45))
             # Complete timing/oscillation checks are included even though a
             # controller's preflight does not replace post-training acceptance.
             startup = self.evaluate_startup(checkpoint, label + "_startup", seeds=(53,))

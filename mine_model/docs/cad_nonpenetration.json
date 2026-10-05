@@ -1,0 +1,32 @@
+{
+  "asset": "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_closed_chain_training_protected_stops_v2.usd",
+  "asset_chain_sha256": {
+    "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_closed_chain_training_protected_stops_v2.usd": "2ae945dacf9ef175b9c84a969f040d1b169c4054d28e239215fe8e717f32909c",
+    "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_closed_chain_training_protected.usd": "1ec14a942dc67f413293d536ce623ca3712d941931abf28b35f3d46f24c085fc",
+    "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_closed_chain_base_box.usd": "bbde84ca678525e4c99abe3e718a927954e2dd24f41cf1f2434a3350072d392e",
+    "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_closed_chain_tires_96.usd": "cd7170cd08567ab4abf0b3ef033ae07af5d3887e8341d53ce3073e982910db88",
+    "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_closed_chain.usd": "fffbe16eeba967df5e22163523d8c09936eab43e56d46847fe93e9960067f913",
+    "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_base_box_instanceable_meshes.usd": "404cf292faa1f61a42defc5719a8062f46cb5275c15dd1533be7e70ff72edcad",
+    "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_protected_leg_instanceable_meshes.usd": "d034d97112ef660f5b6f5642a71971b56d2163631867668b8f63bc9ee495d85d"
+  },
+  "pairs": [
+    {
+      "upper": "LB_link",
+      "lower": "LS_link",
+      "maximum_projected_CAD_overlap_mm2": 0.0,
+      "worst_step_env": null,
+      "sampled_poses": 2400,
+      "no_CAD_interpenetration_at_sampled_poses": true
+    },
+    {
+      "upper": "RB_link",
+      "lower": "RS_link",
+      "maximum_projected_CAD_overlap_mm2": 0.0,
+      "worst_step_env": null,
+      "sampled_poses": 2400,
+      "no_CAD_interpenetration_at_sampled_poses": true
+    }
+  ],
+  "passed": true,
+  "scope": "Original CAD triangle projections transformed by actual GPU poses, all recorded 50 Hz samples across four deliberate overstroke tests. Disjoint X/Z projections establish no CAD intersection at those samples; substep contact depth and continuous-time nonpenetration are not established."
+}

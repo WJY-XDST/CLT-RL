@@ -1,0 +1,70 @@
+{
+  "source": "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_closed_chain_training_protected.usd",
+  "overlay": "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_closed_chain_training_protected_contacts_groups_v2.usd",
+  "sha256": {
+    "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_closed_chain_training_protected.usd": "1ec14a942dc67f413293d536ce623ca3712d941931abf28b35f3d46f24c085fc",
+    "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_closed_chain_training_protected_contacts_groups_v2.usd": "ceeeb6b45064eaa1d71bf8f0fc9ee599747b919c84a14c06d232d293545a1d17"
+  },
+  "confirmed_stop_pairs": [
+    {
+      "stop": "/mine_robot/LB_link/collisions/part_413_4_28/node_STL_BINARY_",
+      "contact_surface": "/mine_robot/LS_link/collisions/part_410___1_15/node_STL_BINARY_",
+      "joint": "/mine_robot/joints/LS_joint",
+      "approximation": "convexDecomposition",
+      "mesh_points_unchanged": true
+    },
+    {
+      "stop": "/mine_robot/RB_link/collisions/part_192_4_28/node_STL_BINARY_",
+      "contact_surface": "/mine_robot/RS_link/collisions/part_156___1_15/node_STL_BINARY_",
+      "joint": "/mine_robot/joints/RS_joint",
+      "approximation": "convexDecomposition",
+      "mesh_points_unchanged": true
+    }
+  ],
+  "unchanged_dynamics_and_joint_frames": [
+    "/mine_robot/base_link",
+    "/mine_robot/LB_link",
+    "/mine_robot/joints/LB_joint",
+    "/mine_robot/joints/LS_joint",
+    "/mine_robot/joints/LW_joint",
+    "/mine_robot/joints/LL_joint",
+    "/mine_robot/joints/LL1_joint",
+    "/mine_robot/joints/LL2_joint",
+    "/mine_robot/joints/LL3_joint",
+    "/mine_robot/joints/RB_joint",
+    "/mine_robot/joints/RS_joint",
+    "/mine_robot/joints/RW_joint",
+    "/mine_robot/joints/RL_joint",
+    "/mine_robot/joints/RL1_joint",
+    "/mine_robot/joints/RL2_joint",
+    "/mine_robot/joints/RL3_joint",
+    "/mine_robot/LS_link",
+    "/mine_robot/LW_link",
+    "/mine_robot/LL_link",
+    "/mine_robot/LL1_link",
+    "/mine_robot/LL2_link",
+    "/mine_robot/LL3_link",
+    "/mine_robot/RB_link",
+    "/mine_robot/RS_link",
+    "/mine_robot/RW_link",
+    "/mine_robot/RL_link",
+    "/mine_robot/RL1_link",
+    "/mine_robot/RL2_link",
+    "/mine_robot/RL3_link",
+    "/mine_robot/loop_joints/RL3_RS_closure",
+    "/mine_robot/loop_joints/RL2_RB_closure",
+    "/mine_robot/loop_joints/LL3_LS_closure",
+    "/mine_robot/loop_joints/LL2_LB_closure"
+  ],
+  "status": "diagnostic; physical stop sweep and policy replay required",
+  "solver_tree_changed": true,
+  "collision_filter": "three collision groups; ordinary robot shapes excluded from internal contact",
+  "runtime_override_required": {
+    "robot.spawn.articulation_props.enabled_self_collisions": true,
+    "robot.actuators.passive.joint_names_expr": [
+      "[LR]L[123]_joint",
+      "[LR]L3_[LR]S_closure"
+    ]
+  },
+  "tree_description": "LS/RS knee hinges become external loop constraints; LL3_LS/RL3_RS existing closures enter the articulation tree. All 18 hinge frames/bodies/axes retained; active motor and wheel names unchanged."
+}

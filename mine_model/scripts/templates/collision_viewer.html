@@ -1,0 +1,114 @@
+<div id="mine-collision-inspector">
+  <div class="viz-controls">
+    <label class="form-label">显示
+      <select class="form-select" id="mine-collision-filter">
+        <option value="all">全部碰撞体</option>
+        <option value="left">左腿限位与小腿</option>
+        <option value="right">右腿限位与小腿</option>
+        <option value="base">底盘盒</option>
+        <option value="wheels">轮子</option>
+      </select>
+    </label>
+    <button type="button" class="btn" id="mine-collision-perspective">立体</button>
+    <button type="button" class="btn" id="mine-collision-front">正视</button>
+    <button type="button" class="btn" id="mine-collision-side">侧视</button>
+    <label class="form-check"><input class="form-check-input" id="mine-collision-wire" type="checkbox"><span class="form-check-label">线框</span></label>
+    <label class="form-check"><input class="form-check-input" id="mine-collision-joints" type="checkbox"><span class="form-check-label">铰链位置</span></label>
+  </div>
+  <div id="mine-collision-canvas" role="img" aria-label="当前简化碰撞模型的可旋转三维视图。21个碰撞输入几何，包括底盘盒、简化连杆、原CAD限位块与小腿接触面、圆轮。"></div>
+  <div class="viz-row text-small" id="mine-collision-legend">
+    <span><b data-color="base">●</b> 底盘盒</span>
+    <span><b data-color="links">●</b> 简化连杆</span>
+    <span><b data-color="stops">●</b> 原 CAD 限位块</span>
+    <span><b data-color="shanks">●</b> 原 CAD 小腿接触面</span>
+    <span><b data-color="wheels">●</b> 圆轮</span>
+  </div>
+  <div class="text-small" id="mine-collision-detail" aria-live="polite">21 个碰撞输入几何 · 默认装配姿态 · X 前 / Y 左 / Z 上</div>
+  <script type="application/json" id="mine-collision-data">__MODEL_DATA__</script>
+</div>
+<style>
+#mine-collision-inspector #mine-collision-canvas{width:100%;height:460px;touch-action:none}
+#mine-collision-inspector canvas{display:block;max-width:100%}
+#mine-collision-inspector #mine-collision-legend{justify-content:flex-start;gap:12px}
+@media(max-width:400px){#mine-collision-inspector #mine-collision-canvas{height:380px}}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+(() => {
+  const root=document.getElementById('mine-collision-inspector');
+  const stage=root.querySelector('#mine-collision-canvas');
+  const detail=root.querySelector('#mine-collision-detail');
+  if(!window.THREE || !THREE.OrbitControls){detail.textContent='三维视图加载失败';return;}
+  const data=JSON.parse(root.querySelector('#mine-collision-data').textContent);
+  const probe=document.createElement('span');probe.style.display='none';root.appendChild(probe);
+  const theme=name=>{probe.style.color='var(--'+name+')';return getComputedStyle(probe).color;};
+  const tokens={base:'muted-foreground',links:'blue',stops:'green',shanks:'orange',wheels:'foreground'};
+  const scene=new THREE.Scene();
+  const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+  renderer.outputEncoding=THREE.sRGBEncoding;
+  stage.appendChild(renderer.domElement);
+  const camera=new THREE.PerspectiveCamera(38,1,0.001,20);camera.up.set(0,0,1);
+  const controls=new THREE.OrbitControls(camera,renderer.domElement);
+  controls.enableDamping=false;controls.minDistance=.05;controls.maxDistance=4;
+  scene.add(new THREE.AmbientLight(0xffffff,.72));
+  const light=new THREE.DirectionalLight(0xffffff,.8);light.position.set(1,-2,3);scene.add(light);
+  const meshes=[];
+  for(const part of data.parts){
+    const geometry=new THREE.BufferGeometry();
+    geometry.setAttribute('position',new THREE.Float32BufferAttribute(part.positions,3));
+    geometry.setIndex(part.indices);geometry.computeVertexNormals();
+    const material=new THREE.MeshStandardMaterial({color:theme(tokens[part.category]),side:THREE.DoubleSide,
+      roughness:.65,metalness:.05,transparent:true,opacity:part.category==='base'?.32:part.category==='links'?.65:.95,depthWrite:part.category!=='base'});
+    const mesh=new THREE.Mesh(geometry,material);mesh.userData=part;scene.add(mesh);meshes.push(mesh);
+  }
+  const jointGroup=new THREE.Group();scene.add(jointGroup);jointGroup.visible=false;
+  const jointMaterial=new THREE.MeshBasicMaterial({color:theme('purple')});
+  for(const joint of data.joints){
+    const marker=new THREE.Mesh(new THREE.SphereGeometry(.003,12,8),jointMaterial);
+    marker.position.fromArray(joint.position);marker.userData={joint:joint.name,external:joint.external};jointGroup.add(marker);
+  }
+  const bounds=new THREE.Box3();for(const mesh of meshes)bounds.expandByObject(mesh);
+  const grid=new THREE.GridHelper(1.2,12,theme('border'),theme('border'));grid.rotation.x=Math.PI/2;grid.position.z=bounds.min.z-.005;scene.add(grid);
+  const render=()=>renderer.render(scene,camera);controls.addEventListener('change',render);
+  let currentView='perspective';
+  const viewBounds=()=>{const box=new THREE.Box3();for(const mesh of meshes)if(mesh.visible)box.expandByObject(mesh);return box;};
+  function fit(view=currentView){
+    currentView=view;const box=viewBounds(),center=box.getCenter(new THREE.Vector3()),size=box.getSize(new THREE.Vector3());
+    const distance=Math.max(size.x,size.y,size.z)/Math.min(camera.aspect,1)*1.8;
+    const direction=view==='front'?new THREE.Vector3(1,0,.05):view==='side'?new THREE.Vector3(0,root.querySelector('#mine-collision-filter').value==='left'?1:-1,.03):new THREE.Vector3(1,-1.4,.7);
+    camera.position.copy(center).addScaledVector(direction.normalize(),Math.max(distance,.16));controls.target.copy(center);controls.update();render();
+  }
+  function resize(){const width=stage.clientWidth,height=stage.clientHeight;renderer.setSize(width,height);camera.aspect=width/height;camera.updateProjectionMatrix();fit();}
+  new ResizeObserver(resize).observe(stage);
+  root.querySelector('#mine-collision-perspective').onclick=()=>fit('perspective');
+  root.querySelector('#mine-collision-front').onclick=()=>fit('front');
+  root.querySelector('#mine-collision-side').onclick=()=>fit('side');
+  root.querySelector('#mine-collision-wire').onchange=e=>{for(const mesh of meshes)mesh.material.wireframe=e.target.checked;render();};
+  root.querySelector('#mine-collision-joints').onchange=e=>{jointGroup.visible=e.target.checked;render();};
+  root.querySelector('#mine-collision-filter').onchange=e=>{
+    const value=e.target.value;
+    for(const mesh of meshes){const p=mesh.userData;mesh.visible=value==='all'||p.category===value||
+      ((value==='left'||value==='right')&&['stops','shanks'].includes(p.category)&&p.body.startsWith(value==='left'?'L':'R'));}
+    detail.textContent=value==='left'?'左限位块 part_413_4_28 与 LS 小腿接触面':value==='right'?'右限位块 part_192_4_28 与 RS 小腿接触面':value==='all'?'21 个碰撞输入几何 · 默认装配姿态 · X 前 / Y 左 / Z 上':value==='base'?'底盘单个包围盒':'96 边圆轮碰撞';
+    fit(value==='left'||value==='right'?'side':'perspective');
+  };
+  const ray=new THREE.Raycaster();let down=null;
+  renderer.domElement.addEventListener('pointerdown',e=>{down=[e.clientX,e.clientY];});
+  renderer.domElement.addEventListener('pointerup',e=>{
+    if(!down||Math.hypot(e.clientX-down[0],e.clientY-down[1])>5)return;
+    const r=renderer.domElement.getBoundingClientRect();ray.setFromCamera(new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1),camera);
+    const hits=ray.intersectObjects(jointGroup.visible?[...meshes.filter(m=>m.visible),...jointGroup.children]:meshes.filter(m=>m.visible));
+    if(hits.length){const p=hits[0].object.userData;detail.textContent=p.joint?p.joint+(p.external?' · 外部闭链铰链':' · articulation 树铰链'):p.body+' · '+({base:'底盘盒',links:'简化连杆',stops:'保留 CAD 限位块',shanks:'保留 CAD 小腿接触面',wheels:'圆轮'}[p.category])+' · '+p.approximation;}
+  });
+  function colors(){
+    for(const mesh of meshes)mesh.material.color.set(theme(tokens[mesh.userData.category]));
+    for(const element of root.querySelectorAll('[data-color]'))element.style.color=theme(tokens[element.dataset.color]);
+    jointMaterial.color.set(theme('purple'));render();
+  }
+  colors();resize();
+  new MutationObserver(colors).observe(document.documentElement,{attributes:true,attributeFilter:['class','style','data-theme']});
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',colors);
+})();
+</script>

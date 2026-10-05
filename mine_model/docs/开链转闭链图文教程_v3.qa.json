@@ -1,0 +1,14 @@
+{
+  "visually_verified": true,
+  "pages": 18,
+  "reviewed_at": "2026-10-04",
+  "render_directory": "/home/aaa/studyRL/src/CLT-RL/mine_model/build/doc_review_v3_contact_continuation",
+  "previously_reviewed_pages_identical": 17,
+  "newly_visually_reviewed_pages": [
+    18
+  ],
+  "sha256": {
+    ".docx": "52fb892f89297c8848e48e5f90c3cddafcb63a26229272a9f96069616ea35259",
+    ".pdf": "7a666a59824a7124686ca4ff0cd48190d2dacf2c34e75bee5b1debe51abf47fd"
+  }
+}

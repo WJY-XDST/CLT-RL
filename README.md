@@ -16,7 +16,8 @@
 - 二进制内置 Python：3.11.13
 - PyTorch：2.7.0+cu128
 - RSL-RL：3.0.1
-- 轮腿任务：`WheelLeggedVMC-Flat-v0`
+- 当前自定义闭链机器人任务：`WheelLeggedVMC-Flat-v0`
+- 原开源串联腿任务：`WheelLeggedVMC-Legacy-v0`
 
 ## 目录结构
 
@@ -25,6 +26,7 @@ CLT-RL/
 ├── isaacsim-5.1.0/          # 官方 Isaac Sim 二进制运行时
 ├── IsaacLab/                # Isaac Lab v2.3.1 源码、logs 和 checkpoint
 ├── wheel_legged_isaaclab/   # 轮腿机器人强化学习工程
+├── mine_model/              # 自定义闭链建模、配置、训练评估及报告
 ├── downloads/               # 官方安装包归档
 ├── run_python.sh            # 使用二进制版 Python
 ├── train_wheel.sh           # 训练入口
@@ -38,6 +40,24 @@ CLT-RL/
 
 以下命令都从本目录运行。
 
+### 2026-10-05 最新版本
+
+本次提交包含自定义闭链机器人适配、训练/评估工具、MuJoCo 接口、实机执行器接口、
+持续优化记录和自动键盘回放。最新权重快照与对应参数保存于
+[`wheel_legged_isaaclab/checkpoints/mine_20261005_model_12600/`](wheel_legged_isaaclab/checkpoints/mine_20261005_model_12600/)。
+这是 iteration **12600** 的训练候选模型，不是已通过最终验收或完成 sim2real 的模型。
+
+详见 [版本更改与验证说明](CHANGELOG.md) 和 [键盘控制说明](mine_model/docs/键盘可视化控制说明.md)。
+当前机器的最新已评估模型可这样回放：
+
+```bash
+./mine_model/run.sh play
+```
+
+GitHub 下载的权重请使用快照目录中的显式回放命令；不要把原开源模型的 0.18 m
+高度命令用于自定义机器人。Isaac Sim/Isaac Lab、原始 CAD 压缩包、训练历史和日志
+均不随这次提交上传，需在本地按固定版本准备。模型目录中保留原训练配置及路径说明。
+
 检查 GPU：
 
 ```bash
@@ -47,13 +67,14 @@ CLT-RL/
 无窗口训练 10000 iterations：
 
 ```bash
-./train_wheel.sh --headless --device cuda:0 --num_envs 4096 --max_iterations 10000
+./train_wheel.sh --task WheelLeggedVMC-Legacy-v0 --headless --device cuda:0 --num_envs 4096 --max_iterations 10000
 ```
 
 从指定 checkpoint 继续训练：
 
 ```bash
 ./train_wheel.sh --headless --device cuda:0 --num_envs 4096 \
+  --task WheelLeggedVMC-Legacy-v0 \
   --resume \
   --load_run 2026-09-22_17-34-52_angle_guard_resume_to_29999 \
   --checkpoint model_18100.pt \
@@ -64,6 +85,7 @@ CLT-RL/
 
 ```bash
 ./play_wheel.sh --device cuda:0 --num_envs 1 \
+  --task WheelLeggedVMC-Legacy-v0 --no_keyboard \
   --load_run 2026-09-22_17-34-52_angle_guard_resume_to_29999 \
   --checkpoint model_18100.pt \
   --fixed_command 0.5 0.0 0.18 --print_obs

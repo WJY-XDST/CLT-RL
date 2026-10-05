@@ -1,0 +1,9 @@
+mujoco==3.14.0
+numpy==2.4.6
+PyYAML==6.0.3
+matplotlib==3.11.2
+usd-core==26.8
+coacd==1.0.14
+scipy
+shapely==2.1.2
+# Install CPU PyTorch separately: pip install torch --index-url https://download.pytorch.org/whl/cpu

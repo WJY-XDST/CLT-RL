@@ -1,0 +1,41 @@
+{
+  "leg_control_mode": "implicit_joint_reference",
+  "leg_joint_stiffness": 300.0,
+  "leg_joint_damping": 3.0,
+  "commands.standing_only_steps": 67200,
+  "commands.motion_ramp_steps": 48000,
+  "commands.reverse_ramp_start_steps": 67200,
+  "commands.reverse_ramp_steps": 48000,
+  "commands.yaw_start_steps": 67200,
+  "commands.yaw_ramp_steps": 48000,
+  "commands.ranges_ang_vel_yaw": [
+    -0.3,
+    0.3
+  ],
+  "commands.heading_command": false,
+  "commands.grouped_training": true,
+  "rewards.termination": -84.0,
+  "rewards.base_height_penalty_clip": 30.0,
+  "rewards.standing_leg_angle": -5.0,
+  "min_root_height": 0.22,
+  "reset_velocity_final": 0.1,
+  "rewards.standing_wheel_tracking": -10.0,
+  "rewards.yaw_rate_error_sq": -80.0,
+  "rewards.lin_vel_penalty_clip": 43.199999999999996,
+  "rewards.yaw_rate_penalty_clip": 28.799999999999997,
+  "rewards.standing_wheel_penalty_clip": 80.0,
+  "rewards.orientation_penalty_clip": 18.374999999999996,
+  "wheel_damping": 2.0,
+  "robot.actuators.wheels.damping": 2.0,
+  "height_reference_blend": 0.95,
+  "height_feedback_gain": 0.25,
+  "rewards.action_rate": -2.0,
+  "rewards.action_rate_penalty_clip": 48.0,
+  "robot.spawn.usd_path": "../wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_closed_chain_training_protected_stops_v2.usd",
+  "scene.clone_in_fabric": false,
+  "robot.spawn.articulation_props.enabled_self_collisions": true,
+  "robot.actuators.passive.joint_names_expr": [
+    "[LR]L[123]_joint",
+    "[LR]L3_[LR]S_closure"
+  ]
+}

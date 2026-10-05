@@ -7,6 +7,7 @@
 
 from __future__ import annotations
 
+import math
 import torch
 from collections.abc import Sequence
 
@@ -17,6 +18,7 @@ from isaaclab.sensors import ContactSensor
 from isaaclab.utils.math import quat_apply, wrap_to_pi
 
 from wheel_legged_gym_isaaclab.vmc import leg_coordinates, virtual_leg_torques
+from wheel_legged_gym_isaaclab.five_bar_vmc import five_bar_state, five_bar_torques, five_bar_inverse
 from wheel_legged_gym_isaaclab.yaw_training import (
     TASK_NAMES, sample_grouped_motion, sample_yaw_rates, spin_center_velocity_penalty,
 )
@@ -42,11 +44,11 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
         # Isaac Sim's articulation order can differ from the URDF/action order.
         # Keep each lookup in the requested logical order and map torque columns
         # explicitly when sending them to the articulation.
-        leg_joint_names = ["lf0_Joint", "lf1_Joint", "rf0_Joint", "rf1_Joint"]
-        wheel_joint_names = ["l_wheel_Joint", "r_wheel_Joint"]
+        leg_joint_names = list(self.cfg.leg_joint_names)
+        wheel_joint_names = list(self.cfg.wheel_joint_names)
         torque_joint_names = [
-            "lf0_Joint", "lf1_Joint", "l_wheel_Joint",
-            "rf0_Joint", "rf1_Joint", "r_wheel_Joint",
+            leg_joint_names[0], leg_joint_names[1], wheel_joint_names[0],
+            leg_joint_names[2], leg_joint_names[3], wheel_joint_names[1],
         ]
         self._leg_joint_ids, resolved_legs = self._robot.find_joints(
             leg_joint_names, preserve_order=True
@@ -79,9 +81,9 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
         self._base_id, _ = self._contact_sensor.find_bodies("base_link")
         # penalised contacts: left/right leg links + base
         self._penalised_contact_ids, _ = self._contact_sensor.find_bodies(
-            "(lf|rf|base).*"
+            self.cfg.penalised_body_pattern
         )
-        leg_body_names = ["lf0_Link", "lf1_Link", "rf0_Link", "rf1_Link"]
+        leg_body_names = list(self.cfg.leg_body_names)
         self._leg_contact_ids, resolved_leg_bodies = self._contact_sensor.find_bodies(
             leg_body_names, preserve_order=True
         )
@@ -91,12 +93,12 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
                 f"expected={leg_body_names}, resolved={resolved_leg_bodies}"
             )
 
-        # torque limits (from URDF: legs 30 N*m, wheels 5 N*m)
+        # Torque limits come from the selected model configuration.
         self._torque_limits = torch.zeros(self.num_envs, self._action_dim, device=self.device)
-        # Action/torque order is [left hip, left knee, left wheel,
-        # right hip, right knee, right wheel].
-        self._torque_limits[:, (0, 1, 3, 4)] = 30.0
-        self._torque_limits[:, (2, 5)] = 5.0
+        # Action/torque order is [left B, left L, left wheel,
+        # right B, right L, right wheel] for the five-bar robot.
+        self._torque_limits[:, (0, 1, 3, 4)] = self.cfg.leg_effort_limit
+        self._torque_limits[:, (2, 5)] = self.cfg.wheel_effort_limit
 
         # Keep both the Gaussian policy output and the physically applied
         # action. The latter is always clamped to the safe normalized range.
@@ -143,6 +145,8 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
         self._theta0_dot = torch.zeros(self.num_envs, 2, device=self.device)
         self._L0 = torch.zeros(self.num_envs, 2, device=self.device)
         self._L0_dot = torch.zeros(self.num_envs, 2, device=self.device)
+        self._five_bar_jacobian = torch.zeros(self.num_envs, 2, 2, 2, device=self.device)
+        self._five_bar_valid = torch.ones(self.num_envs, 2, dtype=torch.bool, device=self.device)
         self._l0_ref_applied = torch.zeros(self.num_envs, 2, device=self.device)
 
         # termination bookkeeping
@@ -151,6 +155,7 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
         self._pitch_fail_buf = torch.zeros(self.num_envs, device=self.device)
         self._roll_fail_buf = torch.zeros(self.num_envs, device=self.device)
         self._leg_contact_buf = torch.zeros(self.num_envs, device=self.device)
+        self._low_height_buf = torch.zeros(self.num_envs, device=self.device)
         self._termination_reasons: dict[str, torch.Tensor] = {}
 
         # episode reward sums for logging
@@ -168,6 +173,8 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
                 "spin_center_velocity",
                 "base_height",
                 "nominal_state",
+                "standing_leg_angle",
+                "standing_wheel_tracking",
                 "lin_vel_z",
                 "ang_vel_xy",
                 "orientation",
@@ -193,6 +200,11 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
         """Fail early when coupled command/action settings become inconsistent."""
         if self._action_dim != 6:
             raise ValueError(f"WheelLeggedVMC expects 6 actions, got {self._action_dim}.")
+        if self.cfg.leg_control_mode not in ('explicit_vmc','implicit_joint_reference'):
+            raise ValueError('Unknown leg control mode')
+        if self.cfg.leg_control_mode=='implicit_joint_reference':
+            if self.cfg.leg_model!='mine_five_bar' or self.cfg.leg_joint_stiffness<=0 or self.cfg.leg_joint_damping<0:
+                raise ValueError('Implicit leg references require the CAD five-bar and positive joint stiffness')
         if not 0.0 <= self.cfg.reset_velocity_initial <= self.cfg.reset_velocity_final:
             raise ValueError("Reset velocity magnitudes must satisfy 0 <= initial <= final.")
         if self.cfg.rewards.termination > 0.0:
@@ -297,7 +309,7 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
                 f"range={self.cfg.commands.ranges_height}."
             )
         if (
-            self.cfg.rewards.leg_length_target_height_offset < 0.0
+            (self.cfg.leg_model == "legacy_serial" and self.cfg.rewards.leg_length_target_height_offset < 0.0)
             or (
                 not fixed_evaluation_command
                 and height_max + self.cfg.rewards.leg_length_target_height_offset
@@ -319,13 +331,13 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
             <= self.cfg.l0_ref_max
         ):
             raise ValueError("forward_support_min_leg_length must be inside the VMC range.")
-        if self.cfg.forward_support_height_margin < 0.0:
+        if self.cfg.leg_model == "legacy_serial" and self.cfg.forward_support_height_margin < 0.0:
             raise ValueError("forward_support_height_margin must be non-negative.")
         if self.cfg.height_feedback_gain < 0.0 or self.cfg.height_feedback_max_adjustment < 0.0:
             raise ValueError("Height feedback gain and adjustment limit must be non-negative.")
         if not 0.0 <= self.cfg.height_reference_blend <= 1.0:
             raise ValueError("height_reference_blend must be between zero and one.")
-        if self.cfg.leg_length_height_offset < 0.0:
+        if self.cfg.leg_model == "legacy_serial" and self.cfg.leg_length_height_offset < 0.0:
             raise ValueError("leg_length_height_offset must be non-negative.")
         if not fixed_evaluation_command and not (
             main_min <= self.cfg.forward_support_speed_threshold <= main_max
@@ -356,6 +368,9 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
             raise ValueError("nominal_state_penalty_clip must be greater than zero.")
         if self.cfg.rewards.orientation_penalty_clip <= 0.0:
             raise ValueError("orientation_penalty_clip must be greater than zero.")
+        for name in ('lin_vel_penalty_clip','yaw_rate_penalty_clip','standing_wheel_penalty_clip','action_rate_penalty_clip'):
+            if not math.isfinite(getattr(self.cfg.rewards,name)) or getattr(self.cfg.rewards,name) <= 0.:
+                raise ValueError(f'{name} must be finite and positive.')
         if self.cfg.rewards.tracking_sigma <= 0.0:
             raise ValueError(
                 "tracking_sigma must be greater than zero, "
@@ -380,8 +395,39 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
             )
 
     def _setup_scene(self):
+        if self.cfg.leg_control_mode=='implicit_joint_reference':
+            self.cfg.robot.actuators['legs'].stiffness=self.cfg.leg_joint_stiffness
+            self.cfg.robot.actuators['legs'].damping=self.cfg.leg_joint_damping
         self._robot = Articulation(self.cfg.robot)
+        if self.cfg.leg_control_mode=='implicit_joint_reference':
+            from pxr import UsdPhysics
+            for name in self.cfg.leg_joint_names:
+                prim=self.sim.stage.GetPrimAtPath(f'/World/envs/env_0/Robot/joints/{name}')
+                if not prim.IsA(UsdPhysics.RevoluteJoint):
+                    raise ValueError(f'Leg drive joint not found: {name}')
+                drive=UsdPhysics.DriveAPI.Apply(prim,'angular')
+                drive.CreateTypeAttr('force')
+                drive.CreateStiffnessAttr(self.cfg.leg_joint_stiffness)
+                drive.CreateDampingAttr(self.cfg.leg_joint_damping)
+                drive.CreateMaxForceAttr(self.cfg.leg_effort_limit)
+        if self.cfg.wheel_control_mode == "implicit_velocity":
+            from pxr import UsdPhysics
+            # The CAD export deliberately removes importer drives. Author only
+            # the two requested wheel drives before cloning/starting physics.
+            for name in self.cfg.wheel_joint_names:
+                path = f"/World/envs/env_0/Robot/joints/{name}"
+                prim = self.sim.stage.GetPrimAtPath(path)
+                if not prim.IsA(UsdPhysics.RevoluteJoint):
+                    raise ValueError(f"Wheel drive joint not found: {path}")
+                drive = UsdPhysics.DriveAPI.Apply(prim, "angular")
+                drive.CreateTypeAttr("force")
+                drive.CreateStiffnessAttr(0.0)
+                drive.CreateDampingAttr(self.cfg.wheel_damping)
+                drive.CreateMaxForceAttr(self.cfg.wheel_effort_limit)
+                drive.CreateTargetVelocityAttr(0.0)
         self.scene.articulations["robot"] = self._robot
+        from wheel_legged_gym_isaaclab.mine_collision_filters import relocate_collision_groups
+        relocate_collision_groups(self.sim.stage, self.scene.env_prim_paths)
         self._contact_sensor = ContactSensor(self.cfg.contact_sensor)
         self.scene.sensors["contact_sensor"] = self._contact_sensor
         self.cfg.terrain.num_envs = self.scene.cfg.num_envs
@@ -545,20 +591,28 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
             self.cfg.kp_l0 * (l0_ref - self._L0) - self.cfg.kd_l0 * self._L0_dot
         )
         # wheel velocity damping control
-        torque_wheel = self.cfg.wheel_damping * (
-            wheel_vel_ref - wheel_vel
-        )
+        if self.cfg.wheel_control_mode == "implicit_velocity":
+            # The velocity targets use raw mirrored joint coordinates. PhysX
+            # applies the actuator's damping and effort limit implicitly.
+            raw_wheel_ref = wheel_vel_ref * wheel_vel_ref.new_tensor([1.0, -1.0])
+            self._robot.set_joint_velocity_target(raw_wheel_ref, joint_ids=self._wheel_joint_ids)
+            torque_wheel = torch.zeros_like(wheel_vel_ref)
+        else:
+            torque_wheel = self.cfg.wheel_damping * (
+                wheel_vel_ref - wheel_vel
+            )
 
         # map virtual forces/torques to actual joint torques (closed chain)
         T1, T2 = self._vmc(force_leg + self.cfg.feedforward_force, torque_leg)
 
+        right_leg_sign = 1.0 if self.cfg.leg_model == "mine_five_bar" else -1.0
         torques = torch.cat(
             (
                 T1[:, 0].unsqueeze(1),
                 T2[:, 0].unsqueeze(1),
                 torque_wheel[:, 0].unsqueeze(1),
-                -T1[:, 1].unsqueeze(1),
-                -T2[:, 1].unsqueeze(1),
+                right_leg_sign*T1[:, 1].unsqueeze(1),
+                right_leg_sign*T2[:, 1].unsqueeze(1),
                 # Convert the canonical forward-positive right-wheel torque
                 # back to its mirrored raw joint coordinate.
                 -torque_wheel[:, 1].unsqueeze(1),
@@ -566,6 +620,14 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
             dim=1,
         )
         torques = torch.clip(torques, -self._torque_limits, self._torque_limits)
+        if self.cfg.leg_control_mode=='implicit_joint_reference':
+            # External loop constraints and joint drive forces are solved together
+            # by PhysX. This is a different actuator contract from explicit VMC;
+            # the same virtual-leg action references and raw CAD axes are retained.
+            b,l,_=five_bar_inverse(l0_ref,theta0_ref,**self.cfg.five_bar_geometry)
+            target=torch.stack((b[:,0],l[:,0],b[:,1],l[:,1]),-1)
+            self._robot.set_joint_position_target(target,joint_ids=self._leg_joint_ids)
+            torques[:,(0,1,3,4)]=0.
         self._robot.set_joint_effort_target(torques, joint_ids=self._torque_joint_ids)
 
     def _update_forward_kinematics(self, env_ids: torch.Tensor | None = None):
@@ -575,6 +637,24 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
         if env_ids is not None:
             dof_pos = dof_pos[env_ids]
             dof_vel = dof_vel[env_ids]
+
+        if self.cfg.leg_model == "mine_five_bar":
+            q_b = dof_pos[:, self._leg_joint_ids[::2]]
+            q_l = dof_pos[:, self._leg_joint_ids[1::2]]
+            length,angle,jacobian,valid = five_bar_state(q_b,q_l,**self.cfg.five_bar_geometry)
+            velocity = torch.stack((dof_vel[:, self._leg_joint_ids[::2]],
+                                    dof_vel[:, self._leg_joint_ids[1::2]]),dim=-1)
+            virtual_velocity = (jacobian@velocity[...,None]).squeeze(-1)
+            selection = slice(None) if env_ids is None else env_ids
+            self._theta1[selection] = q_b
+            self._theta2[selection] = q_l
+            self._L0[selection] = length
+            self._theta0[selection] = angle
+            self._L0_dot[selection] = virtual_velocity[...,0]
+            self._theta0_dot[selection] = virtual_velocity[...,1]
+            self._five_bar_jacobian[selection] = jacobian
+            self._five_bar_valid[selection] = valid
+            return
 
         theta1 = torch.cat(
             (
@@ -636,6 +716,8 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
 
     def _vmc(self, F: torch.Tensor, T: torch.Tensor):
         """Map virtual force F and torque T to joint torques T1, T2 (per leg side)."""
+        if self.cfg.leg_model == "mine_five_bar":
+            return five_bar_torques(self._five_bar_jacobian,F,T)
         return virtual_leg_torques(
             self._theta1, self._theta2, self._L0, self._theta0, F, T,
             l1=self.cfg.l1, l2=self.cfg.l2,
@@ -775,6 +857,11 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
             torch.abs(self._target_lin_vel_x) < 0.01
         )
         r_standing_velocity = torch.sum(torch.square(heading_velocity), dim=1) * standing
+        r_standing_leg_angle = torch.sum(self._theta0.square(), dim=1) * standing
+        wheel_reference = self._actions[:, (2, 5)] * self.cfg.action_scale_vel
+        r_standing_wheel_tracking = torch.sum(
+            (self._get_wheel_vel_forward_positive() - wheel_reference).square(), dim=1
+        ) * (standing & (self._commands[:, 1].abs() < 0.01))
         ang_vel_error = torch.square(self._commands[:, 1] - root_ang_vel_b[:, 2])
         r_track_ang = torch.exp(-ang_vel_error / self.cfg.rewards.tracking_sigma_ang)
         r_spin_center = spin_center_velocity_penalty(
@@ -943,7 +1030,41 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
         penalty_bounds = {
             "nominal_state": self.cfg.rewards.nominal_state_penalty_clip * self.step_dt,
             "orientation": self.cfg.rewards.orientation_penalty_clip * self.step_dt,
+            "base_height_error_sq": self.cfg.rewards.base_height_penalty_clip * self.step_dt,
+            "standing_leg_angle": self.cfg.rewards.standing_leg_angle_penalty_clip * self.step_dt,
+            "lin_vel_error_sq": self.cfg.rewards.lin_vel_penalty_clip * self.step_dt,
+            "yaw_rate_error_sq": self.cfg.rewards.yaw_rate_penalty_clip * self.step_dt,
+            "standing_wheel_tracking": self.cfg.rewards.standing_wheel_penalty_clip * self.step_dt,
+            "action_rate": self.cfg.rewards.action_rate_penalty_clip * self.step_dt,
         }
+        rewards["standing_leg_angle"] = r_standing_leg_angle * self.cfg.rewards.standing_leg_angle * self.step_dt
+        rewards["standing_wheel_tracking"] = r_standing_wheel_tracking * self.cfg.rewards.standing_wheel_tracking * self.step_dt
+        if self.cfg.leg_model == 'mine_five_bar' and self.common_step_counter % 100 == 0:
+            # Record actual training commands and measured velocity, rather
+            # than infer tracking from the sum of clipped reward terms.
+            diagnostics={}
+            for name,mask in (
+                ('standing',standing & (self._commands[:,1].abs()<.01)),
+                ('forward',self._commands[:,0]>.05),
+                ('reverse',self._commands[:,0]<-.05),
+                ('spin',standing & (self._commands[:,1].abs()>.05)),
+            ):
+                count=mask.sum().clamp_min(1)
+                diagnostics[f'Tracking/{name}_fraction']=mask.float().mean().item()
+                for label,value in (
+                    ('command_m_s',self._commands[:,0]),
+                    ('speed_m_s',heading_velocity[:,0]),
+                    ('speed_mae_m_s',(self._commands[:,0]-heading_velocity[:,0]).abs()),
+                    ('yaw_mae_rad_s',(self._commands[:,1]-root_ang_vel_b[:,2]).abs()),
+                ):
+                    diagnostics[f'Tracking/{name}_{label}']=((value*mask).sum()/count).item()
+            diagnostics['Tracking/wheel_reference_delta_rms_rad_s']=torch.sqrt(
+                (self._actions[:,(2,5)]-self._last_actions[:,(2,5),0]).square().mean()
+            ).item()*self.cfg.action_scale_vel
+            for key in ('lin_vel_error_sq','yaw_rate_error_sq','standing_wheel_tracking','action_rate'):
+                bound=penalty_bounds[key]
+                diagnostics[f'Reward_Clipping/{key}']=(rewards[key]<=-bound).float().mean().item()
+            self.extras['log'].update(diagnostics)
         rewards = {
             key: torch.nan_to_num(
                 torch.clamp(
@@ -1045,6 +1166,13 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
         leg_contact_died = self._leg_contact_buf > (
             self.cfg.leg_contact_terminal_time_s / self.step_dt
         )
+        # Net contact forces can intermittently drop below the threshold while
+        # a collapsed chassis remains on the floor. Height is an independent guard.
+        low_height = self._robot.data.root_pos_w[:, 2] < self.cfg.min_root_height
+        self._low_height_buf = torch.where(low_height, self._low_height_buf + 1.0, 0.0)
+        low_height_died = self._low_height_buf >= max(
+            1.0, self.cfg.low_height_terminal_time_s / self.step_dt
+        )
         # Reset numerical failures immediately before invalid physics can
         # contaminate the remaining vectorized environments or PPO rollout.
         numerical_failure = ~(
@@ -1056,6 +1184,7 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
             & torch.isfinite(self._robot.data.joint_vel).all(dim=1)
             & torch.isfinite(contact_forces).all(dim=(1, 2))
         )
+        singularity = ~self._five_bar_valid.all(dim=1)
         died = (
             base_contact_died
             | fallen_died
@@ -1063,6 +1192,8 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
             | roll_died
             | leg_contact_died
             | numerical_failure
+            | singularity
+            | low_height_died
         )
         self._termination_reasons = {
             "base_contact": base_contact_died,
@@ -1071,6 +1202,8 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
             "roll": roll_died,
             "leg_contact": leg_contact_died,
             "numerical": numerical_failure,
+            "kinematic_singularity": singularity,
+            "low_height": low_height_died,
         }
 
         time_out = self.episode_length_buf >= self.max_episode_length - 1
@@ -1125,6 +1258,7 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
         self._pitch_fail_buf[env_ids] = 0.0
         self._roll_fail_buf[env_ids] = 0.0
         self._leg_contact_buf[env_ids] = 0.0
+        self._low_height_buf[env_ids] = 0.0
         self._commands[env_ids] = 0.0
         if self.cfg.commands.heading_command:
             forward_axis = torch.tensor(
@@ -1161,7 +1295,10 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
             "forward": terminated_command_x > 0.2,
             "forward_fast": terminated_command_x >= 0.6,
             "forward_slow": (terminated_command_x > 0.2) & (terminated_command_x < 0.6),
-            "high_height": terminated_command_height >= 0.19,
+            "high_height": terminated_command_height >= (
+                self.cfg.commands.ranges_height[0]
+                + .75 * (self.cfg.commands.ranges_height[1] - self.cfg.commands.ranges_height[0])
+            ),
             "target_reverse_fast": terminated_target_x < -0.5,
             "target_forward_fast": terminated_target_x >= 0.6,
         }

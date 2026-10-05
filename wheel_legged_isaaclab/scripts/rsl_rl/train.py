@@ -27,6 +27,16 @@ parser.add_argument(
 parser.add_argument("--seed", type=int, default=None, help="Seed used for the environment")
 parser.add_argument("--max_iterations", type=int, default=None, help="RL Policy training iterations.")
 parser.add_argument(
+    "--target_iteration", type=int, default=None,
+    help="Stop at a total PPO iteration target, including iterations loaded from a checkpoint.",
+)
+parser.add_argument("--reset_exploration_std", type=float, default=None,
+                    help="Reset policy exploration after loading a failed pilot checkpoint.")
+parser.add_argument("--wheel_exploration_std", type=float, default=None,
+                    help="Set wheel-action exploration only, preserving stable leg exploration and optimizer state.")
+parser.add_argument("--wheel_head_only_finetune", action="store_true",
+                    help="Precision trial: freeze shared actor and leg outputs; train wheel output rows/std and critic.")
+parser.add_argument(
     "--checkpoint_path",
     type=str,
     default=None,
@@ -210,14 +220,52 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
             )
 
     # dump the configuration into log-directory
+    if args_cli.reset_exploration_std is not None:
+        if args_cli.reset_exploration_std <= 0:
+            raise ValueError("Exploration std must be positive.")
+        policy = runner.alg.policy
+        with torch.no_grad():
+            if hasattr(policy, "std"):
+                policy.std.fill_(args_cli.reset_exploration_std)
+            elif hasattr(policy, "log_std"):
+                policy.log_std.fill_(float(torch.log(torch.tensor(args_cli.reset_exploration_std))))
+            else:
+                raise ValueError("Unsupported policy exploration parameter.")
+        print(f"[INFO]: Reset exploration std to {args_cli.reset_exploration_std}")
+    if args_cli.wheel_exploration_std is not None:
+        from wheel_legged_gym_isaaclab.exploration import set_wheel_exploration_std
+        set_wheel_exploration_std(runner.alg.policy, args_cli.wheel_exploration_std)
+        print(f"[INFO]: Set wheel-only exploration std to {args_cli.wheel_exploration_std}; leg exploration retained.")
+    if args_cli.wheel_head_only_finetune:
+        if not agent_cfg.resume:
+            raise ValueError('Wheel-head precision mode requires a pretrained checkpoint')
+        from wheel_legged_gym_isaaclab.precision_finetune import enable_wheel_head_finetuning
+        precision_handles=enable_wheel_head_finetuning(runner.alg.policy, runner.alg.optimizer)
+        dump_yaml(os.path.join(log_dir, 'params', 'precision_mode.yaml'), {
+            'mode': 'wheel_head_only', 'source_checkpoint': resume_path,
+            'trainable_actor_rows': [2,5], 'trainable_std_entries': [2,5],
+            'shared_actor_features_frozen': True, 'leg_output_rows_frozen': [0,1,3,4],
+            'critic_trainable': True, 'inference_contract_unchanged': True})
+        print('[INFO]: Precision mode: wheel head/std and critic train; actor features and leg outputs frozen.')
+    if args_cli.target_iteration is not None:
+        remaining = args_cli.target_iteration - runner.current_learning_iteration
+        if remaining <= 0:
+            raise ValueError("Target iteration must exceed the loaded checkpoint iteration.")
+        agent_cfg.max_iterations = remaining
+        print(f"[INFO]: Target total iteration {args_cli.target_iteration}; training {remaining} remaining iterations.")
     dump_yaml(os.path.join(log_dir, "params", "env.yaml"), env_cfg)
     dump_yaml(os.path.join(log_dir, "params", "agent.yaml"), agent_cfg)
 
     # run training
-    runner.learn(num_learning_iterations=agent_cfg.max_iterations, init_at_random_ep_len=True)
-
-    # close the simulator
-    env.close()
+    try:
+        runner.learn(num_learning_iterations=agent_cfg.max_iterations, init_at_random_ep_len=True)
+    except KeyboardInterrupt:
+        path = os.path.join(log_dir, f"model_{runner.current_learning_iteration}_interrupted.pt")
+        runner.save(path)
+        print(f"[INFO]: Interrupted training checkpoint saved to {path}")
+        raise
+    finally:
+        env.close()
 
 
 if __name__ == "__main__":

@@ -1,0 +1,71 @@
+{
+  "source": "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_closed_chain.usd",
+  "source_sha256": "fffbe16eeba967df5e22163523d8c09936eab43e56d46847fe93e9960067f913",
+  "overlay": "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_closed_chain_tires_96.usd",
+  "overlay_sha256": "cd7170cd08567ab4abf0b3ef033ae07af5d3887e8341d53ce3073e982910db88",
+  "changes": [
+    {
+      "body": "LW_link",
+      "disabled_collision": "/mine_robot/LW_link/collisions/part_421_part/node_STL_BINARY_",
+      "new_collision": "/mine_robot/LW_link/smooth_tire_collision",
+      "radius_m": 0.06,
+      "axial_bounds_m": [
+        -0.01899999517959984,
+        0.0010000185606013068
+      ],
+      "original_radial_sides": 18,
+      "new_radial_sides": 96,
+      "hull_vertex_limit": 255
+    },
+    {
+      "body": "RW_link",
+      "disabled_collision": "/mine_robot/RW_link/collisions/part_422_part/node_STL_BINARY_",
+      "new_collision": "/mine_robot/RW_link/smooth_tire_collision",
+      "radius_m": 0.06,
+      "axial_bounds_m": [
+        -0.018999976592451284,
+        0.0010000371957771814
+      ],
+      "original_radial_sides": 18,
+      "new_radial_sides": 96,
+      "hull_vertex_limit": 255
+    }
+  ],
+  "unchanged_dynamics_and_joints": [
+    "/mine_robot/base_link",
+    "/mine_robot/LB_link",
+    "/mine_robot/joints/LB_joint",
+    "/mine_robot/joints/LS_joint",
+    "/mine_robot/joints/LW_joint",
+    "/mine_robot/joints/LL_joint",
+    "/mine_robot/joints/LL1_joint",
+    "/mine_robot/joints/LL2_joint",
+    "/mine_robot/joints/LL3_joint",
+    "/mine_robot/joints/RB_joint",
+    "/mine_robot/joints/RS_joint",
+    "/mine_robot/joints/RW_joint",
+    "/mine_robot/joints/RL_joint",
+    "/mine_robot/joints/RL1_joint",
+    "/mine_robot/joints/RL2_joint",
+    "/mine_robot/joints/RL3_joint",
+    "/mine_robot/LS_link",
+    "/mine_robot/LW_link",
+    "/mine_robot/LL_link",
+    "/mine_robot/LL1_link",
+    "/mine_robot/LL2_link",
+    "/mine_robot/LL3_link",
+    "/mine_robot/RB_link",
+    "/mine_robot/RS_link",
+    "/mine_robot/RW_link",
+    "/mine_robot/RL_link",
+    "/mine_robot/RL1_link",
+    "/mine_robot/RL2_link",
+    "/mine_robot/RL3_link",
+    "/mine_robot/loop_joints/RL3_RS_closure",
+    "/mine_robot/loop_joints/RL2_RB_closure",
+    "/mine_robot/loop_joints/LL3_LS_closure",
+    "/mine_robot/loop_joints/LL2_LB_closure"
+  ],
+  "scope": "Only tire collision tessellation; original visual CAD, masses, COM, inertia, axes and closure joints retained",
+  "status": "diagnostic variant, not promoted"
+}

@@ -1,0 +1,1793 @@
+{
+  "source_usd": "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_closed_chain_training_protected_stops_v2.usd",
+  "source_sha256": "2ae945dacf9ef175b9c84a969f040d1b169c4054d28e239215fe8e717f32909c",
+  "usd_layers": {
+    "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_closed_chain_training_protected_stops_v2.usd": "2ae945dacf9ef175b9c84a969f040d1b169c4054d28e239215fe8e717f32909c",
+    "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_closed_chain_base_box.usd": "bbde84ca678525e4c99abe3e718a927954e2dd24f41cf1f2434a3350072d392e",
+    "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_closed_chain_tires_96.usd": "cd7170cd08567ab4abf0b3ef033ae07af5d3887e8341d53ce3073e982910db88",
+    "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_closed_chain_training_protected.usd": "1ec14a942dc67f413293d536ce623ca3712d941931abf28b35f3d46f24c085fc",
+    "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_closed_chain.usd": "fffbe16eeba967df5e22163523d8c09936eab43e56d46847fe93e9960067f913",
+    "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_protected_leg_instanceable_meshes.usd": "d034d97112ef660f5b6f5642a71971b56d2163631867668b8f63bc9ee495d85d",
+    "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_base_box_instanceable_meshes.usd": "404cf292faa1f61a42defc5719a8062f46cb5275c15dd1533be7e70ff72edcad"
+  },
+  "bodies": [
+    {
+      "name": "base_link",
+      "mass": 8.0649995803833,
+      "com": [
+        0.0002029756869887933,
+        0.0003803904983215034,
+        -0.008357638493180275
+      ],
+      "inertia": [
+        0.10963580757379532,
+        0.1571110337972641,
+        0.0838690772652626
+      ],
+      "principal_axes": [
+        0.44117507338523865,
+        0.4514274597167969,
+        0.5578162670135498,
+        0.538905143737793
+      ],
+      "pose": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ]
+    },
+    {
+      "name": "LB_link",
+      "mass": 0.2199999988079071,
+      "com": [
+        -0.030296921730041504,
+        -0.0790928453207016,
+        -0.030567491427063942
+      ],
+      "inertia": [
+        0.0013012026902288198,
+        0.00010648657917045057,
+        0.0013858051970601082
+      ],
+      "principal_axes": [
+        0.9806824326515198,
+        -0.01888049580156803,
+        -0.011072692461311817,
+        -0.19437867403030396
+      ],
+      "pose": [
+        [
+          3.9736431256542915e-08,
+          0.9999999999999993,
+          1.986821529520455e-08,
+          0.0
+        ],
+        [
+          1.986821529520455e-08,
+          -1.9868216405427575e-08,
+          0.9999999999999999,
+          0.2062000036239624
+        ],
+        [
+          0.9999999999999993,
+          -3.973643114552061e-08,
+          -1.9868216405427575e-08,
+          0.024653544649481773
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ]
+    },
+    {
+      "name": "LL_link",
+      "mass": 0.2199999988079071,
+      "com": [
+        -0.004138672724366188,
+        0.0072802044451236725,
+        0.029517877846956253
+      ],
+      "inertia": [
+        0.000231223224545829,
+        0.00010809008381329477,
+        0.0002238794113509357
+      ],
+      "principal_axes": [
+        0.9490123391151428,
+        0.1844896525144577,
+        0.04890487343072891,
+        0.25089365243911743
+      ],
+      "pose": [
+        [
+          3.9736431256542915e-08,
+          0.9999999999999993,
+          1.986821529520455e-08,
+          0.0
+        ],
+        [
+          1.986821529520455e-08,
+          -1.9868216405427575e-08,
+          0.9999999999999999,
+          0.13985000550746918
+        ],
+        [
+          0.9999999999999993,
+          -3.973643114552061e-08,
+          -1.9868216405427575e-08,
+          0.024653544649481773
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ]
+    },
+    {
+      "name": "LL1_link",
+      "mass": 0.020999999716877937,
+      "com": [
+        -0.03489026054739952,
+        -0.044121790677309036,
+        -0.00012403397704474628
+      ],
+      "inertia": [
+        3.21796142088715e-05,
+        9.846119155554334e-07,
+        3.282355464762077e-05
+      ],
+      "principal_axes": [
+        0.9445600509643555,
+        0.0,
+        0.0,
+        -0.32833877205848694
+      ],
+      "pose": [
+        [
+          3.9736431256542915e-08,
+          0.9999999999999993,
+          1.986821529520455e-08,
+          0.08215558528900146
+        ],
+        [
+          1.986821529520455e-08,
+          -1.9868216405427575e-08,
+          0.9999999999999999,
+          0.17919999361038208
+        ],
+        [
+          0.9999999999999993,
+          -3.973643114552061e-08,
+          -1.9868216405427575e-08,
+          -0.022044522687792778
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ]
+    },
+    {
+      "name": "LL2_link",
+      "mass": 0.03999999910593033,
+      "com": [
+        0.0642038881778717,
+        -0.06136620044708252,
+        -0.004999998491257429
+      ],
+      "inertia": [
+        5.16179898113478e-06,
+        0.00011892896145582199,
+        0.0001234240917256102
+      ],
+      "principal_axes": [
+        0.9361867904663086,
+        0.0,
+        0.0,
+        -0.3515029549598694
+      ],
+      "pose": [
+        [
+          3.9736431256542915e-08,
+          0.9999999999999993,
+          1.986821529520455e-08,
+          -0.006087988615036011
+        ],
+        [
+          1.986821529520455e-08,
+          -1.9868216405427575e-08,
+          0.9999999999999999,
+          0.19619999825954437
+        ],
+        [
+          0.9999999999999993,
+          -3.973643114552061e-08,
+          -1.9868216405427575e-08,
+          -0.09182503074407578
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ]
+    },
+    {
+      "name": "LL3_link",
+      "mass": 0.023000000044703484,
+      "com": [
+        -0.023148246109485626,
+        -0.052907660603523254,
+        -0.001137386541813612
+      ],
+      "inertia": [
+        3.5794910218100995e-05,
+        1.0327355539629934e-06,
+        3.645352990133688e-05
+      ],
+      "principal_axes": [
+        0.9788130521774292,
+        0.0,
+        0.0,
+        -0.20475591719150543
+      ],
+      "pose": [
+        [
+          3.9736431256542915e-08,
+          0.9999999999999993,
+          1.986821529520455e-08,
+          -0.11974209547042847
+        ],
+        [
+          1.986821529520455e-08,
+          -1.9868216405427575e-08,
+          0.9999999999999999,
+          0.20445001125335693
+        ],
+        [
+          0.9999999999999993,
+          -3.973643114552061e-08,
+          -1.9868216405427575e-08,
+          0.04267648607492447
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ]
+    },
+    {
+      "name": "LS_link",
+      "mass": 0.2199999988079071,
+      "com": [
+        -0.07596689462661743,
+        0.07880957424640656,
+        -0.006701953709125519
+      ],
+      "inertia": [
+        6.432751979446039e-05,
+        0.002028560731559992,
+        0.00208003306761384
+      ],
+      "principal_axes": [
+        0.9244826436042786,
+        0.0028048863168805838,
+        0.0022946137469261885,
+        -0.38120704889297485
+      ],
+      "pose": [
+        [
+          3.9736431256542915e-08,
+          0.9999999999999993,
+          1.986821529520455e-08,
+          -0.1923915147781372
+        ],
+        [
+          1.986821529520455e-08,
+          -1.9868216405427575e-08,
+          0.9999999999999999,
+          0.19770000874996185
+        ],
+        [
+          0.9999999999999993,
+          -3.973643114552061e-08,
+          -1.9868216405427575e-08,
+          -0.059521883726119995
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ]
+    },
+    {
+      "name": "LW_link",
+      "mass": 0.27890563011169434,
+      "com": [
+        -0.00017242852482013404,
+        0.00010086333350045606,
+        -0.014499484561383724
+      ],
+      "inertia": [
+        0.00021299284708220512,
+        0.00020975993538741022,
+        0.0003158434701617807
+      ],
+      "principal_axes": [
+        0.935677707195282,
+        -0.0003501804021652788,
+        -0.0027267078403383493,
+        -0.3528452217578888
+      ],
+      "pose": [
+        [
+          3.9736431256542915e-08,
+          0.9999999999999993,
+          1.986821529520455e-08,
+          -0.013528868556022644
+        ],
+        [
+          1.986821529520455e-08,
+          -1.9868216405427575e-08,
+          0.9999999999999999,
+          0.2256999909877777
+        ],
+        [
+          0.9999999999999993,
+          -3.973643114552061e-08,
+          -1.9868216405427575e-08,
+          -0.23418770730495453
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ]
+    },
+    {
+      "name": "RB_link",
+      "mass": 0.2199999988079071,
+      "com": [
+        -0.030297275632619858,
+        0.07909364998340607,
+        0.04388251528143883
+      ],
+      "inertia": [
+        0.0013011699775233865,
+        0.00010648663737811148,
+        0.0013857722515240312
+      ],
+      "principal_axes": [
+        0.9806824326515198,
+        0.01888059638440609,
+        -0.011072669178247452,
+        0.19437870383262634
+      ],
+      "pose": [
+        [
+          3.9736431256542915e-08,
+          -0.9999999999999993,
+          1.986821529520455e-08,
+          0.0
+        ],
+        [
+          -1.986821529520455e-08,
+          -1.9868216405427575e-08,
+          -0.9999999999999999,
+          -0.11824999749660492
+        ],
+        [
+          0.9999999999999993,
+          3.973643114552061e-08,
+          -1.9868216405427575e-08,
+          0.024653544649481773
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ]
+    },
+    {
+      "name": "RL_link",
+      "mass": 0.2199999988079071,
+      "com": [
+        -0.0041381302289664745,
+        -0.007281129714101553,
+        0.03761788085103035
+      ],
+      "inertia": [
+        0.00023122121638152748,
+        0.00010809125524247065,
+        0.00022387631179299206
+      ],
+      "principal_axes": [
+        0.9490187764167786,
+        -0.18453237414360046,
+        0.048730041831731796,
+        -0.2508717179298401
+      ],
+      "pose": [
+        [
+          3.9736431256542915e-08,
+          -0.9999999999999993,
+          1.986821529520455e-08,
+          0.0
+        ],
+        [
+          -1.986821529520455e-08,
+          -1.9868216405427575e-08,
+          -0.9999999999999999,
+          -0.11824999749660492
+        ],
+        [
+          0.9999999999999993,
+          3.973643114552061e-08,
+          -1.9868216405427575e-08,
+          0.024653544649481773
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ]
+    },
+    {
+      "name": "RL1_link",
+      "mass": 0.020999999716877937,
+      "com": [
+        -0.03489026054739952,
+        0.044121790677309036,
+        -0.006875956896692514
+      ],
+      "inertia": [
+        3.21796142088715e-05,
+        9.846119155554334e-07,
+        3.282355464762077e-05
+      ],
+      "principal_axes": [
+        0.9445600509643555,
+        0.0,
+        0.0,
+        0.32833877205848694
+      ],
+      "pose": [
+        [
+          3.9736431256542915e-08,
+          -0.9999999999999993,
+          1.986821529520455e-08,
+          0.08215558528900146
+        ],
+        [
+          -1.986821529520455e-08,
+          -1.9868216405427575e-08,
+          -0.9999999999999999,
+          -0.17269998788833618
+        ],
+        [
+          0.9999999999999993,
+          3.973643114552061e-08,
+          -1.9868216405427575e-08,
+          -0.022044522687792778
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ]
+    },
+    {
+      "name": "RL2_link",
+      "mass": 0.03999999910593033,
+      "com": [
+        0.0642038881778717,
+        0.06136620044708252,
+        0.007000007666647434
+      ],
+      "inertia": [
+        5.16179898113478e-06,
+        0.00011892896145582199,
+        0.0001234240917256102
+      ],
+      "principal_axes": [
+        0.9361867904663086,
+        0.0,
+        0.0,
+        0.3515029549598694
+      ],
+      "pose": [
+        [
+          3.9736431256542915e-08,
+          -0.9999999999999993,
+          1.986821529520455e-08,
+          -0.006087996065616608
+        ],
+        [
+          -1.986821529520455e-08,
+          -1.9868216405427575e-08,
+          -0.9999999999999999,
+          -0.17069998383522034
+        ],
+        [
+          0.9999999999999993,
+          3.973643114552061e-08,
+          -1.9868216405427575e-08,
+          -0.09182503819465637
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ]
+    },
+    {
+      "name": "RL3_link",
+      "mass": 0.023000000044703484,
+      "com": [
+        -0.023148246109485626,
+        0.052907660603523254,
+        -0.002612604293972254
+      ],
+      "inertia": [
+        3.5794910218100995e-05,
+        1.0327355539629934e-06,
+        3.645352990133688e-05
+      ],
+      "principal_axes": [
+        0.9788130521774292,
+        0.0,
+        0.0,
+        0.20475591719150543
+      ],
+      "pose": [
+        [
+          3.9736431256542915e-08,
+          -0.9999999999999993,
+          1.986821529520455e-08,
+          -0.11974209547042847
+        ],
+        [
+          -1.986821529520455e-08,
+          -1.9868216405427575e-08,
+          -0.9999999999999999,
+          -0.19219999015331268
+        ],
+        [
+          0.9999999999999993,
+          3.973643114552061e-08,
+          -1.9868216405427575e-08,
+          0.04267646372318268
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ]
+    },
+    {
+      "name": "RS_link",
+      "mass": 0.2199999988079071,
+      "com": [
+        -0.07596517354249954,
+        -0.07881131023168564,
+        -0.006701948586851358
+      ],
+      "inertia": [
+        6.432730879168957e-05,
+        0.0020285581704229116,
+        0.0020800307393074036
+      ],
+      "principal_axes": [
+        0.9244806170463562,
+        -0.0028528966940939426,
+        0.002274810802191496,
+        0.3812118470668793
+      ],
+      "pose": [
+        [
+          3.9736431256542915e-08,
+          -0.9999999999999993,
+          1.986821529520455e-08,
+          -0.192391499876976
+        ],
+        [
+          -1.986821529520455e-08,
+          -1.9868216405427575e-08,
+          -0.9999999999999999,
+          -0.1842000037431717
+        ],
+        [
+          0.9999999999999993,
+          3.973643114552061e-08,
+          -1.9868216405427575e-08,
+          -0.05952189117670059
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ]
+    },
+    {
+      "name": "RW_link",
+      "mass": 0.6650000214576721,
+      "com": [
+        0.0001976302737602964,
+        -1.8474502212484367e-05,
+        -0.01453045941889286
+      ],
+      "inertia": [
+        0.0005099578993394971,
+        0.0005024567944929004,
+        0.0007531667943112552
+      ],
+      "principal_axes": [
+        0.9915722012519836,
+        0.00013628376473207027,
+        0.003871607594192028,
+        -0.12949733436107635
+      ],
+      "pose": [
+        [
+          3.9736431256542915e-08,
+          -0.9999999999999993,
+          1.986821529520455e-08,
+          -0.01352885365486145
+        ],
+        [
+          -1.986821529520455e-08,
+          -1.9868216405427575e-08,
+          -0.9999999999999999,
+          -0.21219998598098755
+        ],
+        [
+          0.9999999999999993,
+          3.973643114552061e-08,
+          -1.9868216405427575e-08,
+          -0.23418772220611572
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ]
+    }
+  ],
+  "joints": [
+    {
+      "name": "LB_joint",
+      "bodies": [
+        "base_link",
+        "LB_link"
+      ],
+      "positions": [
+        [
+          0.0,
+          0.2062000036239624,
+          0.024653544649481773
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "axes": [
+        [
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "external": false,
+      "limits": [
+        -89.9543685913086,
+        89.9543685913086
+      ]
+    },
+    {
+      "name": "LS_joint",
+      "bodies": [
+        "LB_link",
+        "LS_link"
+      ],
+      "positions": [
+        [
+          -0.08417545258998871,
+          -0.1923915147781372,
+          -0.008500000461935997
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "axes": [
+        [
+          0.0,
+          0.0,
+          1.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "external": true,
+      "limits": [
+        -89.9543685913086,
+        89.9543685913086
+      ]
+    },
+    {
+      "name": "LW_joint",
+      "bodies": [
+        "LS_link",
+        "LW_link"
+      ],
+      "positions": [
+        [
+          -0.17466582357883453,
+          0.17886266112327576,
+          0.02800000086426735
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "axes": [
+        [
+          0.0,
+          0.0,
+          1.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "external": false,
+      "limits": [
+        -Infinity,
+        Infinity
+      ]
+    },
+    {
+      "name": "LL_joint",
+      "bodies": [
+        "base_link",
+        "LL_link"
+      ],
+      "positions": [
+        [
+          0.0,
+          0.13985000550746918,
+          0.024653544649481773
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "axes": [
+        [
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "external": false,
+      "limits": [
+        -89.9543685913086,
+        89.9543685913086
+      ]
+    },
+    {
+      "name": "LL1_joint",
+      "bodies": [
+        "LL_link",
+        "LL1_link"
+      ],
+      "positions": [
+        [
+          -0.046698056161403656,
+          0.08215559273958206,
+          0.0393499992787838
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "axes": [
+        [
+          0.0,
+          0.0,
+          1.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "external": false,
+      "limits": [
+        -89.9543685913086,
+        89.9543685913086
+      ]
+    },
+    {
+      "name": "LL2_joint",
+      "bodies": [
+        "LL1_link",
+        "LL2_link"
+      ],
+      "positions": [
+        [
+          -0.06978052109479904,
+          -0.08824358135461807,
+          0.017000000923871994
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "axes": [
+        [
+          0.0,
+          0.0,
+          1.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "external": false,
+      "limits": [
+        -89.9543685913086,
+        89.9543685913086
+      ]
+    },
+    {
+      "name": "LL3_joint",
+      "bodies": [
+        "LL2_link",
+        "LL3_link"
+      ],
+      "positions": [
+        [
+          0.13450151681900024,
+          -0.11365410685539246,
+          0.008249999955296516
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "axes": [
+        [
+          0.0,
+          0.0,
+          1.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "external": false,
+      "limits": [
+        -89.9543685913086,
+        89.9543685913086
+      ]
+    },
+    {
+      "name": "RB_joint",
+      "bodies": [
+        "base_link",
+        "RB_link"
+      ],
+      "positions": [
+        [
+          0.0,
+          -0.11824999749660492,
+          0.024653544649481773
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "axes": [
+        [
+          0.0,
+          -1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "external": false,
+      "limits": [
+        -89.9543685913086,
+        89.9543685913086
+      ]
+    },
+    {
+      "name": "RS_joint",
+      "bodies": [
+        "RB_link",
+        "RS_link"
+      ],
+      "positions": [
+        [
+          -0.08417545258998871,
+          0.1923915147781372,
+          0.06594999879598618
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "axes": [
+        [
+          0.0,
+          0.0,
+          1.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "external": true,
+      "limits": [
+        -89.9543685913086,
+        89.9543685913086
+      ]
+    },
+    {
+      "name": "RW_joint",
+      "bodies": [
+        "RS_link",
+        "RW_link"
+      ],
+      "positions": [
+        [
+          -0.17466582357883453,
+          -0.17886266112327576,
+          0.02800000086426735
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "axes": [
+        [
+          0.0,
+          0.0,
+          1.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "external": false,
+      "limits": [
+        -Infinity,
+        Infinity
+      ]
+    },
+    {
+      "name": "RL_joint",
+      "bodies": [
+        "base_link",
+        "RL_link"
+      ],
+      "positions": [
+        [
+          0.0,
+          -0.11824999749660492,
+          0.024653544649481773
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "axes": [
+        [
+          0.0,
+          -1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "external": false,
+      "limits": [
+        -89.9543685913086,
+        89.9543685913086
+      ]
+    },
+    {
+      "name": "RL1_joint",
+      "bodies": [
+        "RL_link",
+        "RL1_link"
+      ],
+      "positions": [
+        [
+          -0.046698056161403656,
+          -0.08215559273958206,
+          0.05445000156760216
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "axes": [
+        [
+          0.0,
+          0.0,
+          1.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "external": false,
+      "limits": [
+        -89.9543685913086,
+        89.9543685913086
+      ]
+    },
+    {
+      "name": "RL2_joint",
+      "bodies": [
+        "RL1_link",
+        "RL2_link"
+      ],
+      "positions": [
+        [
+          -0.06978052109479904,
+          0.08824358135461807,
+          -0.0020000000949949026
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "axes": [
+        [
+          0.0,
+          0.0,
+          1.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "external": false,
+      "limits": [
+        -89.9543685913086,
+        89.9543685913086
+      ]
+    },
+    {
+      "name": "RL3_joint",
+      "bodies": [
+        "RL2_link",
+        "RL3_link"
+      ],
+      "positions": [
+        [
+          0.13450151681900024,
+          0.11365410685539246,
+          0.0215000007301569
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "axes": [
+        [
+          0.0,
+          0.0,
+          1.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "external": false,
+      "limits": [
+        -89.9543685913086,
+        89.9543685913086
+      ]
+    },
+    {
+      "name": "RL3_RS_closure",
+      "bodies": [
+        "RL3_link",
+        "RS_link"
+      ],
+      "positions": [
+        [
+          -0.046296484768390656,
+          0.1058153286576271,
+          -0.007249986752867699
+        ],
+        [
+          0.05590187385678291,
+          0.03316592797636986,
+          0.0007499990751966834
+        ]
+      ],
+      "axes": [
+        [
+          1.9868216710917825e-08,
+          1.986821648887322e-08,
+          0.9999999999999996
+        ],
+        [
+          1.9868216710917825e-08,
+          1.986821648887322e-08,
+          0.9999999999999996
+        ]
+      ],
+      "external": false,
+      "limits": [
+        -Infinity,
+        Infinity
+      ]
+    },
+    {
+      "name": "RL2_RB_closure",
+      "bodies": [
+        "RL2_link",
+        "RB_link"
+      ],
+      "positions": [
+        [
+          0.07859962433576584,
+          0.0804881826043129,
+          0.0002500175905879587
+        ],
+        [
+          -0.03787895664572716,
+          0.0865761786699295,
+          0.05270000547170639
+        ]
+      ],
+      "axes": [
+        [
+          1.9868216710917825e-08,
+          1.986821648887322e-08,
+          0.9999999999999996
+        ],
+        [
+          1.9868216710917825e-08,
+          1.986821648887322e-08,
+          0.9999999999999996
+        ]
+      ],
+      "external": true,
+      "limits": [
+        -Infinity,
+        Infinity
+      ]
+    },
+    {
+      "name": "LL3_LS_closure",
+      "bodies": [
+        "LL3_link",
+        "LS_link"
+      ],
+      "positions": [
+        [
+          -0.046296507120132446,
+          -0.1058153286576271,
+          -0.006000007968395948
+        ],
+        [
+          0.055901866406202316,
+          -0.033165913075208664,
+          0.0007499940693378448
+        ]
+      ],
+      "axes": [
+        [
+          1.9868216710917825e-08,
+          -1.986821648887322e-08,
+          0.9999999999999996
+        ],
+        [
+          1.9868216710917825e-08,
+          -1.986821648887322e-08,
+          0.9999999999999996
+        ]
+      ],
+      "external": false,
+      "limits": [
+        -Infinity,
+        Infinity
+      ]
+    },
+    {
+      "name": "LL2_LB_closure",
+      "bodies": [
+        "LL2_link",
+        "LB_link"
+      ],
+      "positions": [
+        [
+          0.07859961688518524,
+          -0.0804881900548935,
+          -0.011749996803700924
+        ],
+        [
+          -0.037878960371017456,
+          -0.0865761786699295,
+          -0.02174999937415123
+        ]
+      ],
+      "axes": [
+        [
+          1.9868216710917825e-08,
+          -1.986821648887322e-08,
+          0.9999999999999996
+        ],
+        [
+          1.9868216710917825e-08,
+          -1.986821648887322e-08,
+          0.9999999999999996
+        ]
+      ],
+      "external": true,
+      "limits": [
+        -Infinity,
+        Infinity
+      ]
+    }
+  ],
+  "collisions": [
+    {
+      "source": "/mine_robot/base_link/training_collision/box",
+      "body": "base_link",
+      "category": "ordinary",
+      "approximation": null,
+      "mujoco_convex_pieces": 1
+    },
+    {
+      "source": "/mine_robot/LB_link/collisions/part_413_4_28/node_STL_BINARY_/mesh",
+      "body": "LB_link",
+      "category": "stop",
+      "approximation": "convexDecomposition",
+      "mujoco_convex_pieces": 52
+    },
+    {
+      "source": "/mine_robot/LB_link/simple_collision",
+      "body": "LB_link",
+      "category": "ordinary",
+      "approximation": "convexHull",
+      "mujoco_convex_pieces": 1
+    },
+    {
+      "source": "/mine_robot/LS_link/collisions/part_410___1_15/node_STL_BINARY_/mesh",
+      "body": "LS_link",
+      "category": "shank",
+      "approximation": "convexDecomposition",
+      "mujoco_convex_pieces": 64
+    },
+    {
+      "source": "/mine_robot/LS_link/simple_collision",
+      "body": "LS_link",
+      "category": "ordinary",
+      "approximation": "convexHull",
+      "mujoco_convex_pieces": 1
+    },
+    {
+      "source": "/mine_robot/LW_link/collisions/part_420_NW_P15_8/node_STL_BINARY_",
+      "body": "LW_link",
+      "category": "ordinary",
+      "approximation": "convexHull",
+      "mujoco_convex_pieces": 1
+    },
+    {
+      "source": "/mine_robot/LW_link/smooth_tire_collision",
+      "body": "LW_link",
+      "category": "ordinary",
+      "approximation": "convexHull",
+      "mujoco_convex_pieces": 1
+    },
+    {
+      "source": "/mine_robot/LL_link/simple_collision",
+      "body": "LL_link",
+      "category": "ordinary",
+      "approximation": "convexHull",
+      "mujoco_convex_pieces": 1
+    },
+    {
+      "source": "/mine_robot/LL1_link/simple_collision",
+      "body": "LL1_link",
+      "category": "ordinary",
+      "approximation": "convexHull",
+      "mujoco_convex_pieces": 1
+    },
+    {
+      "source": "/mine_robot/LL2_link/simple_collision",
+      "body": "LL2_link",
+      "category": "ordinary",
+      "approximation": "convexHull",
+      "mujoco_convex_pieces": 1
+    },
+    {
+      "source": "/mine_robot/LL3_link/simple_collision",
+      "body": "LL3_link",
+      "category": "ordinary",
+      "approximation": "convexHull",
+      "mujoco_convex_pieces": 1
+    },
+    {
+      "source": "/mine_robot/RB_link/collisions/part_192_4_28/node_STL_BINARY_/mesh",
+      "body": "RB_link",
+      "category": "stop",
+      "approximation": "convexDecomposition",
+      "mujoco_convex_pieces": 42
+    },
+    {
+      "source": "/mine_robot/RB_link/simple_collision",
+      "body": "RB_link",
+      "category": "ordinary",
+      "approximation": "convexHull",
+      "mujoco_convex_pieces": 1
+    },
+    {
+      "source": "/mine_robot/RS_link/collisions/part_156___1_15/node_STL_BINARY_/mesh",
+      "body": "RS_link",
+      "category": "shank",
+      "approximation": "convexDecomposition",
+      "mujoco_convex_pieces": 64
+    },
+    {
+      "source": "/mine_robot/RS_link/simple_collision",
+      "body": "RS_link",
+      "category": "ordinary",
+      "approximation": "convexHull",
+      "mujoco_convex_pieces": 1
+    },
+    {
+      "source": "/mine_robot/RW_link/collisions/part_419_NW_P15_8/node_STL_BINARY_",
+      "body": "RW_link",
+      "category": "ordinary",
+      "approximation": "convexHull",
+      "mujoco_convex_pieces": 1
+    },
+    {
+      "source": "/mine_robot/RW_link/smooth_tire_collision",
+      "body": "RW_link",
+      "category": "ordinary",
+      "approximation": "convexHull",
+      "mujoco_convex_pieces": 1
+    },
+    {
+      "source": "/mine_robot/RL_link/simple_collision",
+      "body": "RL_link",
+      "category": "ordinary",
+      "approximation": "convexHull",
+      "mujoco_convex_pieces": 1
+    },
+    {
+      "source": "/mine_robot/RL1_link/simple_collision",
+      "body": "RL1_link",
+      "category": "ordinary",
+      "approximation": "convexHull",
+      "mujoco_convex_pieces": 1
+    },
+    {
+      "source": "/mine_robot/RL2_link/simple_collision",
+      "body": "RL2_link",
+      "category": "ordinary",
+      "approximation": "convexHull",
+      "mujoco_convex_pieces": 1
+    },
+    {
+      "source": "/mine_robot/RL3_link/simple_collision",
+      "body": "RL3_link",
+      "category": "ordinary",
+      "approximation": "convexHull",
+      "mujoco_convex_pieces": 1
+    }
+  ],
+  "motor_order": [
+    "LB_joint",
+    "LL_joint",
+    "LW_joint",
+    "RB_joint",
+    "RL_joint",
+    "RW_joint"
+  ],
+  "mujoco": "3.14.0",
+  "mass_kg": 10.496905222535133,
+  "nq": 21,
+  "nv": 20,
+  "tree_hinges": 14,
+  "external_hinges": 4,
+  "equality_connects": 8,
+  "floor_friction": 0.25,
+  "limitations": [
+    "MuJoCo external revolutes use two soft connect constraints on the hinge axis.",
+    "Protected CAD convex decomposition is CoACD, independently cooked from PhysX.",
+    "Contact/friction/implicit-drive solvers are different between simulators."
+  ],
+  "mjcf_sha256": "7da2b85d9a3deb7d66102060003bd8cb1ea1b4006b151d05f595a39dfce18851",
+  "mesh_sha256": {
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_1_42.obj": "c3d4e0f92de1dc48af1039941865343acd45ccfdc19c688de80db5658de7904e",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_11_24.obj": "70c1e28ee7f7b001cd4a3d9391d305c3b7a426bdc90248d7d1c152ca543547db",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_10.obj": "a598d6798244af7e7947615975560986da38756ab010a4ef7e6091594211c075",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_28.obj": "bdd8e5ecdf9582acad1993c3dda55e00e49fae06fdb4e590d25a31bc6ee630bd",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_17_0.obj": "bd054a3b12331add609502e79dc635bd9bdeef1c931da9f6d63bf1b54feab5de",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_29.obj": "ceeba8f8440c13b523061ce63f1dc483ab59056777c887fa7cf7b7c7902d462e",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_11_0.obj": "3ba64706951c45649d9a8650899fd5c639f18089f90fd1d951c88bd43a2591f8",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_38.obj": "6ced801e81ec09b27d5c9089d5b3d31366a21b8ee11dce0f7f51dbdff14d4c17",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_11_11.obj": "a550e6aa5df1642deb99179de69a2c63b9ffcf610635befd207a973a76fd4eed",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_12.obj": "922418103529fed3e4ef354f1328dc7b5ff958d5c11d5b13adfdec5722b881b5",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_11_32.obj": "5b1f2b56f6cd7b9100b36d97d3cb990668db88647e5eeb3af91ae22353c905e1",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_4.obj": "f8fbe86818bdd2f6446f8f4604cff5a4cfb1242f527475f0824f620fb6ce8951",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/LB_link_visual.obj": "1e30b4a75faa1a1e486d584ce226bacd237ec1369b39db69afae8b0ac06e491a",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_16.obj": "5dae65eb1a1f9e6b22f7ae101e04035df70c4ba24170c7892ff3016839d20d93",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_11_30.obj": "c9c307c3ee536d2c0f97f0302a0033019a797b3aa63e7d2ac86d49a738160b53",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_54.obj": "54bd43c75dca90c447e8c4a1a86f2efcbe96b22319b6e276e47426a7d23edf63",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_12_0.obj": "d6cfe9458675b6186b7f2f6ae8becf920e7c1ee7fd4ff47ec67a629ba8b9461e",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_4.obj": "2d9b1f73980dca741b24c9319fd47b3b65fd23fc842df2f97cab5fe4535a567c",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_30.obj": "cc5c3fd5bc82b2043ea638475d34330fe26e2e9513816b24180ff06a48a25b9c",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_63.obj": "a19baf95e56e05109a27d422257e58c8a53e09c273389bac0ea72ee4c218096e",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_34.obj": "bdee68d582f0601c9ee989b751ebef358d91e33211b070240216cd471e17e008",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_16_0.obj": "00aed8c2772e795a2e3c2bcc3475ba8fcabc1da6827c42cec1994927d9dc36d4",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_2_0.obj": "af34999f1e2e1148b75f7c27326f16ab16244e61aa377d38414d3eb065b0d799",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_22.obj": "83d65aea3fb0be556216d5bc5f314417f2d80fe654e23e93d6abdef743f841f0",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_26.obj": "5e286eb209bc5fa06a830ad0f245914aeb791e0cf0ac9b88f7a4262c76a4e053",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_11_26.obj": "c593a5448135a60fd276473673218004cddd5a7428b950962edaa30eb73ae2b0",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_15.obj": "08380401adf4f4c89bbf624420f35ff4e2dc5b24e10c91f3dc075ddd796da504",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_29.obj": "b0c7cdd93c40e6354d6a4032d370a9a0cc410b4dfe49f4e6ec53be42603fbde2",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_7.obj": "741e505673b6d1fbd0462001ea7f7681c5f38824e0e4702ba70197da6a622d82",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_1_38.obj": "6f4982164dc81b05cf950dd9addafa0300b9582ec6a17bac80dd51dda582d482",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_1_6.obj": "70ec0649cc195e80b608de04280e11ef1cbe3a4f846f819b6cb7da8e7f1f73e4",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_1_25.obj": "8b41fddb15fcbea32d2c87220aeebfa37f4b18fca4d66b74c0b8bf4678387cdd",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_1_40.obj": "98fcfb764bc479c3dbde5846759ab742614fcddf0a002564aae2baa0023632ae",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_11_4.obj": "3a5c0dc76f10569dd9853a496f053dd39b3f461a4e7fa560f8859e36e43645ee",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_19.obj": "9b564884126ecfe0fde0c0cc79fab730dfb3ad390631ae00f430383c61e98d42",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_1_28.obj": "329e1b025f5b880d41edce6e3eea415ff241eb13f2540c13f9e7ae60368b0914",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_36.obj": "83c55b4fd5d068b081d4820223549aa3a54da518d731164f777b6a6643a7cb37",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_1_36.obj": "92f7263b46bd5da39701776dbf0aafa3acc36adafe5eb84fb88ae2a6c4b4da61",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_47.obj": "9584a0ad5f5f25e31c386cc77b8e944d4fa17df42e38b1d6b4a6c0d92244895b",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_51.obj": "309fd95fcf9d0d9847041efeb961a323d1e3ee3791a405fde7e556ea836db3bd",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_1_10.obj": "973f29a955c99e1260e80172672da9e496f1c7879f8b8121cfb0776826785d4c",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/RB_link_visual.obj": "74919509236ee9248521f2b5142513307adb14333cb8be10490ee8d7ece4a3ca",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_61.obj": "665697710dccc795ccc2406e13e83d6934d9f063d18ec51d30f50583f1cd8588",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_11_1.obj": "11308d89286a0dcb4e3033ee5af2ab94fab1e653673847ed862d9ccad4d42da0",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_9.obj": "d8e3769d6402f812898e9fc2e105b64579f6c2a721c6dc8feb5089f76138f4c9",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_11_29.obj": "9ff795a3ff38ab3c71f23c29939f14252c11cd3d54b0d21a8ca44e9df034b2bc",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_11_15.obj": "cfdff50080e51683630b28c5bad3c7fb883b6c2d86916434a58aa408366290e9",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_11_13.obj": "09988b936c6de681db1248c832b8599d15892b881bea3c7dcaa4921468ca1a81",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_11_6.obj": "837ffbec0aefd759b58167953354220dd5a2129808c52e8cf121d79ba9180f33",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_20.obj": "9b0f36d55a3f9314472dd391b0b2d268dc1aad184263caf206ffd5fa6ecf86dd",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_35.obj": "ce3194e5d9ea5870e8f03b9e8cacf54cd99e1c384d3d7f65ab9bee3e2b79363f",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/RL3_link_visual.obj": "0dfeb3e8f65f54a7c3700efd5a03a6804214c2c17cd5ac2bb80636f7af4eb40d",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_13.obj": "e241025277ecd4f21ebe36308630ff27ca603dcc9579daff076dc5c41e3fc326",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_9.obj": "21b1e17f6e4ef4666d7372ebf691b1bef7a8e864a7a11ccdb0a091bca641b283",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_62.obj": "0df790c959ad4342171d55548c2c6633ee670f3aecae98818f0894057787dddd",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_11.obj": "27bb17bf8b0d58cdd738f3311a6e215803035e0319647375b2a764065af140ad",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_11_22.obj": "12ece6f208f1dd02cc8236201a5cd8b68f4391d907926da5482f517739140a6b",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_11_2.obj": "702ad9e6b83019ae16de6f16dd371c8eb677964453983788d6dcb2bff7037194",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_18_0.obj": "3d39e28b05d33061e0427ca7433f8574c6c73ec14fd5d19c1dff05054769e0fb",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_11_41.obj": "227356a4a9d0f2e7fa7e3cf01e7853f1ea7b898b714da945fc869a5eade9b946",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_1_8.obj": "eca8adfc59aa22359d55265fd1d539cc2cd7eac6365f0da595a90389ec90231a",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_23.obj": "a08edd946c02df16d45bf82ba8f62754720965f8fa3f8d0d8db56ed1e3ca77d8",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_50.obj": "01c04dbf373b109871568d5bdfacdbd38d49c0948f40c9ee644c7ae261e99869",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_25.obj": "4c6a1d0520d7a0c59db2bd3f028ba555705fa5633e187ed58bd97fbfde9e25d1",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_11_7.obj": "3f2617f3b7a742a7b77bb0cd9abfa42121ec651272773ff8b6f2c52f1dde7173",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_1_23.obj": "8d1e9eed988e06330e952b4ef4546ecf6aaa30d7fad630d5a2b283b48a300d0f",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_1_16.obj": "28663347147df73e942521a2f7c97c4dafa2e67772ae62bde4ea9a8d30444c1f",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_1_35.obj": "a17285d7f472b3dd82ae051ce7ad23b3ae56d36a3f7a56139d8703f0dbe40936",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_43.obj": "78a50f99859a0c26887c241ea772d2fa5341989e9c837f83146bacbd3b86c044",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_35.obj": "4f1039dec922e69ac07e075aae8ec53d78bb8ee64d127841b7441f2f6451a211",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_54.obj": "39231a8565bcbc9c8cd025fc0d2eb0c8c951f48375fccc97a0dc3159ef4e99f7",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_11_17.obj": "c143e7abc60916ebb6a5338034923f5cf2b92513cc4716e38f066738cd9cfead",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_1_33.obj": "1f7d34ae03215f86e6fd53b032f65fdec286cc41f3e9379c1e8b67670a6540c3",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_30.obj": "c8bb70e9ead61250a9242b216252f1a26959467a89081d4bf4362899dac64222",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_17.obj": "1c71a44398d13d0acead52336b4d05a21d705d6e985466b984cce977f57f3e5b",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_1_2.obj": "44c847e774d5e028deab20e7049ea345596228dea97cb8bc4eb42775cfb36b5a",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_1_31.obj": "f03b3d5eeb7671f64ae1e2dfbeb3d65be9be195d36ce1fda46777caa19dd76c3",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_19_0.obj": "3c678e139eac12e81563af034dbe17028dd4f6a0fc2c560a23f3f1db5801b51e",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_42.obj": "97f050524517940a285205c6f9649d97cbebfd0d4926ad6047b352a42ff431b1",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_60.obj": "9e6aad8185ecc8b5c5adfccba32fe19ce8b0ddc53c38f618ac262adf1d0c75a6",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_1_50.obj": "d9b0960a97b12c4f5c44047f59f3edc3db024146f2cb59ab544a4f83455d0557",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_1_37.obj": "9c8ce5a93ad05319b669224bc51eebc9a69f53cc9b10b06fa8836e2b9ed761f8",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_1_4.obj": "9a507e59bf627c263362fa28f3d8b8aa5b73f8698841add79f4198520bf9c385",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_39.obj": "9e53234fbafd7d25c6af230c13761be40c31e12c83fab1996f806a356410dbc6",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_1_34.obj": "ff15337ef82d81213e298f97bc744eeaa36a35e3e779f71b82a5f4e9bd752cd3",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_6_0.obj": "60afc181f4bbfb2fd1f51269627411ae2635be4466869483443ba28bebf1dc97",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_48.obj": "58c6190eaeaa5584e8494464b538fc757423e259fc9a3b0da3ef91517d36e8ae",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_11_21.obj": "c60ae15d66f1f261f30dadb0abe537a9cd6480a17bfe5261825b409c6dd5700f",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_1_12.obj": "66f79dc469b13a2600dd720ea72843792a556d119fcec1b53409f42fd2af01a8",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_63.obj": "81aa5cfd76314df30385aa00c3ab17d7b9bcb33e495bcd8d287f3c92295eb42d",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_8.obj": "5f805e174ecc58e4f9462a8d2f103f770f190f8769e7e2cf512d20f794172f67",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_1_30.obj": "29fe448ffe14792c97744b0fbfff7c18d2cd89bac472406381aebaff5852920d",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_24.obj": "869b6cb177870f6c3611a643fa9853e9a164f244e748baede5874840ccc90226",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_1_22.obj": "64d818680cb6fea0dd6d5efc027ab51a0b479af7391e1a0395cadabb3056e817",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_40.obj": "03cfa429db019b17e5bf6f45e0d675ed2ef8b6b65f8b4796ca36b2c718411218",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_11_20.obj": "66025936a98901760ed253f4fc302bfea1396b5abe956f0873e83ecf36922026",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_51.obj": "21809ec7900671ca68ac56fa500a31db09a57818dcc394ad57352aa5c7e99694",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_1_1.obj": "7dfe1928e1281a537fb0b6c3a5468bff8d863f777d8a945dd36ee072e42c4635",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_11_36.obj": "f986ef8df686e88dcdd00b34820418db091de1f91039958fa878b37b4a820428",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_11_3.obj": "495d875cb13c485518f61bd91bfdafa1c8eea67ec265d8c70496dde85186f3b8",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_59.obj": "09da4de981e2c5a4e4ae684605bc381c123c314d881502aae57c457648d36bb8",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_31.obj": "838d7d477bb6fd7487809ccf0cc68903600bc58e0a41ffbc4070c9a8897127cc",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_11_40.obj": "ad7c0e57e9675c17fd1ada44b04473f9d76a4e65df4ccacc87de0d0ab80fcd9b",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_32.obj": "2cad2ca6ccb5e2091fe11fdc55a339185b5fb3db4dda12036ba377993b8c0b7c",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_11_14.obj": "2721525ddd3b42e78cf5e1006861d4ab05ccabb813d1be5e2b080ac60b1b682c",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_11_27.obj": "a4d87122d953f81410ccdbd3abb700c36a4abd55476e3f0e8bd48bcd5e80721a",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_1_5.obj": "1be2e488158b6359b10fd23beaa7e7f85214e4bc0d5fa5ae4e4ec2c51ba5d28a",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_55.obj": "939fae2f349b9692aaacc3cf9884a52e832e5e2169c9f1891bfd4204214836ae",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_11_31.obj": "9782de6016b188aadef00f71fcbc3043e13f03057f6b29635439edc10afec996",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_45.obj": "14f6185380b6938cbcd36ec9482f410e93c8ab56e1b92d6f1f89f236a3d8ce61",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_4_0.obj": "99b8739196c327fdb6179a78d9e415edd097253c59cc9857e69fe72f626807c5",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_1_46.obj": "437c28e36523b079c0c3c887cb410fd507f593d9f8f9a998d19c1c11a9a48167",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_52.obj": "074da0a957326c9aea86b31972b8985c54b1a21b855adf9182fcacd12a794f9d",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_11_23.obj": "24a98405849faae096430975c77a949579f2803de58518ce803498c388a24e1e",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_1_49.obj": "db12f728303929ab1cfca9452550d408a7bb8b284292055b9499e602c48d47a0",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_34.obj": "eb32ad9b484842314746d3c1659cc5e60ab920409e6f9ad0c015186328099271",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_1_39.obj": "8439b31738a7f7cf27e8bee7085efbe7cf68700130c889df946fd74421a86ded",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_27.obj": "d0bc95c41804a47800b4b15a40c2dd12b94991cd9732a1327df1556d0e63cfb6",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_11_5.obj": "ce23fc4cce010a663a184b8ae5f8e1413823776f382fc2fb4248cce667c55fa6",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_14.obj": "d5160de45bb873c680806446795867892e8a5bb75ec33711e7267519a67c6112",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_1_44.obj": "8d5b1fdcf5c933a36239eac675ffb9f9ecaed9e319a84c73763563cf9026831d",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_44.obj": "e50bfa34e04503409f88704dd2ae268957c23f43c7b4255afae0dd70c64ba7b8",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_3.obj": "40b1d6264efccf9c51db3e89443de675580944cb73a5c1c36c096241cfc6329a",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/LL3_link_visual.obj": "ac7540d3e43ac1f94adbfc9563cebf250ef5da8e41e250aad256bd7394039f5b",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/RW_link_visual.obj": "76b6e72b0c091dce2fc01f3261e394832cbe1a21d86096e8bfcdbb595e6843eb",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_41.obj": "b397fd3de710cabb272207855503919389bea05bf75a3ef3d3cce061d97bb23d",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/LL_link_visual.obj": "52aefce486bc6764115f2993f2c71a8650e28cf7750b83085f99d2fb9acdee01",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_13.obj": "67356455106de40cec027dc483c95dbd9142951a77e4f1cfdd87b08a79ac293b",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_7.obj": "190452bb9e48888909d87db96eda18349e650c86e134662d7ba49570ab35c050",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_55.obj": "c072b7a8c36604c4fe3200aafbf01c2d876b923be83e16ffe1cbf4519f8fb4de",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_1_24.obj": "2a3c17ffa9edd3ec989c319e1e5494f0cef07ff38238032c5e9512f591f535fc",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_1_27.obj": "8082eed261cbb99177f680a96fd7d3fe1c42ad08bc7707f7203889f9cae40517",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_36.obj": "2233400f865cd83530236d6c288af47599b576f403e1dad58c3fd1c65134e5bf",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_38.obj": "874dcdc227dbca0421163b5d0327238a4a9c93af4c980b6975d892f6b13a14dc",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_59.obj": "b29f67e82fe0f70439a56540f025d5b1003637ceeca7270f3b8e7eafbb00ba0d",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_62.obj": "ed74c09ae510e01d9fb2f8448ebee1acf11c41f93f49b438ee96631d6cddd726",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_11_16.obj": "882529461b2537d330e5b54edc146d8137b72487c5e370fd73020637910084eb",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_11.obj": "ea5b1212149821571f077887214fbcb84b53377c3e9e97940b08c3c2b4254f6e",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_61.obj": "4d7f96986bf824e096f749fb51755c46cf29133adc6216ffbd18e9fe6e7f5b05",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_32.obj": "faa57c9148e31accbeab1b5102de888331defcebc90714888de599699dbad642",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_39.obj": "89e68c04424cb15dc0ebb495dc23c2cfb756a3d97eb5b78d8ee01005becc1332",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_11_38.obj": "fbdb332a2d3026190c36177604b3c5884e122cb0691379a83956d41a3a033af5",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_49.obj": "8b811d07bc2f3c962cd0197df59182c0db3e046300ee6f7f47c0c7775cc5b844",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_46.obj": "6f99d0d8c703980d0573a50da97cc24a20e0ee0294150ec4df4bf8ebca7157b1",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_11_37.obj": "d367c18a1c24933ce601878d6d97e6476ae95e0d531585f97cf86d153a6122e0",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_42.obj": "a9dfdf025f2d644dab8aaac166095d6f2ca6352637f1e9ad05ec3bce73f0e8c3",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_11_9.obj": "4f1fd59f8fb0c57342aa9c7c24f4cfaa6a297f6a909b52ca4f8053de349474ca",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/LL1_link_visual.obj": "12db8ea5740c630167d245a3e18b799c009dbc8eb12d705494b2fa3f7fae9836",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_1_51.obj": "7b20aa7ceefecacc8600b704d0eb39abf4b8bb89add16b8e0c47f5d36eafd30e",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_53.obj": "573ee5c06470fe1b858af4424d338ac40d4c984ffaabae0dd8cfe001b04b0771",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_1.obj": "8cd71d90a24c89ba6d7bb95b3cfebf43351d51f661cf966e39cb403e55efaf71",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_1_41.obj": "8522f84f25d2722fd3294e34f644d784069795851099f9df4a66cd014bc2d505",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_45.obj": "5e73ef22439f8faa277efee8b03e20c8f1a2d6233adba4f10650fc3fee742bf4",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_57.obj": "cb3a538203092f2398601a1bd8d06a587a8202f7e5d7148ff877cae2f6cfd1d0",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_56.obj": "204b88e57593acdc33cc023de211cb2fd82d6e0ae6f42f93c90d255886755ea4",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_11_8.obj": "d30d65d4c2c835adfd1aec4dbb4009b3c7979e161d4397ea59c068116787d7ac",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_10.obj": "420d190f31c354a1fa46ae4f8355bac0395bc7eade8e279cc08b87adf87b2b58",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_11_39.obj": "515871508a357423849101c4cbf625ccfccb91e7c2f8d71192226822f938e25b",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_11_10.obj": "300433920e6189a3d2b803c41d0f9e2e6565c34900c3414d80dd64db03ceddbb",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_10_0.obj": "9f55c6e2e1f9b5637aa9925045ccdf4c57994e69856bd62c479c0129f9937877",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_11_25.obj": "81e4cf7de6690b6003ff320ec605746fc8967de13a75d2863dce7577ba8ee4c5",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_16.obj": "a5bba9af69e4a81e6dfe2f6f339501f9763efc8c944201add76e893a3e07740e",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_22.obj": "0c832ed17264058b8008498c712d04ba8c921274da3d31f91e7b62d5db5e1af7",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_1_45.obj": "3500537565f190d0cef0a703d9ae181ce58dd46414a9a4bdc4d1bf2735d915aa",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/RS_link_visual.obj": "dcb8686d01b6e12aeb0ee5e8f0d31297a3b8bc3a4e5a6b48543c913b15fac21e",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_1_47.obj": "aa088a23aa4cf778dcb1a472bba9e0bb6832bfad1356fcc592a30efcec00024a",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_15_0.obj": "669723c6a6a49b2ca87578e4d526dd9fb3af684474b64213bc70823da662f4ea",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_46.obj": "c8edc97a7c20be9f77643e7ba542c10bb4da188096f7cbb24038aeb370e02683",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_2.obj": "8cfc59f0320e4cc8bbbc8b88eb2f3f103ed7f1ea345ac8b67817f75e013a83bd",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_24.obj": "82b9bd22a8ccee3957799de2cf21a4c9690b37463e2cb8757583d3ebd40798ee",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/RL2_link_visual.obj": "402d6f55b5a30668e5dd6224286a37e6f2c90b056adb2265e5a8bc74c76a8950",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/LS_link_visual.obj": "0215b85afc5a6db3683a8a7087731f5b6bcecec94a5b05aedcebac22863a45f2",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_57.obj": "7588b97371e64473bf3e7c9a82ecbbf0c7b88e8c51fe50d463cb2609c0e4f986",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_17.obj": "7e3a47f810373a69786eb81c1f6763b8f769ed8034ad6570423611859cc91fe3",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_6.obj": "39d05302358bcff432bf391739ebe814cec4e5113824d1c4a05fc80079abb1f9",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_26.obj": "352fc46172f5310f86f56a4835902c013d85dacab4c5696ecbb3b5c83eac9dcc",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_8.obj": "b8a7d86fe5c106abdc0cb5e2c7e6fe135a8d8c13266b8765ecdf9a33c971d3ac",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/RL_link_visual.obj": "d6e9632e9c2da4b445a169b1cf0cfe212a45a23b469df999636b32f3eff0c03d",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_40.obj": "aa3e08a5b866ca54f63bcb6ee0ed15b77398d096017713ff6c1d8f1f21c534da",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_1_18.obj": "f1241e6caec53b0fa5dc55a39d85fc16c045c2d5e488352fc0138dd693fc94f7",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_18.obj": "7bcc378ca2f45504383259b432afd17c5cce465f519f1a0676bca2d13dff2e78",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_1_20.obj": "5a0ed89649a62ab8c8e95119d9d5a92ae53c0b699e4e096c9f307a94fe9d312d",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/RL1_link_visual.obj": "1f623bc6477330852415ccaf11d660cbd2f34e061448e31297be7a75b4e65794",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_1_7.obj": "228d259eeaaaf10a869222cbb2e89d89652efedc2d219bfae0dc37605979c707",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_12.obj": "8678eaa6d78793e4a7d9517ed72e4de32725514a17aeb3eb6dfbf6f7fa59f5e7",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_41.obj": "1f47d4de87c9d5c521504c847077f3bb222e611334d2801eb30c272ad1052d56",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_52.obj": "9697150debbf61b0176d7e059ae08fff256e65de85612597138d294216781b39",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_1_11.obj": "ada8fc44634f100a63b8c8b7f42a43c5b4817dc20fb78bccf942b31868865eba",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_44.obj": "a7243e905f3420bc43d9746dd650ccbe0718420f7d96a1996a7a8a4559ebf595",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_27.obj": "3554260c91a7e5c89875e8e62f9cdef689d11c52eb90b3ed41a6acf8ca0233cf",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_58.obj": "b4d9e90c7c34be0294c5d5ef94aa38782e30eccbdf2590b7bcad5d0a76f6762f",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_1_15.obj": "c1151999f3c9a27c3f7d13853a699b78fc65b430eee2f3398e83231c96edc8b8",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_49.obj": "27b280e234db3c585d404c3dbc0e229d1f8d8279c9e8beda21dec96df434b7a8",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_1_26.obj": "005d13d5c9d2eab9639b5c1478581378cba9987c73a15c2529e2c8fbab77ded4",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_6.obj": "9077b510f6a6b3ff0dc8052314cc2feff9dd074ca58b033bccd3da6af617eea2",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_28.obj": "69c1dacb35dc658bd4fcee8ca60c5dbf8cd861d3432d034923de7c6b599c7e5d",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_19.obj": "d2cf19d3589061b15ab5fca46a9edf964249e1c19a6836f6a296224e580faa1a",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_18.obj": "eb4e7229ddb62e637e63dad030fa6af4ca4a6d47cefb9fe3af409eca3ea5ff8c",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_1_0.obj": "f1884ad8418b472a54f8f81eddf698955cccffef450f24875f20859e677393b8",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_1_48.obj": "4d05356744178a118c51aae3bce85cd69fb813c7807f24266ed5ab37b6806e3f",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_1_21.obj": "01ebd0ef2ab7081b0c8ee6807efe3917d415702bed1cdb9ffe664c21191409fd",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_14_0.obj": "fa2d2f1eb7df0ba45720d766ecc222072038ed30aafe678fd060470b2a306758",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_33.obj": "4dbc11e673ee1a4d1a516b62fc6e358fe09c261c048da9cc12ca664e239d27d9",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_33.obj": "fb3d15449dcbb9e926343103c6633c1df98de2bf9b3e73a8a6453389e269662d",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_21.obj": "b409169a4bb19282a61e96e908625f1496cd56ac8689bba9403039487e65a56b",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_20_0.obj": "ed565d4ba2158dc37e9d5d1bb9e1fef411d95ea496cf71159f37680c7111a3a5",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_1_3.obj": "34e18ce3b2ecf49d27e7279580a76b329ae0b16450a5c3b20e4db3edc747e22c",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_47.obj": "1f6b8231498f9ed6af07e1fbee3238dff5be5494ca0d0972ff9e9d6f618c2127",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_9_0.obj": "4562668b42ffd64dd0382bfe4cbb96f18deb14ba28d691dcdfbbc598a5d1c2e4",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_14.obj": "84eba15ff7f16a43ec1f0ee9f77eb0be4712928f5a1a5152ef9761985951185e",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_2.obj": "6197e7607bf2eab263fab466ba90e7203f501e03a3ccbbe17e188aa2afebd44b",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_1_14.obj": "8c11d7d6156c4a9857e4cd1e137723164f16f814ce74df8fc84f57f63690362f",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_1_17.obj": "752e866dfccdc9fe07677b1a460fa09732c10e0396b3372e867725da14dbc09e",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_53.obj": "e81776034160d078ada7f1b299f909d9c39d22870884100d83318792cd8d26ce",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_15.obj": "e474df06b4a980cfa7a3edd72a354ac188a9adb0f09a6319bbf97bd065d9a102",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_3.obj": "c20e435bbd2605c86c41d9d51a8454b69bebb6da04ee6180bab2187b00759908",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_21.obj": "fa7361acbc01ccab29ae4797cd34244e403adc213864cbf8e6fdb3001674c7fa",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_37.obj": "1f5af2eb4a9dc14dc0680c8bb3c3e322c890beff1ea27e7fa0f96918fd086d4c",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_1_19.obj": "ca10be1fc175b9c773f1ac74fcc97adf76ce13a15df60946f8b72e261b33e3dc",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_1_43.obj": "9ee4085289ecc3ab065f11b60d41755c85773f2190093f0409cd20c8a8857cc0",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_11_28.obj": "8c2f58d73c5dc4e9b0a834a426869971163f0d2e3dcac8d85881e0bb8c403fb8",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_1_9.obj": "a16ec75e26fd4e5ea1f11da19c35ca84afccf6d69c448959951ba0660e847ced",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_23.obj": "733977eaaeb836cd4790294dc224155d89a07ba1e8a1c0d8942bc98b14bb9b3c",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_43.obj": "23903c42ed0b14e5ca5b095be9c3205180ea339d0e071f4c3bf7d2e87aa1abfe",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_11_12.obj": "edb3e3870d304262dbb3e1c23dd0cd7302ff8527f79f5219c93ecbd92f8823ca",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_11_34.obj": "d89cc37c82f2bd4f15e24776450ca97654f311aab42dcef52de5fd451ca9ece1",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_1.obj": "fdfac2cc1a954e5dac4d280fbcf6c20ea4c7fc21167d7e4771bf0fb9f513c25c",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_48.obj": "b9f640dc41c773e7fea4513ed9150bb89b29229734298afbf819d1fad2f2c0b3",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_1_32.obj": "35ea70a27c9514bf54a1dcee7a92da9a1a230da5d703906f406dac7b03abf823",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_20.obj": "ff22a9e3a44e906a4159aba6707b004e8f63addb24b661462f177a9eaae82734",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_0.obj": "62b8e88466d8c660bc62d8abbd16ee26e0b8a87c1962ec9fd24b52d139202534",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_25.obj": "2948ce739915f194a86e6017bcab92a480b6c9ec904511b2853ac05e2ed78b5b",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_7_0.obj": "476feaec4c4af7dc5d4a9053bd0f193f78103fbcd03d932e6aa0cf2294a325c4",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_58.obj": "80407b236e1a45968307ba3a237efb92aaeab1fabab1c4415c8b492f4242a7f8",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_1_13.obj": "42af1c5ccd94894ab16c036fc96d42c8611cbcdce636b228152787eaa24408ed",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_11_33.obj": "f59ab7f8aa0d42f6e28a982a09d60064176e95b1cd40360d4a582827f4795dae",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_56.obj": "6250ab435e81775b71f59edde09a56eb970dd25b6954e62ac98ce0580dbe8721",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_0.obj": "a11b0574ca03786690bf7bead2c797b7f19ed5317cba9e3ae16c15f747a0b18c",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_5_0.obj": "54cb71e2eb38d181bfd62e336a4f0bf9900eb63761e3a6eb3e8d471dbaba18c5",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_1_29.obj": "5f4aa0d0a099c96585a25f09f19e07a5f91e61c1500827ba6802fdf3cf093572",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/LL2_link_visual.obj": "cdbd7661f01d041207301d0ca3e1bb3a614b5a7b00c6e554f9f12de5a9ecde87",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_11_19.obj": "1fe2c029f9e044dea23a389a2fab10ac5b516d32b346faa6846c02e96f10c2ca",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_5.obj": "618c952254f5e48c08ce0e9bf4445b4fd4b00a8062259101f930f3c8aa0caa4a",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_37.obj": "729d3b7181fc42bdf24f0a4e5edc1eedfc8ffe52b2dce812574d2b52b7372985",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/base_link_visual.obj": "d95f51cacf62005a81d584702bb5266c9de78fd079367fdd85e7748c6a08bfc4",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_8_0.obj": "2c8073e815e46d984108db20c5b633e423ad732047c7ffdbc9c86209f3946437",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/LW_link_visual.obj": "305b0434bc0cf932ebef687e699bcc3eb08aee5abff37e738d9877ff7a27bb27",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_50.obj": "28c72b4bdc0e01cb77d6de4e3112c878668830122e81cf29c4b705e2481d8465",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_31.obj": "ece3c8ddc9a2368398617dcb87c679cf36bb5aff54d17baaad8523a3bdc25549",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_11_35.obj": "72ce5402ee888e90773cd67a707f3699ff96d2690e46fdb1931147aff68049bb",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_11_18.obj": "48cf8ee9d688a6da3cce7f04ef9899b1023cbbfb80139abefd998a3e5c0d3735",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_13_60.obj": "f04cd148b94542d7f9931834753dd6f3d3039a92ca93886fbfc9e6c09f1f6072",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/mujoco_protected_stops_v2_20261004/meshes/collision_3_5.obj": "31ab0d4bfd229161bd7ac699aa311a60c32b9092d86897305e005107d31a1205"
+  },
+  "integration_dt": 0.0001,
+  "reference_control_dt": 0.005,
+  "policy_dt": 0.02,
+  "protected_decomposition": {
+    "engine": "CoACD",
+    "threshold": 0.01,
+    "max_convex_hull": 64,
+    "preprocess_resolution": 50,
+    "resolution": 2000,
+    "mcts_iterations": 100,
+    "seed": 43
+  }
+}

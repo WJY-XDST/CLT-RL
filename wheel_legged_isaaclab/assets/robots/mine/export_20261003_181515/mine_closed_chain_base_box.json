@@ -1,0 +1,261 @@
+{
+  "source": "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_closed_chain_tires_96.usd",
+  "overlay": "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_closed_chain_base_box.usd",
+  "shared_mesh_asset": "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_base_box_instanceable_meshes.usd",
+  "sha256": {
+    "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_closed_chain_tires_96.usd": "cd7170cd08567ab4abf0b3ef033ae07af5d3887e8341d53ce3073e982910db88",
+    "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_closed_chain_base_box.usd": "bbde84ca678525e4c99abe3e718a927954e2dd24f41cf1f2434a3350072d392e",
+    "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_base_box_instanceable_meshes.usd": "404cf292faa1f61a42defc5719a8062f46cb5275c15dd1533be7e70ff72edcad"
+  },
+  "records": [
+    {
+      "body": "base_link",
+      "original_meshes": 431,
+      "original_vertices": 1002972,
+      "bounds_body_m": [
+        [
+          -0.26198367581847143,
+          -0.15115000274136658,
+          -0.13975066463967709
+        ],
+        [
+          0.2619836953634029,
+          0.1646500029697266,
+          0.13975065211086085
+        ]
+      ],
+      "kind": "bounding_box",
+      "dimensions_m": [
+        0.5239673711818743,
+        0.3158000057110932,
+        0.2795013167505379
+      ],
+      "output_vertices": 8
+    }
+  ],
+  "instance_audit_before": [
+    {
+      "path": "/mine_robot/base_link/visuals",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_20, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/base_link/collisions",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_9, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/LB_link/visuals",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_22, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/LB_link/collisions",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_6, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/LS_link/visuals",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_15, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/LS_link/collisions",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_11, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/LW_link/visuals",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_25, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/LL_link/visuals",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_1, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/LL_link/collisions",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_3, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/LL1_link/visuals",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_29, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/LL1_link/collisions",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_5, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/LL2_link/visuals",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_17, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/LL2_link/collisions",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_7, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/LL3_link/visuals",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_24, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/LL3_link/collisions",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_10, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/RB_link/visuals",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_16, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/RB_link/collisions",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_8, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/RS_link/visuals",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_4, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/RS_link/collisions",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_30, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/RW_link/visuals",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_2, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/RL_link/visuals",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_12, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/RL_link/collisions",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_14, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/RL1_link/visuals",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_27, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/RL1_link/collisions",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_19, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/RL2_link/visuals",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_23, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/RL2_link/collisions",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_28, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/RL3_link/visuals",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_21, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/RL3_link/collisions",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_26, SdfLayerOffset(0, 1), {})])"
+    }
+  ],
+  "source_collision_nodes": 459,
+  "output_collision_nodes": 29,
+  "unchanged_leg_and_wheel_subtrees": [
+    "/mine_robot/LB_link",
+    "/mine_robot/LS_link",
+    "/mine_robot/LW_link",
+    "/mine_robot/LL_link",
+    "/mine_robot/LL1_link",
+    "/mine_robot/LL2_link",
+    "/mine_robot/LL3_link",
+    "/mine_robot/RB_link",
+    "/mine_robot/RS_link",
+    "/mine_robot/RW_link",
+    "/mine_robot/RL_link",
+    "/mine_robot/RL1_link",
+    "/mine_robot/RL2_link",
+    "/mine_robot/RL3_link"
+  ],
+  "unchanged_dynamics_and_joints": [
+    "/mine_robot/base_link",
+    "/mine_robot/LB_link",
+    "/mine_robot/joints/LB_joint",
+    "/mine_robot/joints/LS_joint",
+    "/mine_robot/joints/LW_joint",
+    "/mine_robot/joints/LL_joint",
+    "/mine_robot/joints/LL1_joint",
+    "/mine_robot/joints/LL2_joint",
+    "/mine_robot/joints/LL3_joint",
+    "/mine_robot/joints/RB_joint",
+    "/mine_robot/joints/RS_joint",
+    "/mine_robot/joints/RW_joint",
+    "/mine_robot/joints/RL_joint",
+    "/mine_robot/joints/RL1_joint",
+    "/mine_robot/joints/RL2_joint",
+    "/mine_robot/joints/RL3_joint",
+    "/mine_robot/LS_link",
+    "/mine_robot/LW_link",
+    "/mine_robot/LL_link",
+    "/mine_robot/LL1_link",
+    "/mine_robot/LL2_link",
+    "/mine_robot/LL3_link",
+    "/mine_robot/RB_link",
+    "/mine_robot/RS_link",
+    "/mine_robot/RW_link",
+    "/mine_robot/RL_link",
+    "/mine_robot/RL1_link",
+    "/mine_robot/RL2_link",
+    "/mine_robot/RL3_link",
+    "/mine_robot/loop_joints/RL3_RS_closure",
+    "/mine_robot/loop_joints/RL2_RB_closure",
+    "/mine_robot/loop_joints/LL3_LS_closure",
+    "/mine_robot/loop_joints/LL2_LB_closure"
+  ],
+  "status": "diagnostic variant; validate dynamics before promotion",
+  "geometry_change": "Base AABB replaces CAD parts; leg and wheel geometry is unchanged."
+}

@@ -1,0 +1,9 @@
+{
+  "relative_error": 0.2,
+  "speed_absolute_m_s": 0.025,
+  "yaw_absolute_rad_s": 0.025,
+  "wheel_absolute_rad_s": 0.15,
+  "leg_angle_design_range_rad": 0.2,
+  "body_p95_deg": 2.5,
+  "minimum_height_fraction": 0.9
+}

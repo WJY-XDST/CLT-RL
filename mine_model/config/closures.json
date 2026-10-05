@@ -1,0 +1,84 @@
+{
+  "joints": [
+    {
+      "name": "RL3_RS_closure",
+      "body0": "RL3_link",
+      "body1": "RS_link",
+      "anchor_cad_mm": [
+        -321.44979858,
+        110.9088,
+        -225.5574245
+      ],
+      "axis_cad": [
+        -1,
+        0,
+        0
+      ],
+      "source_parts": [
+        "part_159",
+        "part_156"
+      ],
+      "max_hole_axis_mismatch_mm": 1.414213558802549e-06
+    },
+    {
+      "name": "RL2_RB_closure",
+      "body0": "RL2_link",
+      "body1": "RB_link",
+      "anchor_cad_mm": [
+        -307.44979858,
+        101.30340425,
+        -86.5761775
+      ],
+      "axis_cad": [
+        -1,
+        0,
+        0
+      ],
+      "source_parts": [
+        "part_160",
+        "part_154"
+      ],
+      "max_hole_axis_mismatch_mm": 3.999999989900971e-06
+    },
+    {
+      "name": "LL3_LS_closure",
+      "body0": "LL3_link",
+      "body1": "LS_link",
+      "anchor_cad_mm": [
+        61.95021057,
+        110.9088,
+        -225.5574245
+      ],
+      "axis_cad": [
+        1,
+        0,
+        0
+      ],
+      "source_parts": [
+        "part_370",
+        "part_410"
+      ],
+      "max_hole_axis_mismatch_mm": 1.414213558802549e-06
+    },
+    {
+      "name": "LL2_LB_closure",
+      "body0": "LL2_link",
+      "body1": "LB_link",
+      "anchor_cad_mm": [
+        47.95021057,
+        101.30340425,
+        -86.5761775
+      ],
+      "axis_cad": [
+        1,
+        0,
+        0
+      ],
+      "source_parts": [
+        "part_369",
+        "part_411"
+      ],
+      "max_hole_axis_mismatch_mm": 3.999999989900971e-06
+    }
+  ]
+}

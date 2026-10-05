@@ -47,3 +47,15 @@ class WheelLeggedVMCFlatPPORunnerCfg(RslRlOnPolicyRunnerCfg):
         desired_kl=0.01,
         max_grad_norm=1.0,
     )
+
+
+@configclass
+class MineWheelLeggedVMCFlatPPORunnerCfg(WheelLeggedVMCFlatPPORunnerCfg):
+    experiment_name = "mine_wheel_legged_vmc_flat"
+    max_iterations = 1000
+
+    def __post_init__(self):
+        # The 256-environment collapse pilot lost nearly all exploration
+        # (std 0.3 -> 0.04) before learning a standing episode. Keep entropy
+        # pressure specific to the new-model experiment.
+        self.algorithm.entropy_coef = 0.01

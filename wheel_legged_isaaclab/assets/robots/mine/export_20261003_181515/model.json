@@ -1,0 +1,152 @@
+{
+  "name": "mine_closed_chain",
+  "version": "20261003_181515",
+  "coordinate_frame": "x_forward_y_left_z_up",
+  "cad_to_base_rotation": [
+    [
+      0.0,
+      0.0,
+      1.0
+    ],
+    [
+      1.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      1.0,
+      0.0
+    ]
+  ],
+  "base_origin_cad_mm": [
+    -136.49979400499998,
+    114.52881527,
+    0
+  ],
+  "hip_z": 0.02465354469000002,
+  "wheel_radius": 0.06,
+  "wheel_track_width": 0.4199,
+  "mass_kg": 10.49690564218563,
+  "supported_mass_kg": 9.553000000000003,
+  "leg_effort_limit": 10.0,
+  "wheel_effort_limit": 10.0,
+  "leg_joint_names": [
+    "LB_joint",
+    "LL_joint",
+    "RB_joint",
+    "RL_joint"
+  ],
+  "wheel_joint_names": [
+    "LW_joint",
+    "RW_joint"
+  ],
+  "five_bar": {
+    "upper": [
+      0.09449999892164894,
+      0.09449999999626175
+    ],
+    "lower": [
+      0.11249999834160904,
+      0.11249999999745534
+    ],
+    "offsets": [
+      -1.9832249757228464,
+      2.0876638877618587
+    ],
+    "scale": 2.222222247578221,
+    "branch": 1
+  },
+  "nominal_leg_length": 0.25919459694312946,
+  "nominal_root_height": 0.29418773726343056,
+  "input_angle_reference": "base_link, q=0 at CAD assembly pose",
+  "closures": [
+    {
+      "name": "RL3_RS_closure",
+      "body0": "RL3_link",
+      "body1": "RS_link",
+      "anchor_cad_mm": [
+        -321.44979858,
+        110.9088,
+        -225.5574245
+      ],
+      "axis_cad": [
+        -1,
+        0,
+        0
+      ],
+      "source_parts": [
+        "part_159",
+        "part_156"
+      ],
+      "max_hole_axis_mismatch_mm": 1.414213558802549e-06
+    },
+    {
+      "name": "RL2_RB_closure",
+      "body0": "RL2_link",
+      "body1": "RB_link",
+      "anchor_cad_mm": [
+        -307.44979858,
+        101.30340425,
+        -86.5761775
+      ],
+      "axis_cad": [
+        -1,
+        0,
+        0
+      ],
+      "source_parts": [
+        "part_160",
+        "part_154"
+      ],
+      "max_hole_axis_mismatch_mm": 3.999999989900971e-06
+    },
+    {
+      "name": "LL3_LS_closure",
+      "body0": "LL3_link",
+      "body1": "LS_link",
+      "anchor_cad_mm": [
+        61.95021057,
+        110.9088,
+        -225.5574245
+      ],
+      "axis_cad": [
+        1,
+        0,
+        0
+      ],
+      "source_parts": [
+        "part_370",
+        "part_410"
+      ],
+      "max_hole_axis_mismatch_mm": 1.414213558802549e-06
+    },
+    {
+      "name": "LL2_LB_closure",
+      "body0": "LL2_link",
+      "body1": "LB_link",
+      "anchor_cad_mm": [
+        47.95021057,
+        101.30340425,
+        -86.5761775
+      ],
+      "axis_cad": [
+        1,
+        0,
+        0
+      ],
+      "source_parts": [
+        "part_369",
+        "part_411"
+      ],
+      "max_hole_axis_mismatch_mm": 3.999999989900971e-06
+    }
+  ],
+  "original_urdf_zip_sha256": "6cdd04a3721b0a4f8ba11daae7654e260679ac7f3055ae26ce045f6a66f5cc84",
+  "notes": [
+    "URDF is the spanning tree; the four loop constraints are in USD.",
+    "Wheel joints are continuous in this export; original source limits are preserved in source/.",
+    "Masses and inertias, including the original left/right wheel mass asymmetry, are preserved."
+  ],
+  "usd_sha256": "fffbe16eeba967df5e22163523d8c09936eab43e56d46847fe93e9960067f913"
+}

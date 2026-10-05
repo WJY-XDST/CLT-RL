@@ -13,8 +13,18 @@ gym.register(
     disable_env_checker=True,
     kwargs={
         "env_cfg_entry_point": (
-            f"{__name__}.wheel_legged_vmc_flat_env_cfg:WheelLeggedVMCFlatEnvCfg"
+            f"{__name__}.mine_env_cfg:MineWheelLeggedVMCFlatEnvCfg"
         ),
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:MineWheelLeggedVMCFlatPPORunnerCfg",
+    },
+)
+
+gym.register(
+    id="WheelLeggedVMC-Legacy-v0",
+    entry_point=f"{__name__}.wheel_legged_vmc_flat_env:WheelLeggedVMCFlatEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.wheel_legged_vmc_flat_env_cfg:WheelLeggedVMCFlatEnvCfg",
         "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:WheelLeggedVMCFlatPPORunnerCfg",
     },
 )

@@ -8,6 +8,7 @@
 
 import argparse
 import csv
+import json
 from pathlib import Path
 import sys
 
@@ -16,6 +17,7 @@ from isaaclab.app import AppLauncher
 # local imports
 import cli_args  # isort: skip
 from heading_feedback import HeadingFeedback
+from keyboard_control import KeyboardConfig, IsaacKeyboardController, apply_keyboard_command
 
 # add argparse arguments
 parser = argparse.ArgumentParser(description="Train an RL agent with RSL-RL.")
@@ -25,6 +27,7 @@ parser.add_argument(
     "--disable_fabric", action="store_true", default=False, help="Disable fabric and use USD I/O operations."
 )
 parser.add_argument("--num_envs", type=int, default=None, help="Number of environments to simulate.")
+parser.add_argument('--overrides_json',type=Path,help='Restore the accepted model control settings before replay')
 parser.add_argument(
     "--camera_mode", choices=("orbit", "free", "follow"), default="orbit",
     help="Interactive camera: orbit follows position with mouse navigation; free stops tracking; follow locks the angle.",
@@ -73,6 +76,8 @@ parser.add_argument(
 )
 parser.add_argument("--heading_feedback", action="store_true",
                     help="Single-robot navigation test: track the integral of requested yaw rate with bounded PI heading feedback.")
+parser.add_argument("--constant_yaw_rate", action="store_true",
+                    help="Apply the requested yaw rate directly, including zero, as in fixed-command acceptance.")
 parser.add_argument(
     "--height_cycle",
     type=float,
@@ -174,6 +179,17 @@ parser.add_argument(
     "--live_stats", action="store_true", default=False,
     help="Show simulation progress, speed, height, and leg states in a GUI panel.",
 )
+parser.add_argument("--startup_focus", action="store_true",
+                    help="Pin the first five seconds of individual leg angles and show settling metrics above live charts.")
+keyboard_group = parser.add_mutually_exclusive_group()
+keyboard_group.add_argument('--keyboard', dest='keyboard', action='store_true',
+                            help='Enable WASD/QE keyboard commands in a GUI replay')
+keyboard_group.add_argument('--no_keyboard', dest='keyboard', action='store_false',
+                            help='Disable automatic keyboard control for reproducible evaluation')
+parser.set_defaults(keyboard=None)
+parser.add_argument('--keyboard_speed', type=float, default=0.5, help='Held W/S speed [m/s]')
+parser.add_argument('--keyboard_yaw_rate', type=float, default=0.3, help='Held A/D yaw rate [rad/s]')
+parser.add_argument('--keyboard_height_rate', type=float, default=0.01, help='Held Q/E height change [m/s]')
 # append RSL-RL cli arguments
 cli_args.add_rsl_rl_args(parser)
 # append AppLauncher cli args
@@ -250,9 +266,47 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
     # override configurations with non-hydra CLI arguments
     agent_cfg: RslRlBaseRunnerCfg = cli_args.update_rsl_rl_cfg(agent_cfg, args_cli)
+    if args_cli.overrides_json:
+        from wheel_legged_gym_isaaclab.config_overrides import apply_config_overrides
+        apply_config_overrides(env_cfg,json.loads(args_cli.overrides_json.read_text()))
+        if env_cfg.wheel_control_mode=='implicit_velocity':
+            env_cfg.robot.actuators['wheels'].damping=env_cfg.wheel_damping
     env_cfg.scene.num_envs = args_cli.num_envs if args_cli.num_envs is not None else env_cfg.scene.num_envs
+    keyboard_enabled = args_cli.keyboard
+    if keyboard_enabled is None:
+        keyboard_enabled = (not args_cli.headless and not args_cli.video
+                            and task_name.startswith('WheelLeggedVMC')
+                            and not args_cli.startup_focus and not args_cli.zero_actions
+                            and args_cli.fixed_leg_length is None and args_cli.fixed_wheel_action is None)
+    if keyboard_enabled and (args_cli.headless or args_cli.video):
+        raise ValueError('--keyboard requires a GUI replay without --video')
+    if keyboard_enabled and (args_cli.fixed_leg_length is not None or args_cli.fixed_wheel_action is not None or args_cli.zero_actions):
+        raise ValueError('Keyboard commands cannot be combined with open-loop action overrides')
+    if keyboard_enabled and args_cli.startup_focus:
+        raise ValueError('Keyboard commands cannot be combined with fixed startup capture; use --no_keyboard')
+    keyboard_config = None
+    keyboard_starts_active = keyboard_enabled and args_cli.fixed_command is None
+    if keyboard_enabled:
+        if not task_name.startswith('WheelLeggedVMC'):
+            raise ValueError('Keyboard height commands currently support only WheelLeggedVMC tasks')
+        if args_cli.num_envs is None:
+            env_cfg.scene.num_envs = 1
+        height_min, height_max = env_cfg.commands.ranges_height
+        initial_height = args_cli.fixed_command[2] if args_cli.fixed_command else env_cfg.rewards.base_height_target
+        keyboard_config = KeyboardConfig(args_cli.keyboard_speed, args_cli.keyboard_yaw_rate,
+                                         args_cli.keyboard_height_rate, height_min, height_max, initial_height)
+        if keyboard_config.speed > env_cfg.wheel_radius * env_cfg.action_scale_vel:
+            raise ValueError('Keyboard speed exceeds the wheel action range')
+        if keyboard_starts_active:
+            args_cli.fixed_command = [0.0, 0.0, initial_height]
     if args_cli.heading_feedback and (env_cfg.scene.num_envs != 1 or args_cli.fixed_command is None):
         raise ValueError("--heading_feedback requires --num_envs 1 and --fixed_command")
+    if args_cli.startup_focus and (
+        not args_cli.live_stats or args_cli.headless or env_cfg.scene.num_envs != 1
+        or args_cli.fixed_command is None or any(args_cli.fixed_command[:2])
+        or any(cycle is not None for cycle in (args_cli.velocity_cycle, args_cli.height_cycle, args_cli.yaw_cycle))
+    ):
+        raise ValueError("--startup_focus requires a single GUI robot, --live_stats and a constant standing command")
     if args_cli.heading_feedback and any(abs(v) > .5 for v in (args_cli.yaw_cycle or [args_cli.fixed_command[1]])):
         raise ValueError("Heading feedback test supports requested yaw rates within +/-0.5 rad/s")
 
@@ -260,7 +314,8 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     # constant commanded rate.
     if args_cli.fixed_command is not None:
         lin_vel_x, yaw_rate, height = args_cli.fixed_command
-        env_cfg.commands.heading_command = yaw_rate == 0.0 and not args_cli.heading_feedback
+        env_cfg.commands.heading_command = (yaw_rate == 0.0 and not keyboard_starts_active and not args_cli.heading_feedback
+                                           and not args_cli.constant_yaw_rate)
         env_cfg.commands.ranges_lin_vel_x = (lin_vel_x, lin_vel_x)
         env_cfg.commands.ranges_ang_vel_yaw = (yaw_rate, yaw_rate)
         env_cfg.commands.ranges_height = (height, height)
@@ -396,6 +451,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     export_policy_as_onnx(policy_nn, normalizer=normalizer, path=export_model_dir, filename="policy.onnx")
 
     dt = env.unwrapped.step_dt
+    keyboard_controller = IsaacKeyboardController(keyboard_config, keyboard_starts_active) if keyboard_enabled else None
 
     velocity_phase_steps = None
     last_velocity_phase = None
@@ -418,6 +474,8 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     def apply_velocity_cycle_command(observation, step: int):
         """Synchronize the active test speed with the environment and policy input."""
         nonlocal last_velocity_phase
+        if keyboard_controller is not None and keyboard_controller.state.active:
+            return
         if velocity_phase_steps is None:
             return
         phase = step // velocity_phase_steps
@@ -434,8 +492,9 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         if args_cli.yaw_cycle is not None:
             command_yaw = args_cli.yaw_cycle[phase % len(args_cli.yaw_cycle)]
             base_env._command_ranges[1, :] = command_yaw
-            base_env.cfg.commands.heading_command = command_yaw == 0.0 and not args_cli.heading_feedback
-            if command_yaw != 0.0 or args_cli.heading_feedback:
+            base_env.cfg.commands.heading_command = (command_yaw == 0.0 and not args_cli.heading_feedback
+                                                     and not args_cli.constant_yaw_rate)
+            if command_yaw != 0.0 or args_cli.heading_feedback or args_cli.constant_yaw_rate:
                 base_env._commands[:, 1] = command_yaw
             elif phase != last_velocity_phase and not args_cli.heading_feedback:
                 # Hold the heading reached after a turn, instead of returning to the initial heading.
@@ -562,6 +621,12 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     live_error_plots = {}
     next_live_update = 0.0
     live_wall_start = time.monotonic()
+    startup_capture = None
+    startup_labels, startup_plots = {}, {}
+    startup_trial = 1
+    if args_cli.startup_focus:
+        from startup_metrics import StartupCapture
+        startup_capture = StartupCapture(dt)
     if args_cli.live_stats and not args_cli.headless:
         import omni.ui as ui
         import omni.appwindow
@@ -593,6 +658,19 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         with live_window.frame:
             with ui.ScrollingFrame():
                 with ui.VStack(spacing=4):
+                    if startup_capture is not None:
+                        ui.Label("STARTUP LEG ANGLES | first 5 seconds stay visible", height=24)
+                        startup_labels["status"] = ui.Label("Collecting at control frequency...", height=22)
+                        ui.Label("Settling band: final 2-second mean +/-0.5 deg (not a policy target)", height=20)
+                        for side, color in zip(("left", "right"), colors):
+                            startup_labels[side] = ui.Label(f"{side.title()}: collecting...", height=24)
+                            with ui.ZStack(height=100):
+                                ui.Rectangle(style={"background_color": 0xFF242424})
+                                for key, line_color in (("measured", color), ("low", 0xFF999999), ("high", 0xFF999999)):
+                                    startup_plots[(side, key)] = ui.Plot(
+                                        ui.Type.LINE, -12., 12., 0., 0.,
+                                        style={"color": line_color, "background_color": 0x0})
+                        ui.Label("X: seconds since startup | Y: leg angle in degrees | gray: settling band", height=20)
                     for field in ("progress", "speed", "yaw", "heading", "height", "body", "angles", "left", "right", "status"):
                         live_labels[field] = ui.Label("Waiting for simulation...", height=20)
                     live_labels["plot_time"] = ui.Label("Time window: waiting for samples", height=20)
@@ -646,10 +724,14 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         # run everything in inference mode
         with torch.inference_mode():
             apply_velocity_cycle_command(obs, timestep)
+            keyboard_command = keyboard_controller.advance(dt) if keyboard_controller is not None else None
+            apply_keyboard_command(env.unwrapped, obs, keyboard_command)
             requested_yaw_rate = (args_cli.yaw_cycle[(timestep // velocity_phase_steps) % len(args_cli.yaw_cycle)]
                                   if args_cli.yaw_cycle is not None else
                                   (args_cli.fixed_command[1] if args_cli.fixed_command is not None else
                                    env.unwrapped._commands[args_cli.trace_env_id, 1].item()))
+            if keyboard_command is not None:
+                requested_yaw_rate = keyboard_command[1]
             if heading_feedback is not None:
                 corrected_yaw_rate = heading_feedback.step(requested_yaw_rate, math.radians(yaw_turn_measured), dt)
                 env.unwrapped._commands[:, 1] = corrected_yaw_rate
@@ -685,6 +767,11 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                         heading_feedback.reset()
                     for history in live_history.values():
                         history.clear()
+                    if startup_capture is not None:
+                        startup_capture = StartupCapture(dt)
+                        startup_trial += 1
+                        for plot in startup_plots.values():
+                            plot.set_data(0.0, 0.0)
                 else:
                     if heading_feedback is not None:
                         yaw_turn_reference = math.degrees(heading_feedback.reference)
@@ -693,6 +780,12 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                     # Unwrap +/-180-degree crossings before accumulating the measured turn.
                     yaw_turn_measured += (yaw_degrees - previous_yaw + 180.0) % 360.0 - 180.0
                 previous_yaw = yaw_degrees
+            if startup_capture is not None and not did_reset:
+                angles = env.unwrapped._theta0[args_cli.trace_env_id].detach().cpu().tolist()
+                was_complete = startup_capture.complete
+                startup_capture.add(*angles)
+                if startup_capture.complete and not was_complete:
+                    print(f"[STARTUP trial={startup_trial}] {json.dumps(startup_capture.report())}", flush=True)
             apply_velocity_cycle_command(obs, timestep)
             write_trace = trace_file is not None and timestep % args_cli.trace_interval == 0
             update_live = bool(live_labels) and time.monotonic() >= next_live_update
@@ -724,6 +817,8 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                     "yaw_turn_error_deg": yaw_turn_measured - yaw_turn_reference,
                     "heading_hold": int(base_env.cfg.commands.heading_command),
                     "heading_feedback": int(heading_feedback is not None),
+                    "keyboard_active": int(keyboard_command is not None),
+                    "keyboard_jump_requests": keyboard_controller.state.jump_requests if keyboard_controller else 0,
                     "yaw_rate_requested": requested_yaw_rate,
                     "height_cmd": base_env._commands[env_id, 2].item(),
                     "vel_x_heading": heading_velocity[0].item(),
@@ -790,6 +885,30 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                     for key, history in live_history.items():
                         history.append(chart_row[key])
                 if update_live:
+                    if startup_capture is not None:
+                        duration = len(startup_capture.samples) * dt
+                        startup_labels["status"].text = (
+                            f"Trial {startup_trial} | {'FROZEN' if startup_capture.complete else 'COLLECTING'} | "
+                            f"0 to {duration:.2f} s | Kp {base_env.cfg.kp_theta:g}, Kd {base_env.cfg.kd_theta:g}")
+                        report = startup_capture.report()
+                        for index, side in enumerate(("left", "right")):
+                            values = [sample[index] for sample in startup_capture.samples]
+                            span = max(2., max(map(abs, values), default=0.) * 1.15)
+                            for key in ("measured", "low", "high"):
+                                plot = startup_plots[(side, key)]
+                                plot.scale_min, plot.scale_max = -span, span
+                            if len(values) >= 2:
+                                startup_plots[(side, "measured")].set_data(*values)
+                            if report is not None:
+                                result = report[side]
+                                settling = (f"{result['settling_s']:.2f} s" if result['settling_s'] is not None else ">5 s")
+                                startup_labels[side].text = (
+                                    f"{side.title()}: settle {settling} | peak {result['peak_abs_deg']:.2f} deg | "
+                                    f"mean {result['steady_deg']:+.2f} deg | 2s travel {result['variation_first_2s_deg']:.2f} deg")
+                                for key, offset in (("low", -.5), ("high", .5)):
+                                    startup_plots[(side, key)].set_data(*([result["steady_deg"] + offset] * len(values)))
+                            else:
+                                startup_labels[side].text = f"{side.title()}: collecting | peak {max(map(abs, values), default=0.):.2f} deg"
                     elapsed = time.monotonic() - live_wall_start
                     live_labels["progress"].text = (
                         f"Sim {(timestep + 1) * dt:.1f} s | step {timestep + 1} | "
@@ -931,6 +1050,8 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
             time.sleep(sleep_time)
 
     # close diagnostics and simulator
+    if keyboard_controller is not None:
+        keyboard_controller.close()
     if trace_file is not None:
         trace_file.close()
     if live_window is not None:
@@ -944,6 +1065,8 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
 if __name__ == "__main__":
     # run the main function
-    main()
-    # close sim app
-    simulation_app.close()
+    try:
+        main()
+    finally:
+        # Release the simulator even if inference, input setup or tracing fails.
+        simulation_app.close()

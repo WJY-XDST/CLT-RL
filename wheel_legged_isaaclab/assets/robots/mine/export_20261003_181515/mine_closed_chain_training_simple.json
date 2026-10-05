@@ -1,0 +1,497 @@
+{
+  "source": "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_closed_chain_tires_96.usd",
+  "overlay": "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_closed_chain_training_simple.usd",
+  "shared_mesh_asset": "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_training_instanceable_meshes.usd",
+  "sha256": {
+    "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_closed_chain_tires_96.usd": "cd7170cd08567ab4abf0b3ef033ae07af5d3887e8341d53ce3073e982910db88",
+    "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_closed_chain_training_simple.usd": "a187bfe8effb207264c254fe78569178965145f87bd35283967a163e4dfda87f",
+    "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_training_instanceable_meshes.usd": "e5ddd55029349f684861f11438028221e11b0a2b17465fdcfdd1686abc3a2dc4"
+  },
+  "records": [
+    {
+      "body": "base_link",
+      "original_meshes": 431,
+      "original_vertices": 1002972,
+      "bounds_body_m": [
+        [
+          -0.26198367581847143,
+          -0.15115000274136658,
+          -0.13975066463967709
+        ],
+        [
+          0.2619836953634029,
+          0.1646500029697266,
+          0.13975065211086085
+        ]
+      ],
+      "kind": "bounding_box",
+      "dimensions_m": [
+        0.5239673711818743,
+        0.3158000057110932,
+        0.2795013167505379
+      ],
+      "output_vertices": 8
+    },
+    {
+      "body": "LB_link",
+      "original_meshes": 4,
+      "original_vertices": 17652,
+      "bounds_body_m": [
+        [
+          -0.11389608404576126,
+          -0.22224619469100748,
+          -0.049000010967331586
+        ],
+        [
+          0.04308629684460316,
+          0.04308630565571141,
+          -0.00850001320371118
+        ]
+      ],
+      "kind": "merged_convex_hull",
+      "merge_tool": "isaacsim.util.merge_mesh.MeshMerger",
+      "output_vertices": 212,
+      "output_triangles": 420
+    },
+    {
+      "body": "LS_link",
+      "original_meshes": 3,
+      "original_vertices": 37770,
+      "bounds_body_m": [
+        [
+          -0.2060553425783079,
+          -0.047665330463413313,
+          -0.03150002181557483
+        ],
+        [
+          0.06998695246818737,
+          0.2104432732757245,
+          0.006500001608417558
+        ]
+      ],
+      "kind": "merged_convex_hull",
+      "merge_tool": "isaacsim.util.merge_mesh.MeshMerger",
+      "output_vertices": 114,
+      "output_triangles": 224
+    },
+    {
+      "body": "LL_link",
+      "original_meshes": 2,
+      "original_vertices": 11700,
+      "bounds_body_m": [
+        [
+          -0.05899283979243164,
+          -0.043086083793295746,
+          -0.0006000084660008277
+        ],
+        [
+          0.04308609826419116,
+          0.0943376167901098,
+          0.064949999210791
+        ]
+      ],
+      "kind": "merged_convex_hull",
+      "merge_tool": "isaacsim.util.merge_mesh.MeshMerger",
+      "output_vertices": 162,
+      "output_triangles": 320
+    },
+    {
+      "body": "LL1_link",
+      "original_meshes": 1,
+      "original_vertices": 1164,
+      "bounds_body_m": [
+        [
+          -0.07868543105712912,
+          -0.0971484950055379,
+          -0.00499999883148633
+        ],
+        [
+          0.00890491705199098,
+          0.008904925885517695,
+          0.005000009562751526
+        ]
+      ],
+      "kind": "merged_convex_hull",
+      "merge_tool": "isaacsim.util.merge_mesh.MeshMerger",
+      "output_vertices": 38,
+      "output_triangles": 72
+    },
+    {
+      "body": "LL2_link",
+      "original_meshes": 1,
+      "original_vertices": 1692,
+      "bounds_body_m": [
+        [
+          -0.012174222043385663,
+          -0.12615049268636921,
+          -0.010000016180147994
+        ],
+        [
+          0.1469959763271276,
+          0.012096348947757818,
+          3.580049930118623e-09
+        ]
+      ],
+      "kind": "merged_convex_hull",
+      "merge_tool": "isaacsim.util.merge_mesh.MeshMerger",
+      "output_vertices": 52,
+      "output_triangles": 100
+    },
+    {
+      "body": "LL3_link",
+      "original_meshes": 1,
+      "original_vertices": 1116,
+      "bounds_body_m": [
+        [
+          -0.05524091327312641,
+          -0.11475976579528177,
+          -0.006250025709688856
+        ],
+        [
+          0.008944473749802312,
+          0.008944453848552192,
+          0.00374998530140358
+        ]
+      ],
+      "kind": "merged_convex_hull",
+      "merge_tool": "isaacsim.util.merge_mesh.MeshMerger",
+      "output_vertices": 42,
+      "output_triangles": 80
+    },
+    {
+      "body": "RB_link",
+      "original_meshes": 4,
+      "original_vertices": 17652,
+      "bounds_body_m": [
+        [
+          -0.11389613646924,
+          -0.043086252363972746,
+          0.02545000888991983
+        ],
+        [
+          0.04308628471029885,
+          0.22224623198483823,
+          0.0659500005213769
+        ]
+      ],
+      "kind": "merged_convex_hull",
+      "merge_tool": "isaacsim.util.merge_mesh.MeshMerger",
+      "output_vertices": 215,
+      "output_triangles": 426
+    },
+    {
+      "body": "RS_link",
+      "original_meshes": 3,
+      "original_vertices": 37770,
+      "bounds_body_m": [
+        [
+          -0.20605535825150653,
+          -0.21044327279584266,
+          -0.03149998741728394
+        ],
+        [
+          0.06998689243010367,
+          0.04766537830399406,
+          0.00650002441401859
+        ]
+      ],
+      "kind": "merged_convex_hull",
+      "merge_tool": "isaacsim.util.merge_mesh.MeshMerger",
+      "output_vertices": 109,
+      "output_triangles": 214
+    },
+    {
+      "body": "RL_link",
+      "original_meshes": 2,
+      "original_vertices": 11700,
+      "bounds_body_m": [
+        [
+          -0.05899283768018346,
+          -0.09433757319277086,
+          0.007499996454724045
+        ],
+        [
+          0.043086086562176384,
+          0.04308613708263164,
+          0.07305002248081255
+        ]
+      ],
+      "kind": "merged_convex_hull",
+      "merge_tool": "isaacsim.util.merge_mesh.MeshMerger",
+      "output_vertices": 166,
+      "output_triangles": 328
+    },
+    {
+      "body": "RL1_link",
+      "original_meshes": 1,
+      "original_vertices": 1164,
+      "bounds_body_m": [
+        [
+          -0.07868544571256184,
+          -0.00890488147232707,
+          -0.011999968164629393
+        ],
+        [
+          0.008904919410504128,
+          0.09714852503610474,
+          -0.0019999542776700796
+        ]
+      ],
+      "kind": "merged_convex_hull",
+      "merge_tool": "isaacsim.util.merge_mesh.MeshMerger",
+      "output_vertices": 41,
+      "output_triangles": 78
+    },
+    {
+      "body": "RL2_link",
+      "original_meshes": 1,
+      "original_vertices": 1692,
+      "bounds_body_m": [
+        [
+          -0.012174238475031152,
+          -0.012096318031920232,
+          0.0020000301184228686
+        ],
+        [
+          0.14699593780366915,
+          0.12615054975893733,
+          0.012000039196772894
+        ]
+      ],
+      "kind": "merged_convex_hull",
+      "merge_tool": "isaacsim.util.merge_mesh.MeshMerger",
+      "output_vertices": 56,
+      "output_triangles": 108
+    },
+    {
+      "body": "RL3_link",
+      "original_meshes": 1,
+      "original_vertices": 1116,
+      "bounds_body_m": [
+        [
+          -0.055240973898187315,
+          -0.008944397034071377,
+          -0.00750000251418842
+        ],
+        [
+          0.008944434545116065,
+          0.11475981380822996,
+          0.0025000122371575673
+        ]
+      ],
+      "kind": "merged_convex_hull",
+      "merge_tool": "isaacsim.util.merge_mesh.MeshMerger",
+      "output_vertices": 39,
+      "output_triangles": 74
+    }
+  ],
+  "instance_audit_before": [
+    {
+      "path": "/mine_robot/base_link/visuals",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_20, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/base_link/collisions",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_9, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/LB_link/visuals",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_22, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/LB_link/collisions",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_6, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/LS_link/visuals",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_15, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/LS_link/collisions",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_11, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/LW_link/visuals",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_25, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/LL_link/visuals",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_1, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/LL_link/collisions",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_3, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/LL1_link/visuals",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_29, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/LL1_link/collisions",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_5, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/LL2_link/visuals",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_17, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/LL2_link/collisions",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_7, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/LL3_link/visuals",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_24, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/LL3_link/collisions",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_10, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/RB_link/visuals",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_16, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/RB_link/collisions",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_8, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/RS_link/visuals",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_4, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/RS_link/collisions",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_30, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/RW_link/visuals",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_2, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/RL_link/visuals",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_12, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/RL_link/collisions",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_14, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/RL1_link/visuals",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_27, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/RL1_link/collisions",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_19, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/RL2_link/visuals",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_23, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/RL2_link/collisions",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_28, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/RL3_link/visuals",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_21, SdfLayerOffset(0, 1), {})])"
+    },
+    {
+      "path": "/mine_robot/RL3_link/collisions",
+      "instanceable": true,
+      "is_instance": true,
+      "references": "SdfReferenceListOp(Added Items: [SdfReference(, /Flattened_Prototype_26, SdfLayerOffset(0, 1), {})])"
+    }
+  ],
+  "source_collision_nodes": 459,
+  "output_collision_nodes": 17,
+  "unchanged_dynamics_and_joints": [
+    "/mine_robot/base_link",
+    "/mine_robot/LB_link",
+    "/mine_robot/joints/LB_joint",
+    "/mine_robot/joints/LS_joint",
+    "/mine_robot/joints/LW_joint",
+    "/mine_robot/joints/LL_joint",
+    "/mine_robot/joints/LL1_joint",
+    "/mine_robot/joints/LL2_joint",
+    "/mine_robot/joints/LL3_joint",
+    "/mine_robot/joints/RB_joint",
+    "/mine_robot/joints/RS_joint",
+    "/mine_robot/joints/RW_joint",
+    "/mine_robot/joints/RL_joint",
+    "/mine_robot/joints/RL1_joint",
+    "/mine_robot/joints/RL2_joint",
+    "/mine_robot/joints/RL3_joint",
+    "/mine_robot/LS_link",
+    "/mine_robot/LW_link",
+    "/mine_robot/LL_link",
+    "/mine_robot/LL1_link",
+    "/mine_robot/LL2_link",
+    "/mine_robot/LL3_link",
+    "/mine_robot/RB_link",
+    "/mine_robot/RS_link",
+    "/mine_robot/RW_link",
+    "/mine_robot/RL_link",
+    "/mine_robot/RL1_link",
+    "/mine_robot/RL2_link",
+    "/mine_robot/RL3_link",
+    "/mine_robot/loop_joints/RL3_RS_closure",
+    "/mine_robot/loop_joints/RL2_RB_closure",
+    "/mine_robot/loop_joints/LL3_LS_closure",
+    "/mine_robot/loop_joints/LL2_LB_closure"
+  ],
+  "status": "diagnostic variant; validate dynamics before promotion",
+  "geometry_change": "Base AABB replaces CAD parts; each non-wheel leg becomes a single convex hull. Concavities and holes are filled. Wheel collisions unchanged."
+}

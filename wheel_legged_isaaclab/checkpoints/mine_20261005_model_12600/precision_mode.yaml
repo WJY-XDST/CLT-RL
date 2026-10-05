@@ -1,0 +1,16 @@
+mode: wheel_head_only
+source_checkpoint: /home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-05_15-52-27_mine_auto_r065_auto_training_implicit_20pct_20261004_protected_stops_v2_env8192/model_12499.pt
+trainable_actor_rows:
+- 2
+- 5
+trainable_std_entries:
+- 2
+- 5
+shared_actor_features_frozen: true
+leg_output_rows_frozen:
+- 0
+- 1
+- 3
+- 4
+critic_trainable: true
+inference_contract_unchanged: true

@@ -1,0 +1,80 @@
+{
+  "hardware_calibrated": false,
+  "simulation_reference_only": true,
+  "source_status": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/auto_training_implicit_20pct_20261004/status.json",
+  "leg_order": [
+    "LB_joint",
+    "LL_joint",
+    "RB_joint",
+    "RL_joint"
+  ],
+  "wheel_order": [
+    "LW_joint",
+    "RW_joint"
+  ],
+  "wheel_axis_signs": [
+    1,
+    -1
+  ],
+  "current_polarities": [
+    null,
+    null
+  ],
+  "leg_pd": {
+    "kp": [
+      300.0,
+      300.0,
+      300.0,
+      300.0
+    ],
+    "kd": [
+      3.0,
+      3.0,
+      3.0,
+      3.0
+    ],
+    "torque_limits_nm": [
+      10.0,
+      10.0,
+      10.0,
+      10.0
+    ],
+    "joint_lower_rad": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "joint_upper_rad": [
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "wheel_pid": [
+    {
+      "kp": 2.0,
+      "ki": 0.0,
+      "kd": 0.0,
+      "torque_per_amp": null,
+      "current_limit_a": null,
+      "torque_limit_nm": 10.0,
+      "current_slew_a_s": null,
+      "derivative_filter_s": null,
+      "max_dt_s": null
+    },
+    {
+      "kp": 2.0,
+      "ki": 0.0,
+      "kd": 0.0,
+      "torque_per_amp": null,
+      "current_limit_a": null,
+      "torque_limit_nm": 10.0,
+      "current_slew_a_s": null,
+      "derivative_filter_s": null,
+      "max_dt_s": null
+    }
+  ],
+  "notes": "Simulation gains and 10 Nm ceilings are references, not hardware approval. Torque_per_amp is wheel-end Nm per commanded amp using the actual driver current definition. Validate signs, joint ranges, current/torque limits, timing and slew. Reconcile with final accepted runtime_config before deployment."
+}

@@ -116,6 +116,8 @@ class RewardsCfg:
     spin_center_velocity = 0.0  # wheel common-mode speed penalty; only active on stationary turns
     base_height = 1.0
     nominal_state = -60.0
+    standing_leg_angle = 0.0
+    standing_wheel_tracking = 0.0  # opt-in penalty on unexecuted wheel references while stationary
     lin_vel_z = -2.0
     ang_vel_xy = -0.05
     orientation = -150.0
@@ -139,6 +141,12 @@ class RewardsCfg:
     clip_single_reward = 1.0
     nominal_state_penalty_clip = 3.0  # keep the 6-9 degree asymmetry penalty below its cap
     orientation_penalty_clip = 3.0  # retain a gradient at the observed 5-6 degree pitch
+    base_height_penalty_clip = 1.0
+    standing_leg_angle_penalty_clip = 3.0
+    lin_vel_penalty_clip = 1.0
+    yaw_rate_penalty_clip = 1.0
+    standing_wheel_penalty_clip = 1.0
+    action_rate_penalty_clip = 1.0
     tracking_sigma = 0.25
     tracking_sigma_ang = 0.25  # separate yaw width so turning can be trained without changing linear tracking
     tracking_sigma_enhance = 0.025
@@ -164,6 +172,13 @@ class WheelLeggedVMCFlatEnvCfg(DirectRLEnvCfg):
     action_space = 6
     observation_space = 27
     state_space = 0
+    leg_model = "legacy_serial"
+    leg_joint_names = ["lf0_Joint", "lf1_Joint", "rf0_Joint", "rf1_Joint"]
+    wheel_joint_names = ["l_wheel_Joint", "r_wheel_Joint"]
+    leg_body_names = ["lf0_Link", "lf1_Link", "rf0_Link", "rf1_Link"]
+    penalised_body_pattern = "(lf|rf|base).*"
+    leg_effort_limit = 30.0
+    wheel_effort_limit = 5.0
     # Root linear [m/s] and angular [rad/s] velocity perturbations at reset.
     # Ramp with the motion curriculum; fixed-command replay uses the final range.
     reset_velocity_initial = 0.05
@@ -173,6 +188,8 @@ class WheelLeggedVMCFlatEnvCfg(DirectRLEnvCfg):
     # Base-link contact is unsafe even when the robot is not fully inverted.
     base_contact_terminal_time_s = 0.15  # [s]
     base_contact_force_threshold = 10.0  # [N]
+    min_root_height = 0.0  # disabled for the legacy robot
+    low_height_terminal_time_s = 0.15
     # Sustained non-wheel leg-link contact is treated as a failure.
     leg_contact_terminal_time_s = 0.2
     leg_contact_force_threshold = 5.0  # [N]
@@ -229,6 +246,10 @@ class WheelLeggedVMCFlatEnvCfg(DirectRLEnvCfg):
     kp_l0 = 900.0  # [N/m]
     kd_l0 = 90.0  # [N*s/m], reduced height-step oscillation in the model-3742 replay sweep
     wheel_damping = 0.5  # [N*m*s/rad]
+    wheel_control_mode = "explicit_velocity"
+    leg_control_mode = "explicit_vmc"
+    leg_joint_stiffness = 300.0  # used only by implicit_joint_reference
+    leg_joint_damping = 3.0
 
     # leg kinematic parameters (from `wheel_legged_config.py`)
     l1 = 0.15  # [m]

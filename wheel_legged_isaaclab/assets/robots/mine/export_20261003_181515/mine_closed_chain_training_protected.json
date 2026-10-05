@@ -1,0 +1,295 @@
+{
+  "source": "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_closed_chain_base_box.usd",
+  "overlay": "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_closed_chain_training_protected.usd",
+  "shared_mesh_asset": "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_protected_leg_instanceable_meshes.usd",
+  "sha256": {
+    "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_closed_chain_base_box.usd": "bbde84ca678525e4c99abe3e718a927954e2dd24f41cf1f2434a3350072d392e",
+    "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_closed_chain_training_protected.usd": "1ec14a942dc67f413293d536ce623ca3712d941931abf28b35f3d46f24c085fc",
+    "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_protected_leg_instanceable_meshes.usd": "d034d97112ef660f5b6f5642a71971b56d2163631867668b8f63bc9ee495d85d"
+  },
+  "records": [
+    {
+      "body": "LB_link",
+      "merged_mesh_count": 3,
+      "protected_part": "part_413_4_28",
+      "input_unique_vertices": 2742,
+      "output_vertices": 227,
+      "hull_vertex_limit": 255,
+      "bounds_body_m": [
+        [
+          -0.113896084046,
+          -0.222246194691,
+          -0.049000010967
+        ],
+        [
+          0.043086296845,
+          0.043086305656,
+          -0.021000000606
+        ]
+      ]
+    },
+    {
+      "body": "LS_link",
+      "merged_mesh_count": 2,
+      "protected_part": "part_410___1_15",
+      "input_unique_vertices": 5575,
+      "output_vertices": 256,
+      "hull_vertex_limit": 255,
+      "bounds_body_m": [
+        [
+          -0.135835957089,
+          -0.019496237426,
+          -0.031500021816
+        ],
+        [
+          0.0194962622,
+          0.13876533272,
+          0.006500001608
+        ]
+      ]
+    },
+    {
+      "body": "LL_link",
+      "merged_mesh_count": 2,
+      "protected_part": null,
+      "input_unique_vertices": 1934,
+      "output_vertices": 173,
+      "hull_vertex_limit": 255,
+      "bounds_body_m": [
+        [
+          -0.058992839792,
+          -0.043086083793,
+          -0.000600008466
+        ],
+        [
+          0.043086098264,
+          0.09433761679,
+          0.064949999211
+        ]
+      ]
+    },
+    {
+      "body": "LL1_link",
+      "merged_mesh_count": 1,
+      "protected_part": null,
+      "input_unique_vertices": 188,
+      "output_vertices": 35,
+      "hull_vertex_limit": 255,
+      "bounds_body_m": [
+        [
+          -0.078685431057,
+          -0.097148495006,
+          -0.004999998831
+        ],
+        [
+          0.008904917052,
+          0.008904925886,
+          0.005000009563
+        ]
+      ]
+    },
+    {
+      "body": "LL2_link",
+      "merged_mesh_count": 1,
+      "protected_part": null,
+      "input_unique_vertices": 272,
+      "output_vertices": 58,
+      "hull_vertex_limit": 255,
+      "bounds_body_m": [
+        [
+          -0.012174222043,
+          -0.126150492686,
+          -0.01000001618
+        ],
+        [
+          0.146995976327,
+          0.012096348948,
+          3.58e-09
+        ]
+      ]
+    },
+    {
+      "body": "LL3_link",
+      "merged_mesh_count": 1,
+      "protected_part": null,
+      "input_unique_vertices": 180,
+      "output_vertices": 36,
+      "hull_vertex_limit": 255,
+      "bounds_body_m": [
+        [
+          -0.055240913273,
+          -0.114759765795,
+          -0.00625002571
+        ],
+        [
+          0.00894447375,
+          0.008944453849,
+          0.003749985301
+        ]
+      ]
+    },
+    {
+      "body": "RB_link",
+      "merged_mesh_count": 3,
+      "protected_part": "part_192_4_28",
+      "input_unique_vertices": 2742,
+      "output_vertices": 229,
+      "hull_vertex_limit": 255,
+      "bounds_body_m": [
+        [
+          -0.113896136469,
+          -0.043086252364,
+          0.02545000889
+        ],
+        [
+          0.04308628471,
+          0.222246231985,
+          0.053450017359
+        ]
+      ]
+    },
+    {
+      "body": "RS_link",
+      "merged_mesh_count": 2,
+      "protected_part": "part_156___1_15",
+      "input_unique_vertices": 5575,
+      "output_vertices": 250,
+      "hull_vertex_limit": 255,
+      "bounds_body_m": [
+        [
+          -0.135835985333,
+          -0.138765320202,
+          -0.031499987417
+        ],
+        [
+          0.019496208525,
+          0.019496274057,
+          0.006500024414
+        ]
+      ]
+    },
+    {
+      "body": "RL_link",
+      "merged_mesh_count": 2,
+      "protected_part": null,
+      "input_unique_vertices": 1934,
+      "output_vertices": 162,
+      "hull_vertex_limit": 255,
+      "bounds_body_m": [
+        [
+          -0.05899283768,
+          -0.094337573193,
+          0.007499996455
+        ],
+        [
+          0.043086086562,
+          0.043086137083,
+          0.073050022481
+        ]
+      ]
+    },
+    {
+      "body": "RL1_link",
+      "merged_mesh_count": 1,
+      "protected_part": null,
+      "input_unique_vertices": 188,
+      "output_vertices": 41,
+      "hull_vertex_limit": 255,
+      "bounds_body_m": [
+        [
+          -0.078685445713,
+          -0.008904881472,
+          -0.011999968165
+        ],
+        [
+          0.008904919411,
+          0.097148525036,
+          -0.001999954278
+        ]
+      ]
+    },
+    {
+      "body": "RL2_link",
+      "merged_mesh_count": 1,
+      "protected_part": null,
+      "input_unique_vertices": 272,
+      "output_vertices": 50,
+      "hull_vertex_limit": 255,
+      "bounds_body_m": [
+        [
+          -0.012174238475,
+          -0.012096318032,
+          0.002000030118
+        ],
+        [
+          0.146995937804,
+          0.126150549759,
+          0.012000039197
+        ]
+      ]
+    },
+    {
+      "body": "RL3_link",
+      "merged_mesh_count": 1,
+      "protected_part": null,
+      "input_unique_vertices": 180,
+      "output_vertices": 38,
+      "hull_vertex_limit": 255,
+      "bounds_body_m": [
+        [
+          -0.055240973898,
+          -0.008944397034,
+          -0.007500002514
+        ],
+        [
+          0.008944434545,
+          0.114759813808,
+          0.002500012237
+        ]
+      ]
+    }
+  ],
+  "protected_contact_parts": {
+    "LB_link": "part_413_4_28",
+    "RB_link": "part_192_4_28",
+    "LS_link": "part_410___1_15",
+    "RS_link": "part_156___1_15"
+  },
+  "collision_nodes": 21,
+  "unchanged_dynamics_and_joints": [
+    "/mine_robot/base_link",
+    "/mine_robot/LB_link",
+    "/mine_robot/joints/LB_joint",
+    "/mine_robot/joints/LS_joint",
+    "/mine_robot/joints/LW_joint",
+    "/mine_robot/joints/LL_joint",
+    "/mine_robot/joints/LL1_joint",
+    "/mine_robot/joints/LL2_joint",
+    "/mine_robot/joints/LL3_joint",
+    "/mine_robot/joints/RB_joint",
+    "/mine_robot/joints/RS_joint",
+    "/mine_robot/joints/RW_joint",
+    "/mine_robot/joints/RL_joint",
+    "/mine_robot/joints/RL1_joint",
+    "/mine_robot/joints/RL2_joint",
+    "/mine_robot/joints/RL3_joint",
+    "/mine_robot/LS_link",
+    "/mine_robot/LW_link",
+    "/mine_robot/LL_link",
+    "/mine_robot/LL1_link",
+    "/mine_robot/LL2_link",
+    "/mine_robot/LL3_link",
+    "/mine_robot/RB_link",
+    "/mine_robot/RS_link",
+    "/mine_robot/RW_link",
+    "/mine_robot/RL_link",
+    "/mine_robot/RL1_link",
+    "/mine_robot/RL2_link",
+    "/mine_robot/RL3_link",
+    "/mine_robot/loop_joints/RL3_RS_closure",
+    "/mine_robot/loop_joints/RL2_RB_closure",
+    "/mine_robot/loop_joints/LL3_LS_closure",
+    "/mine_robot/loop_joints/LL2_LB_closure"
+  ],
+  "status": "diagnostic; capacity and policy tests required"
+}

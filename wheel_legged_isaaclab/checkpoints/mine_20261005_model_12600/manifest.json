@@ -1,0 +1,40 @@
+{
+  "snapshot_date": "2026-10-05",
+  "task": "WheelLeggedVMC-Flat-v0",
+  "robot": "mine_five_bar",
+  "checkpoint": "model_12600.pt",
+  "iteration": 12600,
+  "checkpoint_size_bytes": 1186047,
+  "checkpoint_sha256": "a6fc33c7770ff2c3a776c65d737a01bf33217b328ac11fe9563cf4d8ec6cbee3",
+  "observation_dim": 27,
+  "action_dim": 6,
+  "leg_control_mode": "implicit_joint_reference",
+  "wheel_control_mode": "implicit_velocity",
+  "num_envs": 8192,
+  "training_run": "2026-10-05_16-31-58_mine_auto_r066_auto_training_implicit_20pct_20261004_protected_stops_v2_env8192",
+  "source_checkpoint": "IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-05_16-31-58_mine_auto_r066_auto_training_implicit_20pct_20261004_protected_stops_v2_env8192/model_12600.pt",
+  "source_overrides": "mine_model/results/auto_training_implicit_20pct_20261004/round_066_optimization/overrides.json",
+  "asset": "wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_closed_chain_training_protected_stops_v2.usd",
+  "validation": {
+    "checkpoint_cpu_load": true,
+    "all_floating_model_parameters_finite": true,
+    "matching_training_configs_included": true,
+    "full_policy_acceptance_for_this_checkpoint": false,
+    "hardware_deployment_approved": false
+  },
+  "previous_assessment": {
+    "file": "previous_model_12499_assessment.json",
+    "iteration": 12499,
+    "survivors": 27,
+    "total_trials": 27,
+    "passed_trials": 6,
+    "passed": false,
+    "applies_to_uploaded_checkpoint": false
+  },
+  "config_sha256": {
+    "env.yaml": "26037a3e52419dd1027b1eb547fdaaf3c65d7f47fc4f4c6d0791644db85a6662",
+    "agent.yaml": "9b5eda230df80511686d1baa5e5362f83230f98a68f239529a0f2ab15d9d3caa",
+    "training_overrides.json": "973dd799a2980fcee978366d278f00475088b9cd78dfc4c9e32439e1930918b6"
+  },
+  "portability": "Original training YAML and overrides retain provenance paths. replay_overrides.json changes only the USD path to a repository-relative path resolved from IsaacLab by the supplied launchers; no control parameter is changed. This is a candidate snapshot, not the final accepted deployment bundle."
+}

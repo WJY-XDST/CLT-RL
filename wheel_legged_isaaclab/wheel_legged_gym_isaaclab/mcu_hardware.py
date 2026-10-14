@@ -40,8 +40,13 @@ LEG_ENCODER_COUNTS_PER_TURN = 65536
 VMC_CONTROL_HZ = 500
 
 # control/torque.c M1 and F0_control, control/WBR.c pitch_com, control/vmc.c.
+# Owner-confirmed definition: M1=6.17 kg is HALF the nominal WHOLE vehicle
+# mass, including its wheels. Each leg's base feedforward is m_vehicle*g/2.
+# This parameter does not come from CAD supported_mass_kg or exclude wheels.
+# Keep the nominal firmware load separate from the CAD rigid-body mass sum.
 GRAVITY = 9.81
-GRAVITY_COMPENSATION_MASS_PER_LEG = 6.17
+NOMINAL_VEHICLE_MASS_KG = 12.34
+GRAVITY_COMPENSATION_MASS_PER_LEG = NOMINAL_VEHICLE_MASS_KG / 2.0
 GRAVITY_FORCE = GRAVITY * GRAVITY_COMPENSATION_MASS_PER_LEG
 GRAVITY_FORCE_LIMIT = 150.0
 GRAVITY_ANGLE_BIAS = math.radians(2.0) + 1.57 - math.pi / 2
@@ -76,6 +81,10 @@ def wheel_rpm_to_output_speed(rpm):
 def gravity_feedforward(leg_angle, body_pitch, *, mode, force, angle_bias=0.0,
                         force_limit=GRAVITY_FORCE_LIMIT):
     """Outward-positive radial force [N], with no gas-spring contribution.
+
+    The configured base force is half the nominal whole-vehicle weight.
+    MCU angle compensation converts that vertical support into radial force;
+    it does not change the mass definition or impose equal instantaneous loads.
 
     leg_angle is backward-positive relative to base_link; body_pitch uses the
     simulation Y-axis convention. Their sum corresponds to MCU theta0 after

@@ -234,6 +234,7 @@ class WheelLeggedVMCFlatEnvCfg(DirectRLEnvCfg):
     wheel_radius: float = WHEEL_RADIUS
     wheel_track_width: float = MODEL['wheel_track_width']
     action_scale_vel: float = 15.0
+    # 下位机 M1=6.17 kg：整车名义质量 12.34 kg 的一半，每腿基础力 60.5277 N。
     feedforward_force: float = GRAVITY_FORCE
     hardware_profile: str | None = HARDWARE_PROFILE
     feedforward_mode = 'mcu_pitch_compensated'
@@ -260,7 +261,8 @@ class WheelLeggedVMCFlatEnvCfg(DirectRLEnvCfg):
         prim_path="/World/envs/env_.*/Robot",
         spawn=sim_utils.UsdFileCfg(
             # 实物确认左右轮（含轮毂电机）均为 0.665 kg；独立质量层保留闭链与限位。
-            # 左轮惯量按原 CAD 形状同比缩放，尚非实测；旧权重回放使用其配套资产。
+            # 两轮主惯量取右轮 CAD 值，并按左右坐标镜像；尚非实测惯量。
+            # 旧权重回放使用其保存的配套资产。
             usd_path=str(ASSETS / MANIFEST.get("training_usd", MANIFEST["usd"].replace(
                 'mine_closed_chain.usd', 'mine_closed_chain_training_protected_stops_v2.usd'))),
             activate_contact_sensors=True,

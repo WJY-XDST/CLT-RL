@@ -1,0 +1,177 @@
+{
+  "calibration_id": "owner_confirmed_identical_wheels_20261014",
+  "confirmed_on": "2026-10-14",
+  "authority": "owner_confirmation_in_chat",
+  "confirmation": "左右轮（含轮毂电机）均为 0.665 kg，左右轮惯量大小相同",
+  "weighing_method": "not_provided",
+  "source": "mine_closed_chain_training_wheel_mass_20261014.usda",
+  "overlay": "mine_closed_chain_training_matched_wheels_20261014.usda",
+  "sha256": {
+    "mine_closed_chain_training_wheel_mass_20261014.usda": "b20e00cd117eecaed4dc66b6e905a0d9b0319a3058da215372c3236039093214",
+    "mine_closed_chain_training_matched_wheels_20261014.usda": "cb3dec31426ae3647352b675bfcf701dc672e950f2bd9b2d0a50b9fa6509bf68"
+  },
+  "wheel_masses_kg": {
+    "LW_link": 0.665,
+    "RW_link": 0.665
+  },
+  "original_composed_wheel_masses_kg": {
+    "LW_link": 0.6650000214576721,
+    "RW_link": 0.6650000214576721
+  },
+  "original_total_mass_kg": 10.882999613881111,
+  "calibrated_composed_total_mass_kg": 10.882999613881111,
+  "inertia": {
+    "measured": false,
+    "method": "identical_principal_moments_mirrored_in_base_frame",
+    "reference": "RW_link CAD principal inertia retained; owner confirms identical wheel assemblies",
+    "principal_moments_kg_m2": [
+      0.0005099578993394971,
+      0.0005024567944929004,
+      0.0007531667943112552
+    ],
+    "LW_link": "right CAD inertia mirrored in base frame and expressed in left link frame",
+    "RW_link": "original CAD principal inertia retained",
+    "center_of_mass": "original CAD centers retained; not newly measured",
+    "principal_axes": "left axes transformed to match physical mirror; right CAD axes retained"
+  },
+  "feedforward": {
+    "authority": "owner_confirmed_MCU_whole_vehicle_half_weight_per_leg",
+    "nominal_vehicle_mass_kg": 12.34,
+    "mass_per_leg_kg": 6.17,
+    "base_force_per_leg_n": 60.5277,
+    "CAD_rigid_body_mass_sum_kg": 10.882999613881111,
+    "definition": "MCU M1 is half nominal whole-vehicle mass; CAD body masses are recorded separately"
+  },
+  "unchanged": [
+    "all body masses",
+    "original source USD layers",
+    "both wheel centers of mass",
+    "all meshes, collision filters and mechanical stops",
+    "all joint frames, limits and closed-chain topology",
+    "non-wheel inertias",
+    "MCU gravity feedforward and motor command limits"
+  ],
+  "validation": {
+    "usd_composition": {
+      "source_unchanged": true,
+      "all_body_masses_unchanged": true,
+      "both_wheel_com_unchanged": true,
+      "same_principal_moments": true,
+      "base_frame_mirror_tensor_max_difference_kg_m2": 1.0842021724855044e-19
+    },
+    "physx_loading_smoke": {
+      "asset": "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_closed_chain_training_matched_wheels_20261014.usda",
+      "asset_sha256": "cb3dec31426ae3647352b675bfcf701dc672e950f2bd9b2d0a50b9fa6509bf68",
+      "environments": 1,
+      "control_steps": 10,
+      "training_started": false,
+      "policy_acceptance_test": false,
+      "wheels": {
+        "LW_link": {
+          "mass_kg": 0.6650000214576721,
+          "tensor_link_frame": [
+            [
+              0.0005094774533063173,
+              1.864137402662891e-06,
+              1.860118118202081e-06
+            ],
+            [
+              1.8641665064933477e-06,
+              0.0005029519670642912,
+              3.0428464015130885e-07
+            ],
+            [
+              1.860118118202081e-06,
+              3.0428464015130885e-07,
+              0.000753152125980705
+            ]
+          ],
+          "principal_inertia_sorted_kg_m2": [
+            0.0005024568527005613,
+            0.000509957957547158,
+            0.0007531667361035943
+          ],
+          "spin_inertia_base_y_kg_m2": 0.0007531521260425285,
+          "com_and_principal_axes_xyzw": [
+            -0.00017242852482013404,
+            0.00010086333350045606,
+            -0.014499484561383724,
+            0.003871607594192028,
+            0.00013628376473207027,
+            0.9915722012519836,
+            -0.12949733436107635
+          ]
+        },
+        "RW_link": {
+          "mass_kg": 0.6650000214576721,
+          "tensor_link_frame": [
+            [
+              0.0005094773950986564,
+              -1.8641519545781193e-06,
+              1.860118118202081e-06
+            ],
+            [
+              -1.8641519545781193e-06,
+              0.0005029519088566303,
+              -3.0428464015130885e-07
+            ],
+            [
+              1.860118118202081e-06,
+              -3.0428464015130885e-07,
+              0.000753152125980705
+            ]
+          ],
+          "principal_inertia_sorted_kg_m2": [
+            0.0005024567944929004,
+            0.0005099578993394971,
+            0.0007531667361035943
+          ],
+          "spin_inertia_base_y_kg_m2": 0.0007531521260425285,
+          "com_and_principal_axes_xyzw": [
+            0.0001976302737602964,
+            -1.8474502212484367e-05,
+            -0.01453045941889286,
+            0.00013628376473207027,
+            0.003871607594192028,
+            -0.12949733436107635,
+            0.9915722012519836
+          ]
+        }
+      },
+      "total_mass_kg": 10.882999420166016,
+      "wheel_masses_kg": {
+        "LW_link": 0.6650000214576721,
+        "RW_link": 0.6650000214576721
+      },
+      "finite_observations": true,
+      "finite_rewards": true,
+      "resets": 0,
+      "control": {
+        "leg_control_mode": "implicit_joint_position",
+        "feedforward_force_n": 60.5277,
+        "feedforward_mode": "mcu_pitch_compensated",
+        "feedforward_angle_bias_rad": 0.034110258244990144,
+        "nominal_vehicle_mass_kg": 12.34,
+        "mass_per_leg_kg": 6.17
+      },
+      "native_wheel_tensor_matches_usd": true,
+      "same_principal_moments": true,
+      "base_frame_mirror_tensor_verified": true,
+      "all_body_masses_unchanged": true,
+      "qualification": "Native loading and finite zero-action steps only; no policy acceptance claim"
+    },
+    "native_evidence": "mine_model/results/wheel_inertia_matching_20261014/native_physx_verification.json",
+    "native_evidence_sha256": "625e28b07c03f2c0f53486922545644cc7a2f8724a01373017af4742529292de",
+    "business_tests": {
+      "passed": 448,
+      "skipped": 3,
+      "subtests_passed": 62
+    },
+    "usd_composition_tests": {
+      "passed": 4,
+      "skipped": 0
+    }
+  },
+  "qualification": "USD and native PhysX wheel tensor verified; this does not establish policy tracking or hardware deployment acceptance",
+  "historical_checkpoint_policy": "Replay the USD saved in params/env.yaml; calibrated continuation records its declared asset transition."
+}

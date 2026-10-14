@@ -1,13 +1,34 @@
 # 当前训练资产选择
 
-2026-10-04：用户要求停止容量测试并采用 10240 个环境进行正式优化训练。
+2026-10-14：`assets/robots/mine/manifest.json` 的 `training_usd` 指向
+`mine_closed_chain_training_matched_wheels_20261014.usda`，当前为 8192 个环境的
+`implicit_joint_position` 直接关节角目标 PD 续训。旧检查点回放使用其保存的 USD 路径。
 
-当前资产：`mine_closed_chain_training_protected_stops_v2.usd`。依赖来源层和共享几何列在同名 JSON 的递归来源清单中，必须一起保留。
+左右轮组质量均为用户确认的 0.665 kg。两轮主惯量取右轮原 CAD 值，按基座坐标
+镜像后转换到左轮局部坐标；两侧转轴惯量相同。此惯量是 CAD 估计值，尚非实测。
+原 CAD 质心保留；同名 JSON 保存来源哈希与原生 PhysX 核验。
 
-底盘用盒；普通连杆合并凸包；左右限位块与小腿接触主板保留 CAD 顶点和拓扑。真实机械限位接触启用，并换闭链求解树使相邻限位接触可求解。关节按名称映射，不能复用旧关节下标。
+当前 USD 合成链（图中省略共同的 mine_closed_chain 前缀）：
 
-固定同源权重的27组平地回放中，简化普通腿连杆相对保留原腿碰撞的版本，所有记录数据一致。若后续同权重对照出现误差增加，回退资产 `mine_closed_chain_base_box_stops_v2.usd`，配套参数为 results/collision_simplification_20261004/base_box_stops_v2_overrides.json。
+```text
+training_matched_wheels_20261014.usda
+└─ training_wheel_mass_20261014.usda
+   └─ training_protected_stops_v2.usd
+      └─ training_protected.usd
+         └─ base_box.usd
+            └─ tires_96.usd
+               └─ mine_closed_chain.usd
+```
 
-原始 `mine_closed_chain.usd` 和圆轮 `mine_closed_chain_tires_96.usd` 均为来源资产。其他 contacts/groups/stops 命名变体及早期合并版本为诊断产物，不能只根据文件名作为当前训练模型。当前版本的 CAD 几何采样验证、策略回放及容量证据见同名 JSON。
+另有 `mine_protected_leg_instanceable_meshes.usd` 和
+`mine_base_box_instanceable_meshes.usd` 作为共享几何引用，当前实际加载九个来源文件。
+这些层分别保存质量惯量、机械限位、碰撞简化、轮胎及原 CAD 数据，不能只留下入口文件。
 
-当前并未宣称完整训练目标已经完成；最终交付仍须通过20%三阶段回放和原CAD接触几何校验。
+目录中的其他 `contacts`、`groups`、`stops` 和 `simple` 版本用于此前调试或历史模型回放，
+并非当前全部同时加载。保留原资产与这些版本，避免破坏来源追溯及旧模型复现。
+
+底盘用盒；普通连杆合并凸包；左右限位块与小腿接触主板保留 CAD 顶点和拓扑。
+真实机械限位接触启用；关节按名称映射，不复用旧关节下标。
+
+当前未通过完整跟踪验收。标准仍为现有 `tracking_acceptance.json` 的全工况 10%
+及各项原有绝对容差，再通过独立持续复验；历史 20% 标准不适用于当前任务。

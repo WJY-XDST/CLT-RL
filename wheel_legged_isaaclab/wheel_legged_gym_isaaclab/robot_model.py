@@ -19,11 +19,15 @@ _hardware_spec.loader.exec_module(_hardware)
 HARDWARE_PROFILE = _hardware.HARDWARE_PROFILE
 LEG_EFFORT_LIMIT = _hardware.LEG_EFFORT_LIMIT
 WHEEL_EFFORT_LIMIT = _hardware.WHEEL_EFFORT_LIMIT
+NOMINAL_VEHICLE_MASS_KG = _hardware.NOMINAL_VEHICLE_MASS_KG
 
 
 ASSETS = Path(__file__).resolve().parents[1] / "assets/robots/mine"
 MANIFEST = json.loads((ASSETS / "manifest.json").read_text())
 MODEL = json.loads((ASSETS / MANIFEST["metadata"]).read_text())
+# MODEL retains the original CAD export, including historical mass summaries.
+# Runtime rigid-body mass comes from the composed USD; gravity feedforward uses
+# NOMINAL_VEHICLE_MASS_KG / 2 per leg, as confirmed by the owner for the MCU.
 
 
 def mapped_five_bar_geometry(geometry):

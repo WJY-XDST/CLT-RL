@@ -6,11 +6,13 @@ import json
 from pathlib import Path
 import unittest
 
+import numpy as np
+
 from wheel_legged_gym_isaaclab.asset_integrity import verify_asset_chain
 from wheel_legged_gym_isaaclab.robot_model import ASSETS, MANIFEST
 
 try:
-    from pxr import Usd, UsdPhysics
+    from pxr import Gf, Usd, UsdGeom, UsdPhysics
 except ImportError:
     Usd = UsdPhysics = None
 
@@ -46,15 +48,33 @@ class CalibrationCompositionTests(unittest.TestCase):
                     for p in self.calibrated.Traverse() if p.HasAPI(UsdPhysics.RigidBodyAPI))
         self.assertAlmostEqual(total, self.profile['calibrated_composed_total_mass_kg'], places=6)
 
-    def test_estimated_left_inertia_preserves_cad_axes_and_center(self):
+    def test_identical_wheels_have_equal_principal_moments_and_mirrored_tensors(self):
+        moments = []
+        tensors = []
+        cache = UsdGeom.XformCache()
+        base_inverse = cache.GetLocalToWorldTransform(
+            self.calibrated.GetPrimAtPath('/mine_robot/base_link')).GetInverse()
         for name in ('LW_link', 'RW_link'):
             old = UsdPhysics.MassAPI(self.original.GetPrimAtPath('/mine_robot/' + name))
-            new = UsdPhysics.MassAPI(self.calibrated.GetPrimAtPath('/mine_robot/' + name))
+            prim = self.calibrated.GetPrimAtPath('/mine_robot/' + name)
+            new = UsdPhysics.MassAPI(prim)
             self.assertEqual(old.GetCenterOfMassAttr().Get(), new.GetCenterOfMassAttr().Get())
-            self.assertEqual(old.GetPrincipalAxesAttr().Get(), new.GetPrincipalAxesAttr().Get())
-            scale = .665 / old.GetMassAttr().Get() if name == 'LW_link' else 1.
-            for before, after in zip(old.GetDiagonalInertiaAttr().Get(), new.GetDiagonalInertiaAttr().Get()):
-                self.assertAlmostEqual(after, before * scale, places=10)
+            diagonal = np.array(new.GetDiagonalInertiaAttr().Get())
+            moments.append(diagonal)
+            axes = Gf.Matrix3d(new.GetPrincipalAxesAttr().Get())
+            rotation = cache.GetLocalToWorldTransform(prim) * base_inverse
+            # Gf transforms use row vectors; these columns map principal axes
+            # through the link's local orientation into the common base frame.
+            principal_to_base = np.column_stack([
+                np.array(rotation.TransformDir(Gf.Vec3d(*v) * axes))
+                for v in ((1, 0, 0), (0, 1, 0), (0, 0, 1))])
+            tensors.append(principal_to_base @ np.diag(diagonal) @ principal_to_base.T)
+        np.testing.assert_array_equal(moments[0], moments[1])
+        reference = UsdPhysics.MassAPI(self.original.GetPrimAtPath('/mine_robot/RW_link'))
+        np.testing.assert_array_equal(moments[1], reference.GetDiagonalInertiaAttr().Get())
+        reflection = np.diag([1., -1., 1.])
+        np.testing.assert_allclose(tensors[0], reflection @ tensors[1] @ reflection, atol=1.e-9)
+        self.assertAlmostEqual(tensors[0][1, 1], tensors[1][1, 1], places=10)
 
     def test_nonwheel_dynamics_and_all_joint_frames_are_unchanged(self):
         for prim in self.original.Traverse():

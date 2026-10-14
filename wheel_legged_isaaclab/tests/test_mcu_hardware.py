@@ -22,6 +22,15 @@ class McuHardwareTests(unittest.TestCase):
         self.assertAlmostEqual(hw.WHEEL_EFFORT_LIMIT, 4.80944)
         self.assertAlmostEqual(hw.GRAVITY_FORCE, 60.5277)
 
+    def test_each_leg_feedforward_is_half_the_whole_vehicle_weight(self):
+        self.assertEqual(hw.NOMINAL_VEHICLE_MASS_KG, 12.34)
+        self.assertEqual(hw.GRAVITY_COMPENSATION_MASS_PER_LEG, 6.17)
+        self.assertEqual(hw.GRAVITY_FORCE, hw.NOMINAL_VEHICLE_MASS_KG * hw.GRAVITY / 2.)
+        self.assertNotEqual(hw.GRAVITY_COMPENSATION_MASS_PER_LEG, MODEL['supported_mass_kg'] / 2.)
+        root = Path(__file__).resolve().parents[2] / hw.MCU_SOURCE
+        firmware = (root / 'control/torque.c').read_text(errors='replace')
+        self.assertRegex(firmware, r'float\s+M1\s*=\s*6\.17\s*;')
+
     def test_unspecified_angle_and_speed_limits_are_not_invented(self):
         for name in ('LEG_POSITION_LIMIT_RAD', 'LEG_SPEED_LIMIT_RAD_S', 'WHEEL_SPEED_LIMIT_RAD_S'):
             self.assertIsNone(getattr(hw, name))

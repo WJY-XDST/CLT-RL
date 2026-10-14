@@ -40,6 +40,8 @@ parser.add_argument("--min_exploration_std", type=float, default=1.e-4,
                     help="Positive floor for all learned exploration std entries, enforced after optimizer steps.")
 parser.add_argument('--min_wheel_exploration_std', type=float, default=None,
                     help='Optional persistent floor for wheel entries 2/5 in direct joint PD; retain leg noise and Adam.')
+parser.add_argument('--joint_mean_guard_coef', type=float, default=None,
+                    help='Optional PPO loss for raw leg means outside [-1, 1]; inherit saved coefficient on resume.')
 parser.add_argument('--require_leg_control_mode', choices=('explicit_vmc','implicit_joint_position'), default=None,
                     help='Fail if Hydra overrides select a different leg execution chain.')
 parser.add_argument('--allow_physics_contract_change', action='store_true',
@@ -221,8 +223,19 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     env = RslRlVecEnvWrapper(env, clip_actions=agent_cfg.clip_actions)
 
     # create runner from rsl-rl
+    from wheel_legged_gym_isaaclab.joint_mean_guard import (
+        configured_runner_dict, register_runner_algorithm, resolve_coefficient,
+    )
+    joint_mean_guard_coef = resolve_coefficient(
+        resume_path if agent_cfg.resume else None, args_cli.joint_mean_guard_coef,
+    )
+    if joint_mean_guard_coef and env_cfg.leg_control_mode != 'implicit_joint_position':
+        raise ValueError('The joint mean guard is only defined for direct joint-position PD.')
+    if joint_mean_guard_coef:
+        register_runner_algorithm()
+    runner_config = configured_runner_dict(agent_cfg.to_dict(), joint_mean_guard_coef)
     if agent_cfg.class_name == "OnPolicyRunner":
-        runner = OnPolicyRunner(env, agent_cfg.to_dict(), log_dir=log_dir, device=agent_cfg.device)
+        runner = OnPolicyRunner(env, runner_config, log_dir=log_dir, device=agent_cfg.device)
     else:
         raise ValueError(f"Unsupported runner class: {agent_cfg.class_name}")
     # write git state to logs
@@ -300,7 +313,8 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         agent_cfg.max_iterations = remaining
         print(f"[INFO]: Target total iteration {args_cli.target_iteration}; training {remaining} remaining iterations.")
     dump_yaml(os.path.join(log_dir, "params", "env.yaml"), env_cfg)
-    dump_yaml(os.path.join(log_dir, "params", "agent.yaml"), agent_cfg)
+    dump_yaml(os.path.join(log_dir, "params", "agent.yaml"),
+              configured_runner_dict(agent_cfg.to_dict(), joint_mean_guard_coef))
     from wheel_legged_gym_isaaclab.mcu_hardware import MCU_LIMIT_EVIDENCE
     dump_yaml(os.path.join(log_dir, 'params', 'control_contract.yaml'), {
         'hardware_profile': env_cfg.hardware_profile,

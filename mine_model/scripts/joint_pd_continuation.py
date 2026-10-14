@@ -29,6 +29,7 @@ from wheel_legged_gym_isaaclab.config_overrides import strip_retired_config_fiel
 from wheel_legged_gym_isaaclab.height_commands import SAFE_BASE_HEIGHT_RANGE_M, training_height_bounds
 from wheel_legged_gym_isaaclab.robot_model import validate_checkpoint_robot
 from wheel_legged_gym_isaaclab.asset_integrity import verify_asset_chain
+from wheel_legged_gym_isaaclab.joint_mean_guard import resolve_coefficient
 
 ROOT = runtime.ROOT
 HEIGHT_DEFAULTS = dict(height_expansion_from=None, height_expansion_start_steps=0,
@@ -82,7 +83,8 @@ def qualified_wheel_mass_asset(evidence_path):
 
 
 def continuation_command(source, cfg, label, updates, commands, stop_file, reward_overrides=None,
-                         minimum_wheel_std=None, robot_asset=None):
+                         minimum_wheel_std=None, robot_asset=None, joint_mean_guard_coef=None):
+    guard_coefficient = resolve_coefficient(source, joint_mean_guard_coef)
     if minimum_wheel_std is not None and (
             not math.isfinite(minimum_wheel_std) or not .01 <= minimum_wheel_std <= .05):
         raise ValueError('A diagnosed wheel exploration floor must be finite and within [0.01, 0.05].')
@@ -99,6 +101,8 @@ def continuation_command(source, cfg, label, updates, commands, stop_file, rewar
             '--min_exploration_std','.01','--stop_file',str(stop_file),'agent.save_interval=25']
     if minimum_wheel_std is not None:
         argv.extend(['--min_wheel_exploration_std', str(minimum_wheel_std)])
+    if guard_coefficient or joint_mean_guard_coef is not None:
+        argv.extend(['--joint_mean_guard_coef', str(guard_coefficient)])
     # An ordinary continuation retains its saved CAD/mass contract. Moving to
     # the owner-calibrated asset is a separate, explicitly qualified experiment.
     previous_asset = cfg.get('robot', {}).get('spawn', {}).get('usd_path')
@@ -193,6 +197,7 @@ def run(args):
         for handle in (lock,global_lock):
             fcntl.flock(handle,fcntl.LOCK_EX|fcntl.LOCK_NB)
         cfg = validate_checkpoint_robot(source)
+        joint_mean_guard_coef = resolve_coefficient(source, getattr(args, 'joint_mean_guard_coef', None))
         if cfg['leg_control_mode']!='implicit_joint_position':
             raise ValueError('Continuation requires the direct motor-angle PD policy')
         commands = dict(HEIGHT_DEFAULTS, **cfg['commands'])
@@ -234,6 +239,7 @@ def run(args):
                      acceptance_criteria=acceptance_criteria(), source_files=fingerprints,
                      commands=commands, history=[], shutdown_after_success=False, prepared_reward_trial=prepared,
                      wheel_exploration_std_floor=getattr(args, 'min_wheel_exploration_std', None),
+                     joint_mean_guard_coef=joint_mean_guard_coef,
                      wheel_mass_calibration=calibration)
         if state['acceptance_criteria']['relative_error']>.1:
             raise ValueError('Original ten-percent acceptance is required')
@@ -275,7 +281,8 @@ def run(args):
                 command,final,before=continuation_command(source,cfg,label,args.round_iterations,
                                                          commands,output/'STOP',reward_overrides=prepared,
                                                          minimum_wheel_std=getattr(args, 'min_wheel_exploration_std', None),
-                                                         robot_asset=calibrated_asset)
+                                                         robot_asset=calibrated_asset,
+                                                         joint_mean_guard_coef=joint_mean_guard_coef)
                 write_json(block/'launch.json',dict(source_checkpoint=str(source),source_sha256=sha(source),
                            command=command,updates=args.round_iterations,optimizer_step_before=optimizer_step(before),
                            reset_optimizer=False,reset_exploration=False,commands=commands,
@@ -292,6 +299,8 @@ def run(args):
                     raise RuntimeError('Actual Adam progress or saved tensors failed verification')
                 validate_contract(runs[0],'joint_pd_balance_v1',fresh_weights=False,source_checkpoint=source)
                 current=validate_checkpoint_robot(checkpoint)
+                if resolve_coefficient(checkpoint) != joint_mean_guard_coef:
+                    raise RuntimeError('Saved PPO joint mean guard coefficient differs from the continuation.')
                 validate_continuation_config(cfg,current,commands,reward_overrides=prepared,
                                              robot_asset=calibrated_asset)
                 changed=[bool((after['model_state_dict']['actor.6.weight'][i]

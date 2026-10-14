@@ -1,5 +1,37 @@
 # 新闭链模型从建模到训练的修改记录
 
+## 最新追加 2026-10-14 19:03 保留第4413次模型，修复关节均值在执行边界外的训练问题
+
+分项反馈 -0.75 的第4356次完整回放仍为27/27存活、零重置、原验收 False。
+全工况最差高度误差约22.50%（第4257次约23.21%），但速度、姿态和轮速未整体改善。
+两次回放的高速前后工况中，右小腿输出仍持续超过原动作执行边界，
+第4356次全记录该维裁剪比例约21.44%，最大绝对原始均值约1.0407。
+这表明有效动作探索仍受到裁剪限制；不能仅凭训练平均奖励宣称改善。
+[完整回放](../results/joint_pd_optimization_20261014_174142_balanced_feedback_cumulative/block_0001/replay/assessment.json)。
+
+加入可选 `JointMeanGuardPPO`：在原PPO损失中增加四个腿关节均值超过[-1,1]部分的平方均值，
+本轮系数10；执行范围内及两个轮输出没有该项直接梯度。
+原高斯采样、动作概率、熵、KL、梯度裁剪、网络结构及全部权重/Adam保存格式保留。
+系数0直接调用原PPO；正系数更新保留上游BSD-3实现，并核对上游方法源码哈希。
+续训从配套agent.yaml继承系数，避免下一训练块静默回到原算法。
+这属于训练损失修复，不是新控制器；未使用显式VMC、IK或额外动作变换。
+
+针对性测试验证关闭辅助项及可行均值时与实际上游PPO逐值一致，
+正系数梯度只作用于越界关节均值，完整恢复后继续推进17个Adam状态。
+128环境原生集成诊断完成3次实际PPO更新，Adam67740→67800，全部动作行、共享层及critic更新，
+全部张量有限，控制、物理、奖励及命令配置一致；只为诊断减少环境数量。
+该诊断检查点未用于主训练，也不是策略验收或改善证据。
+[原生集成核验](../results/joint_pd_optimization_20261014_185755_joint_mean_guard_cumulative/joint_mean_guard_qualification/native_verification.json)。
+
+主训练在保存边界保留 `model_4413_interrupted.pt`，本块已完成58次实际更新，
+Adam67740→68900、17个状态完整。正式源码回归447项、62个子测试通过，3项USD检查跳过。
+从此最新主检查点恢复8192环境持续训练，服务为 `clt-joint-pd-joint-mean-guard-20261014_185755.service`。
+保留左右轮各0.665kg、PD300/3、原全部奖励、轮探索下限0.03及高度范围0.22534645531–0.37534645531m。
+[最新来源核验](../results/joint_pd_optimization_20261014_185755_joint_mean_guard_cumulative/handoff_source_verification.json)
+[当前续训参数](../results/joint_pd_optimization_20261014_185755_joint_mean_guard_cumulative/launch.json)。
+原 `tracking_acceptance.json` 哈希仍为 `08fbf1aa50cc450bd7170ec310dba9acba3f8bd7ceded330ccffe9e6015cb91d`。
+**正在对比第4413次基线及新增更新的独立回放；尚未验证达标，未启用实机或关机。**
+
 ## 最新追加 2026-10-14 17:43 保留第4158次模型，平衡反馈并修复完整停滞监测
 
 分项反馈 -0.25 已累计 300 次实际更新，model4158 的 Adam 达 63740，17 个状态完整。

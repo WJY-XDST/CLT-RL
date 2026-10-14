@@ -15,7 +15,7 @@ app = AppLauncher(args).app
 
 def main():
     import torch
-    from wheel_legged_gym_isaaclab.tasks.direct.wheel_legged_vmc_flat.mine_env_cfg import MineWheelLeggedVMCFlatEnvCfg
+    from wheel_legged_gym_isaaclab.tasks.direct.wheel_legged_vmc_flat.wheel_legged_vmc_flat_env_cfg import WheelLeggedVMCFlatEnvCfg
     from wheel_legged_gym_isaaclab.tasks.direct.wheel_legged_vmc_flat.wheel_legged_vmc_flat_env import WheelLeggedVMCFlatEnv
     from wheel_legged_gym_isaaclab.five_bar_vmc import five_bar_torques
 
@@ -31,7 +31,7 @@ def main():
         torque = torque.clamp(low, high)
         return five_bar_torques(j,force,torque)
 
-    cfg = MineWheelLeggedVMCFlatEnvCfg()
+    cfg = WheelLeggedVMCFlatEnvCfg()
     gains = [(kt,kl) for kt in (.1,.3,3.) for kl in (10.,30.,90.)]
     cfg.scene.num_envs = len(gains) if args.gain_sweep else 4
     cfg.seed = 43

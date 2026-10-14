@@ -31,8 +31,7 @@ p.add_argument('--support-force-sweep', action='store_true', help='Diagnostic co
 p.add_argument('--free-wheels', action='store_true', help='Remove wheel motor torque to isolate support from velocity control')
 p.add_argument('--joint-hold', action='store_true', help='Diagnostic implicit position hold at CAD q=0 with 10/30/100 Nm limits')
 p.add_argument('--explicit-joint-hold', action='store_true', help='Same joint hold as explicit torques, isolating drive integration')
-p.add_argument('--implicit-vmc-sweep', action='store_true', help='Diagnostic inverse virtual-leg references with implicit joint drives')
-p.add_argument('--implicit-balance', action='store_true', help='Diagnostic wheel pitch feedback alongside implicit inverse leg references')
+p.add_argument('--implicit-balance', action='store_true', help='Diagnostic wheel pitch feedback, not a learned policy')
 p.add_argument('--balance-integral', type=float, default=0., help='Diagnostic pitch integral gain in wheel velocity reference')
 AppLauncher.add_app_launcher_args(p)
 args = p.parse_args()
@@ -43,8 +42,13 @@ def main():
     import yaml
     from rsl_rl.modules import ActorCritic
     from isaaclab.utils.math import quat_apply_inverse
-    from wheel_legged_gym_isaaclab.tasks.direct.wheel_legged_vmc_flat.mine_env_cfg import MineWheelLeggedVMCFlatEnvCfg, MODEL
+    from wheel_legged_gym_isaaclab.tasks.direct.wheel_legged_vmc_flat.wheel_legged_vmc_flat_env_cfg import WheelLeggedVMCFlatEnvCfg, MODEL
     from wheel_legged_gym_isaaclab.tasks.direct.wheel_legged_vmc_flat.wheel_legged_vmc_flat_env import WheelLeggedVMCFlatEnv
+    from wheel_legged_gym_isaaclab.robot_model import validate_checkpoint_robot
+    from wheel_legged_gym_isaaclab.leg_control import require_leg_control_mode
+
+    saved = validate_checkpoint_robot(args.checkpoint)
+    require_leg_control_mode(saved.get('leg_control_mode'), 'explicit_vmc')
 
     names = ['policy_10Nm', 'zero_10Nm', 'zero_30Nm', 'policy_30Nm', 'policy_angle_zero_10Nm']
     if args.force_probe:
@@ -63,11 +67,12 @@ def main():
     support_forces = [(f,kp) for f in (0.,47.,100.,200.) for kp in (0.,10.,50.)]
     if args.support_force_sweep: names = [f'force_{f}_kp_angle_{kp}' for f,kp in support_forces]
     if args.joint_hold or args.explicit_joint_hold: names = ['joint_hold_10Nm','joint_hold_30Nm','joint_hold_100Nm','joint_hold_10Nm_lowgain','joint_hold_30Nm_lowgain']
-    implicit_gains=[(100.,1.),(100.,3.),(100.,10.),(300.,1.),(300.,3.),(300.,10.),(1000.,3.),(1000.,10.)]
-    if args.implicit_vmc_sweep: names=[f'implicit_kp_{kp}_kd_{kd}' for kp,kd in implicit_gains]
-    cfg = MineWheelLeggedVMCFlatEnvCfg()
+    cfg = WheelLeggedVMCFlatEnvCfg()
+    # These ablations operate in virtual force/angle coordinates. A direct
+    # motor-angle checkpoint must use check_direct_joint_pd.py instead.
+    cfg.leg_control_mode = 'explicit_vmc'
     cfg.scene.num_envs = len(names)
-    if args.vertical_guide or args.solver_sweep or args.implicit_vmc_sweep: cfg.scene.replicate_physics = False
+    if args.vertical_guide or args.solver_sweep: cfg.scene.replicate_physics = False
     if args.solver_sweep: cfg.kp_theta, cfg.kd_theta = 10., .5
     cfg.sim.physx.solve_articulation_contact_last = args.contact_last
     cfg.sim.dt = args.physics_dt
@@ -90,9 +95,9 @@ def main():
                                          'RB_joint':angle, 'RL_joint':angle}
         cfg.robot.init_state.pos = (0.,0.,MODEL['nominal_leg_length']-MODEL['hip_z']+MODEL['wheel_radius'])
     # A common actuator capacity; per-env control clamps enforce the ablation.
-    capacity_ablation = not (args.gain_sweep or args.stiffness_sweep or args.coupled_gain_sweep or args.balance_feedback or args.force_probe or args.wheel_drive_test or args.solver_sweep or args.implicit_vmc_sweep)
+    capacity_ablation = not (args.gain_sweep or args.stiffness_sweep or args.coupled_gain_sweep or args.balance_feedback or args.force_probe or args.wheel_drive_test or args.solver_sweep)
     cfg.robot.actuators['legs'].effort_limit_sim = 30. if capacity_ablation else 10.
-    if args.joint_hold or args.implicit_vmc_sweep:
+    if args.joint_hold:
         cfg.robot.actuators['legs'].stiffness=1000.
         cfg.robot.actuators['legs'].damping=10.
         cfg.robot.actuators['legs'].effort_limit_sim=100. if args.joint_hold else 10.
@@ -138,7 +143,7 @@ def main():
                             api.CreateSolverVelocityIterationCountAttr(vel)
                             found=True
                     if not found: raise RuntimeError(f'No articulation solver API in {root.GetPath()}')
-            if args.force_leg_drive or args.joint_hold or args.implicit_vmc_sweep:
+            if args.force_leg_drive or args.joint_hold:
                 from pxr import UsdPhysics
                 for i in range(self.num_envs):
                     for name in cfg.leg_joint_names:
@@ -160,14 +165,6 @@ def main():
 
         def _apply_action(self):
             super()._apply_action()
-            if args.implicit_vmc_sweep:
-                from wheel_legged_gym_isaaclab.five_bar_vmc import five_bar_inverse
-                theta_ref=self._actions[:,(0,3)]*cfg.action_scale_theta
-                b,l,valid=five_bar_inverse(self._l0_ref_applied,theta_ref,**cfg.five_bar_geometry)
-                if not valid.all(): raise RuntimeError('Invalid inverse reference')
-                target=torch.stack((b[:,0],l[:,0],b[:,1],l[:,1]),-1)
-                self._robot.set_joint_effort_target(torch.zeros_like(self._torque_limits),joint_ids=self._torque_joint_ids)
-                self._robot.set_joint_position_target(target,joint_ids=self._leg_joint_ids)
             if args.joint_hold:
                 self._robot.set_joint_effort_target(torch.zeros_like(self._torque_limits),joint_ids=self._torque_joint_ids)
                 self._robot.set_joint_position_target(torch.zeros(self.num_envs,4,device=self.device),joint_ids=self._leg_joint_ids)
@@ -205,14 +202,6 @@ def main():
             return self._termination_reasons['numerical'], timeout
 
     env = Env(cfg)
-    if args.implicit_vmc_sweep:
-        property_ids=env._robot._ALL_INDICES.cpu()
-        stiffness=env._robot.root_physx_view.get_dof_stiffnesses().clone()
-        damping=env._robot.root_physx_view.get_dof_dampings().clone()
-        stiffness[:,env._leg_joint_ids]=stiffness.new_tensor([g[0] for g in implicit_gains])[:,None]
-        damping[:,env._leg_joint_ids]=damping.new_tensor([g[1] for g in implicit_gains])[:,None]
-        env._robot.root_physx_view.set_dof_stiffnesses(stiffness,property_ids)
-        env._robot.root_physx_view.set_dof_dampings(damping,property_ids)
     if args.explicit_joint_hold:
         limits=env._robot.root_physx_view.get_dof_max_forces().clone()
         limits[:,env._leg_joint_ids]=limits.new_tensor([10.,30.,100.,10.,30.])[:,None]
@@ -273,7 +262,7 @@ def main():
             actions = actor.act_inference(obs).clone()
             actions[1:3] = 0.
             actions[4, (0, 3)] = 0.
-            if args.force_probe or args.gain_sweep or args.stiffness_sweep or args.coupled_gain_sweep or args.balance_feedback or args.solver_sweep or args.support_force_sweep or args.implicit_vmc_sweep: actions[:] = 0.
+            if args.force_probe or args.gain_sweep or args.stiffness_sweep or args.coupled_gain_sweep or args.balance_feedback or args.solver_sweep or args.support_force_sweep: actions[:] = 0.
             if args.implicit_balance:
                 pitch=torch.asin(env._robot.data.projected_gravity_b[:,0].clamp(-1,1))
                 pitch_integral=(pitch_integral+pitch*env.step_dt).clamp(-.1,.1)

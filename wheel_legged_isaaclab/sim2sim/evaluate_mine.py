@@ -75,7 +75,7 @@ def main():
             with (folder / 'trace.csv').open() as handle:
                 individual = list(csv.DictReader(handle))
             for index, record in enumerate(individual):
-                r = {k: float(v) for k, v in record.items() if k != 'five_bar_valid'}
+                r = {k: float(v) for k, v in record.items() if k not in ('five_bar_valid', 'command_source')}
                 row = {'time_s': r['step'] * dt, 'case_id': cid, 'seed': seed, 'episode': 0,
                        'terminated': int(not survived and index == len(individual) - 1), 'timeout': 0,
                        'speed_m_s': r['vel_x_heading'], 'speed_cmd_m_s': r['cmd_x'],

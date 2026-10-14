@@ -1,0 +1,53 @@
+{
+  "calibration_id": "owner_confirmed_wheel_mass_20261014",
+  "confirmed_on": "2026-10-14",
+  "authority": "owner_confirmation_in_chat",
+  "confirmation": "左右轮（含轮毂电机）都是 0.665 kg",
+  "weighing_method": "not_provided",
+  "source": "mine_closed_chain_training_protected_stops_v2.usd",
+  "overlay": "mine_closed_chain_training_wheel_mass_20261014.usda",
+  "sha256": {
+    "mine_closed_chain_training_protected_stops_v2.usd": "2ae945dacf9ef175b9c84a969f040d1b169c4054d28e239215fe8e717f32909c",
+    "mine_closed_chain_training_wheel_mass_20261014.usda": "b20e00cd117eecaed4dc66b6e905a0d9b0319a3058da215372c3236039093214"
+  },
+  "wheel_masses_kg": {
+    "LW_link": 0.665,
+    "RW_link": 0.665
+  },
+  "original_composed_wheel_masses_kg": {
+    "LW_link": 0.27890563011169434,
+    "RW_link": 0.6650000214576721
+  },
+  "original_total_mass_kg": 10.496905222535133,
+  "calibrated_composed_total_mass_kg": 10.882999613881111,
+  "inertia": {
+    "measured": false,
+    "LW_link": "original CAD principal inertia scaled by confirmed mass / original composed CAD mass; same-shape mass-distribution approximation",
+    "RW_link": "original CAD principal inertia retained",
+    "center_of_mass": "original CAD values retained; not newly measured",
+    "principal_axes": "original CAD values retained; not newly measured"
+  },
+  "unchanged": [
+    "original CAD and protected-stops USD layers",
+    "all meshes, collision filters and mechanical stops",
+    "all joint frames, limits and closed-chain topology",
+    "non-wheel rigid-body mass properties",
+    "MCU gravity feedforward and motor command limits"
+  ],
+  "validation": {
+    "business_tests": {"passed": 374, "skipped": 3, "subtests_passed": 62},
+    "usd_composition_tests": {"passed": 4, "skipped": 0},
+    "mujoco_interface_tests": {"passed": 5},
+    "physx_loading_smoke": {
+      "environments": 1,
+      "control_steps": 10,
+      "wheel_masses_kg": {"LW_link": 0.6650000214576721, "RW_link": 0.6650000214576721},
+      "total_mass_kg": 10.882999613881111,
+      "finite_observations": true,
+      "finite_rewards": true,
+      "training_started": false
+    }
+  },
+  "qualification": "USD composition, mass contract and single-environment PhysX loading checked; no claim of policy precision or hardware deployment acceptance",
+  "historical_checkpoint_policy": "Replay the USD path saved in params/env.yaml. Mass-calibrated continuation is a separate physics experiment."
+}

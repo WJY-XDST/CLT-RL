@@ -33,6 +33,15 @@ class TestMineAcceptance(unittest.TestCase):
             root=Path(d);self.fixture(root)
             self.assertTrue(assess(root)['passed'])
 
+    def test_forced_wheel_probe_is_not_policy_acceptance(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);self.fixture(root)
+            manifest=json.loads((root/'manifest.json').read_text())
+            manifest['policy_acceptance_test']=False
+            (root/'manifest.json').write_text(json.dumps(manifest))
+            with self.assertRaisesRegex(ValueError,'Diagnostic action overrides'):
+                assess(root)
+
     def test_failed_seed_cannot_be_hidden_by_clean_reset_samples(self):
         with tempfile.TemporaryDirectory() as d:
             root=Path(d);self.fixture(root,failure=True)
@@ -59,7 +68,8 @@ class TestMineAcceptance(unittest.TestCase):
             report=assess(root)
             self.assertEqual(report['survivors'],3)
             self.assertFalse(report['passed'])
-            self.assertAlmostEqual(report['conditions'][0]['trials'][0]['limits']['speed_mae_m_s'],.12)
+            # The requested acceptance target is now 10%, not the historic 20%.
+            self.assertAlmostEqual(report['conditions'][0]['trials'][0]['limits']['speed_mae_m_s'],.06)
 
     def test_yaw_ramp_must_reach_requested_turn(self):
         with tempfile.TemporaryDirectory() as d:

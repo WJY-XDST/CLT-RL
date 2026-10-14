@@ -12,8 +12,11 @@ from pxr import Gf, Usd, UsdGeom, UsdPhysics
 
 
 def main():
-    state = json.loads((ROOT/'mine_model/results/auto_training_implicit_20pct_20261004/status.json').read_text())
-    asset = Path(state['overrides']['robot.spawn.usd_path'])
+    # Collision geometry belongs to the vehicle, not to a retired controller.
+    sys.path.insert(0, str(ROOT/'wheel_legged_isaaclab'))
+    from wheel_legged_gym_isaaclab.robot_model import ASSETS, MANIFEST
+    asset = ASSETS / MANIFEST['usd'].replace(
+        'mine_closed_chain.usd', 'mine_closed_chain_training_protected_stops_v2.usd')
     stage = Usd.Stage.Open(str(asset))
     cache = UsdGeom.XformCache()
     inverse = cache.GetLocalToWorldTransform(stage.GetPrimAtPath('/mine_robot/base_link')).GetInverse()
@@ -73,7 +76,7 @@ def main():
     if len(parts)!=21:
         raise ValueError(f'Expected 21 composed collision geometries, found {len(parts)}')
     model = {'asset':asset.name,'asset_sha256':hashlib.sha256(asset.read_bytes()).hexdigest(),
-             'num_envs':state['num_envs'],'parts':parts,'joints':joints}
+             'parts':parts,'joints':joints}
     folder = ROOT/'mine_model/results/collision_simplification_20261004/visualization'
     folder.mkdir(exist_ok=True)
     data = json.dumps(model, separators=(',',':'), ensure_ascii=False)

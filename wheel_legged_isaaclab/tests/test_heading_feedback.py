@@ -1,14 +1,10 @@
 import math
-import csv
 import sys
-import tempfile
 import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts/rsl_rl"))
 from heading_feedback import HeadingFeedback
-from assess_heading import assess
-from assess_yaw import yaw_sequence
 
 
 class TestHeadingFeedback(unittest.TestCase):
@@ -41,26 +37,3 @@ class TestHeadingFeedback(unittest.TestCase):
         for sample in ((.6, 0., .02), (0., float('nan'), .02), (0., 0., 0.)):
             with self.assertRaises(ValueError):
                 HeadingFeedback().step(*sample)
-
-    def test_assessment_uses_requested_reference_and_rejects_partial_or_moving_target(self):
-        rows, reference = [], 0.
-        for speed, rate, height in yaw_sequence():
-            for _ in range(250):
-                i = len(rows); reference += math.degrees(rate * .02)
-                rows.append(dict(step=i, sim_time_s=.02*i, env_id=0, cmd_x_target=speed,
-                                 height_cmd=height, heading_feedback=1, yaw_rate_requested=rate,
-                                 yaw_turn_reference_deg=reference, yaw_rate_applied=rate+.01,
-                                 yaw_turn_measured_deg=reference, terminated=0, time_out=0))
-        with tempfile.TemporaryDirectory() as directory:
-            path = Path(directory) / 'trace.csv'
-            def write():
-                with path.open('w') as stream:
-                    writer = csv.DictWriter(stream, fieldnames=rows[0].keys())
-                    writer.writeheader(); writer.writerows(rows)
-            write()
-            self.assertTrue(assess(path, True)[0]['passed'])
-            rows[-1]['yaw_turn_reference_deg'] += 1.
-            write()
-            with self.assertRaises(ValueError): assess(path, True)
-            rows.pop(); write()
-            with self.assertRaises(ValueError): assess(path, True)

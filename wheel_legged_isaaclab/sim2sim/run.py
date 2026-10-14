@@ -14,18 +14,25 @@ import mujoco
 import numpy as np
 import torch
 
-from core import DEFAULT_BUNDLE, Simulation, build_model, load_actor, load_config
+from core import Simulation, build_model, load_actor, load_config
+from keyboard import KeyboardConfig, MujocoKeyboardController, STATE_SOURCE
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--checkpoint", type=Path, default=DEFAULT_BUNDLE / "model.pt")
+    parser.add_argument("--checkpoint", type=Path, required=True, help="Checkpoint trained for the imported closed-five-bar vehicle.")
     parser.add_argument("--env-config", type=Path)
     parser.add_argument("--agent-config", type=Path)
     parser.add_argument("--jit", action="store_true", help="Checkpoint is an exported TorchScript actor.")
     parser.add_argument("--mjcf", type=Path, help="Previously converted model; new models require its USD audit manifest.")
     parser.add_argument("--physics-substeps", type=int, help="Internal MuJoCo integration steps per 200 Hz controller update (mine default: 50).")
     parser.add_argument("--headless", action="store_true")
+    parser.add_argument("--no-keyboard", "--no_keyboard", action="store_true", help="Disable the automatic focused keyboard panel for GUI replay.")
+    parser.add_argument("--keyboard-speed", type=float, default=.8, help="W/S target speed in m/s (0 < value <= 0.8).")
+    parser.add_argument("--keyboard-yaw-rate", type=float, default=.6, help="A/D target yaw rate in rad/s (0 < value <= 0.6; may exceed training range).")
+    parser.add_argument("--keyboard-height-step", type=float, default=.005, help="Q/E single-press height goal step in m.")
+    parser.add_argument("--keyboard-height-rate", type=float, default=.02, help="Q/E held height goal rate in m/s.")
+    parser.add_argument("--keyboard-height-slew-rate", type=float, default=.02, help="Height command ramp rate in m/s, continuing after key release.")
     parser.add_argument("--demo", action="store_true", help="45-second forward/reverse/height demonstration.")
     parser.add_argument("--max-steps", type=int)
     parser.add_argument("--fixed-command", nargs=3, type=float, metavar=("VX", "YAW_RATE", "HEIGHT"))
@@ -46,18 +53,39 @@ def main():
     agent_path = (args.agent_config or config_folder / "agent.yaml").expanduser().resolve()
     cfg = load_config(env_path)
     mine = cfg['leg_model'] == 'mine_five_bar'
-    height = .3 if mine else .18
+    height = cfg['rewards']['base_height_target']
     args.fixed_command = args.fixed_command or [0., 0., height]
-    args.phase_duration = args.phase_duration if args.phase_duration is not None else (8. if mine else 5.)
+    args.phase_duration = args.phase_duration if args.phase_duration is not None else 8.
     if args.demo:
-        args.velocity_cycle = args.velocity_cycle or ([0, .3, .6, -.3, -.6, 0, 0, 0, 0] if mine else [0, .4, .8, 0, -.4, -.8, 0, 0, 0])
-        args.height_cycle = args.height_cycle or ([.3] * 7 + [.28, .32] if mine else [.18, .18, .18, .18, .18, .18, .16, .18, .20])
-        if mine:
-            args.yaw_cycle = args.yaw_cycle or [0, 0, 0, 0, 0, .3, -.3, 0, 0]
-    if mine:
-        args.no_heading_hold = True  # Preserve constant-yaw-rate training commands.
+        args.velocity_cycle = args.velocity_cycle or [0, .3, .6, -.3, -.6, 0, 0, 0, 0]
+        args.height_cycle = args.height_cycle or [height] * 7 + list(cfg['commands']['ranges_height'])
+        args.yaw_cycle = args.yaw_cycle or [0, 0, 0, 0, 0, .3, -.3, 0, 0]
+    args.no_heading_hold = True  # Preserve constant-yaw-rate training commands.
+    keyboard_enabled = not args.headless and not args.no_keyboard
+    keyboard_config = None
+    if keyboard_enabled:
+        try:
+            keyboard_config = KeyboardConfig(
+                speed=args.keyboard_speed, yaw_rate=args.keyboard_yaw_rate,
+                height_min=cfg['commands']['ranges_height'][0], height_max=cfg['commands']['ranges_height'][1],
+                initial_height=args.fixed_command[2], height_step=args.keyboard_height_step,
+                height_rate=args.keyboard_height_rate, height_slew_rate=args.keyboard_height_slew_rate)
+            if keyboard_config.speed > .8 or keyboard_config.yaw_rate > .6:
+                raise ValueError('Keyboard speed/yaw rate must not exceed 0.8 m/s / 0.6 rad/s')
+        except ValueError as error:
+            parser.error(str(error))
+        for value, field in ((keyboard_config.speed, 'ranges_lin_vel_x'), (keyboard_config.yaw_rate, 'ranges_ang_vel_yaw')):
+            bounds = cfg['commands'].get(field)
+            # Grouped walking samples reverse commands separately from the
+            # positive forward range. Do not label those samples out-of-range.
+            grouped_speed = field == 'ranges_lin_vel_x' and cfg['commands'].get('grouped_training', False)
+            outside = bounds and (value > max(abs(v) for v in bounds) if grouped_speed else
+                                  (-value < bounds[0] or value > bounds[1]))
+            if outside:
+                print(f"WARNING: keyboard ±{value:g} exceeds training {field}={bounds}; "
+                      "this is exploratory replay, not guaranteed tracking.", flush=True)
     if args.max_steps is None:
-        args.max_steps = round(9 * args.phase_duration / (cfg['sim']['dt'] * cfg['decimation'])) if args.demo else 1000
+        args.max_steps = round(9 * args.phase_duration / (cfg['sim']['dt'] * cfg['decimation'])) if args.demo else (30000 if keyboard_enabled else 1000)
     if args.max_steps < 1 or args.phase_duration <= 0 or args.reset_velocity < 0:
         parser.error("max-steps/phase-duration must be positive; reset-velocity must be non-negative")
     dt = cfg["sim"]["dt"] * cfg["decimation"]
@@ -93,7 +121,7 @@ def main():
         shutil.copyfile(source, output / 'scene.xml')
     else:
         model = build_model(cfg, output / "scene.xml")
-    substeps = args.physics_substeps if args.physics_substeps is not None else (50 if cfg['leg_model'] == 'mine_five_bar' else 1)
+    substeps = args.physics_substeps if args.physics_substeps is not None else 50
     if substeps < 1:
         parser.error('physics-substeps must be positive')
     cfg['_mujoco_physics_substeps'] = substeps
@@ -121,27 +149,32 @@ def main():
                 "mujoco": mujoco.__version__, "torch": torch.__version__, "seed": args.seed,
                 "physics_dt": cfg["sim"]["dt"], "control_dt": dt, "arguments": vars(args),
                 "mujoco_integration_dt": model.opt.timestep, "physics_substeps": substeps,
-                "initialization": "URDF/config pose; explicit uniform velocity perturbation; no automatic resets",
+                "keyboard_enabled": keyboard_enabled,
+                "keyboard_config": vars(keyboard_config) if keyboard_config else None,
+                "initialization": "Imported USD/checkpoint pose; explicit uniform velocity perturbation; no automatic resets",
                 "initial_com_linear_velocity": linear_com.tolist(), "initial_world_angular_velocity": angular_world.tolist(),
-                "contact": ("composed training USD; ordinary hulls/base box; protected CAD CoACD pieces; stop-shank self contact"
-                            if cfg['leg_model'] == 'mine_five_bar' else "URDF collision convex hulls/cylinders; no self collision; MuJoCo friction 0.5"),
+                "contact": "composed training USD; ordinary hulls/base box; protected CAD CoACD pieces; stop-shank self contact",
                 "limitation": "PhysX/MuJoCo contact solvers are different; this is transfer validation, not identical dynamics."}
     metadata["source_sha256"] = {str(path.relative_to(Path(__file__).resolve().parents[2])):
                                  hashlib.sha256(path.read_bytes()).hexdigest()
                                  for path in (Path(__file__), Path(__file__).with_name("core.py"),
-                                              Path(__file__).resolve().parents[1] / "wheel_legged_gym_isaaclab/vmc.py")}
+                                              Path(__file__).with_name("keyboard.py"), STATE_SOURCE,
+                                              Path(__file__).resolve().parents[1] / "wheel_legged_gym_isaaclab/robot_model.py")}
     if cfg['leg_model'] == 'mine_five_bar':
         for path in (Path(__file__).with_name('mine_model.py'), Path(__file__).resolve().parents[1] / 'wheel_legged_gym_isaaclab/five_bar_vmc.py'):
             metadata['source_sha256'][str(path.relative_to(Path(__file__).resolve().parents[2]))] = hashlib.sha256(path.read_bytes()).hexdigest()
     (output / "metadata.json").write_text(json.dumps(metadata, indent=2, default=str) + "\n")
     rows, status, failure_time = [], "completed", None
     with ExitStack() as stack:
-        viewer = None
+        viewer, keyboard = None, None
         if not args.headless:
             from mujoco import viewer as mj_viewer
             viewer = stack.enter_context(mj_viewer.launch_passive(model, sim.data))
             viewer.cam.distance, viewer.cam.elevation, viewer.cam.azimuth = 1.4, -22, 135
             viewer.opt.geomgroup[3] = 0
+            if keyboard_enabled:
+                keyboard = MujocoKeyboardController(keyboard_config)
+                stack.callback(keyboard.close)
         handle = stack.enter_context((output / "trace.csv").open("w", newline=""))
         writer = None
         with torch.inference_mode():
@@ -153,6 +186,11 @@ def main():
                 phase = int(round(step * dt, 8) / args.phase_duration)
                 for index, cycle in enumerate((args.velocity_cycle, args.yaw_cycle, args.height_cycle)):
                     requested[index] = cycle[phase % len(cycle)] if cycle else args.fixed_command[index]
+                if keyboard is not None:
+                    manual = keyboard.advance(dt, sim.command[2])
+                    if manual is not None:
+                        requested[:] = manual
+                manual_active = keyboard is not None and keyboard.state.active
                 current_yaw = sim.body_state()[3]
                 if requested[1] == 0 and previous_yaw_request != 0:
                     heading_target = current_yaw
@@ -160,7 +198,7 @@ def main():
                 limit = cfg["commands"]["linear_acceleration_limit"] * dt
                 sim.command[0] += np.clip(requested[0] - sim.command[0], -limit, limit)
                 sim.command[1:] = requested[1:]
-                if requested[1] == 0 and not args.no_heading_hold:
+                if requested[1] == 0 and not args.no_heading_hold and not manual_active:
                     error = (heading_target - current_yaw + np.pi) % (2 * np.pi) - np.pi
                     sim.command[1] = np.clip(cfg["commands"]["heading_kp"] * error,
                                             -cfg["commands"]["heading_rate_limit"], cfg["commands"]["heading_rate_limit"])
@@ -174,6 +212,10 @@ def main():
                 row = {"step": step + 1, "time": sim.data.time, "phase": phase,
                        "cmd_x_target": requested[0], "cmd_x": sim.command[0], "cmd_yaw": sim.command[1],
                        "yaw_rate_requested": requested[1],
+                       "command_source": "keyboard" if manual_active else ("cycle" if any((args.velocity_cycle, args.yaw_cycle, args.height_cycle)) else "fixed"),
+                       "keyboard_active": int(manual_active),
+                       "keyboard_height_target": keyboard.state.target_height if manual_active else sim.command[2],
+                       "keyboard_jump_requests": keyboard.state.jump_requests if keyboard is not None else 0,
                        "cmd_height": sim.command[2], "vel_x_heading": velocity[0], "vel_y_heading": velocity[1],
                        "base_height": sim.data.qpos[2], "height_error_mm": 1000 * (sim.data.qpos[2] - requested[2]),
                        "yaw_deg": np.degrees(yaw), "pitch_deg": np.degrees(pitch), "roll_deg": np.degrees(roll),
@@ -209,6 +251,8 @@ def main():
                     status, failure_time = "posture_failure", sim.data.time
                     break
                 if viewer is not None:
+                    if keyboard is not None and step % 5 == 0:
+                        keyboard.show_state(sim.command, velocity[0], sim.data.qpos[2], row['pitch_deg'], row['roll_deg'])
                     viewer.cam.lookat[:] = sim.data.xpos[sim.base_id]
                     viewer.sync()
                     time.sleep(max(0, dt - (time.monotonic() - start)))
@@ -228,6 +272,8 @@ def main():
         phase_rows = [row for row in rows if row["phase"] == phase]
         tail = phase_rows[-max(1, round(2 / dt)):]
         summary["conditions"].append({"phase": phase, "target_vx": tail[-1]["cmd_x_target"],
+                                      "constant_targets": len({(r['cmd_x_target'], r['yaw_rate_requested'], r['cmd_height']) for r in tail}) == 1,
+                                      "command_sources": sorted({r['command_source'] for r in tail}),
                                       "target_height": tail[-1]["cmd_height"],
                                       "target_yaw_rate": tail[-1]["yaw_rate_requested"],
                                       "phase_complete": len(phase_rows) * dt >= args.phase_duration - dt / 2,

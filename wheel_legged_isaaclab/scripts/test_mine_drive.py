@@ -34,7 +34,7 @@ def main():
     from isaaclab_tasks.utils import parse_env_cfg
     from isaaclab.utils.math import quat_apply, quat_apply_inverse
     import wheel_legged_gym_isaaclab.tasks
-    from wheel_legged_gym_isaaclab.tasks.direct.wheel_legged_vmc_flat.mine_env_cfg import MODEL, MANIFEST
+    from wheel_legged_gym_isaaclab.tasks.direct.wheel_legged_vmc_flat.wheel_legged_vmc_flat_env_cfg import MODEL, MANIFEST
 
     cfg = parse_env_cfg("WheelLeggedVMC-Flat-v0", device=args.device, num_envs=args.num_envs)
     cfg.seed = 37

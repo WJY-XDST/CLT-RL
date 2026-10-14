@@ -28,8 +28,7 @@ setup(
         "": ["*.usd", "*.urdf", "*.STL", "*.stl", "*.csv", "*.yaml", "*.yml"],
         "wheel_legged_gym_isaaclab": [
             "assets/**/*",
-            "assets/robots/wl/urdf/*",
-            "assets/robots/wl/meshes/*",
+            "assets/robots/mine/**/*",
         ],
     },
     author=EXTENSION_TOML_DATA["package"]["author"],

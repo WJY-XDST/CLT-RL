@@ -1,122 +1,93 @@
-# 自定义闭链机器人
+# 自定义映射五连杆机器人
 
-## 2026-10-05 最新发布入口
+这是用户通过开链转闭链导入、并已在实车上用 LQR 和 VMC 控制过的车辆。
+它不是早期运行的开源示例车。当前工程已移除示例车资产、串联计算和备用任务入口。
 
-当前自己的机器人已独立训练，使用 `protected_stops_v2` 接触资产、8192 环境、
-隐式关节参考控制及轮速驱动；当前验收配置为 20% 相对误差，尚未最终达标。
-发布时最新已保存模型为 [12600 快照](../wheel_legged_isaaclab/checkpoints/mine_20261005_model_12600/)，
-并不是早期直接迁移的旧串联腿权重。
+## 当前模型数据
 
-- [版本更改与验证范围](../CHANGELOG.md)
-- [键盘回放说明](docs/键盘可视化控制说明.md)
-- [持续优化报告发布快照](docs/持续优化报告_20261005快照.md)
+训练数据入口为 ../wheel_legged_isaaclab/assets/robots/mine/manifest.json。
+该文件指向新车的 model.json 与 USD。运行时将 CAD 主环映射为轮端大五连杆，
+等效上杆约 210 mm、下杆约 250 mm；保留 CAD 装配零位、分支与左右轴向。
+质量、惯量、碰撞和闭链关节来自新车 USD，不因几何表达改为大五连杆而缩放车体。
 
-```bash
-./mine_model/run.sh play  # 本机最新完整评估模型，自动加载配套配置
-```
-
-GitHub 固定快照的显式启动命令见模型目录 README。当前后台训练没有因提交重启。
-下文是 10 月 3～4 日各阶段建模/试训记录，包含早期资产、4096 环境、10% 目标与旧权重示例；
-它们不覆盖本节的最新状态。实时状态以本地 `results/.../status.json` 及实际评估为准。
-
-这里管理 CAD 原始文件、闭链构建、正式导出和验证结果。基础闭链资产为
-`exports/export_20261003_181515/mine_closed_chain.usd`，四个闭链关节保存在 USD 中。
-当前精度训练另用同目录的 `mine_closed_chain_tires_96.usd` 叠加层，保留原文件。
-原始文件按原内容移入 `inputs/`，没有删除或覆盖。
-
-## 从这里开始
-
-- [图文说明 PDF](docs/闭链建模与工程接入说明.pdf)
-- [可编辑图文说明 Word](docs/闭链建模与工程接入说明.docx)
-- [实现细节与参数](docs/implementation_details.md)
-- [VMC 参数和代码核对](results/parameter_audit/README.md)
-- [最新策略评估与误差曲线](results/policy_7738_20261003/README.md)
-- [正式导出模型](exports/export_20261003_181515/)
-- [目录迁移记录](docs/relocation_map.json)
-
-## 目录职责
-
-```text
-mine_model/
-├── README.md                 本页 总入口
-├── run.sh                    统一运行入口
-├── inputs/                   原始 URDF ZIP MJCF ZIP USDZ 只读保留
-├── source/                   原始 URDF 解压内容 可由 inputs 重建
-├── prepared/                 规范化 RB 命名和网格名的中间输入
-├── config/                   四个闭合铰链坐标与孔位拟合结果
-├── scripts/                  导入 闭链构建 关节检查 导出 计算和分析工具
-├── exports/                  按时间版本保存的正式 USD URDF 和网格
-├── results/
-│   ├── bench_drive/          已通过的双环境悬空 VMC 驱动测试
-│   ├── gravity_check/        重力接触检查 平衡未通过
-│   ├── drive_preview/        GUI 驱动截图和记录
-│   └── policy_7738_20261003/ 本次原策略在新旧模型上的平地评估
-├── docs/                     图文说明与 figures 配图
-├── archive/                  失败调试与被替代的测试 保留溯源
-└── build/                    可再生仿真缓存 场景与 logs 日志
-```
-
-只有 `exports/` 是正式交付模型；`prepared/` 是导入中间件，`build/` 是调试场景。
-`archive/` 不代表当前通过结果。目录移动记录保存在 `docs/relocation_map.json`。
-本次移动后校验了原 URDF ZIP 与正式 USD 的 SHA256，内容未变；工程 manifest 已更新源导出路径。
+- [旧车清理与大五连杆说明](docs/新车数据清理与大五连杆配置说明.md)
+- [当前关节角 PD 奖励基线和验证](docs/关节角PD奖励基线诊断与验证_20261011.md)
+- [框架整理与验证](results/framework_cleanup_20261012/validation.json)
+- [IK 控制与训练记录清理说明](docs/IK清理说明_20261011.md)
+- [当前 VMC 支撑问题定位和求解器修复](docs/下位机硬件参数对齐与VMC站立诊断_20261010.md#追加tgs-外部力矩内部迭代修复)
 
 ## 常用命令
 
-在工程根目录 `~/studyRL/src/CLT-RL` 下执行：
+从 ~/studyRL/src/CLT-RL 执行：
 
 ```bash
-./mine_model/run.sh inspect                         # 闭链关节角度检查 GUI
-./mine_model/run.sh bench --num_envs 1 --loop       # 悬空 VMC 驱动演示
-./mine_model/run.sh bench --headless --seconds 12  # 双环境驱动验证
-./mine_model/run.sh evaluate --headless --robot mine   # 最新 7738 策略 新模型
-./mine_model/run.sh evaluate --headless --robot legacy # 同策略 原模型对照
-./mine_model/run.sh test                            # 五连杆运动学检查
+./mine_model/run.sh play
+./mine_model/run.sh inspect
+./mine_model/run.sh bench --headless --seconds 12
+./mine_model/run.sh test
 ```
 
-重建闭链调试场景：
+play 优先选择最近优化任务已评估并保留的最佳直接关节角检查点，
+从配套配置生成回放参数，不启动训练，也不自动选择未评估的新候选。
+只打印选择结果、不打开窗口：`./mine_model/run.sh play --dry_run`。
+单独 evaluate 必须显式指定新车检查点，并提供匹配的执行器配置：
 
 ```bash
-./mine_model/run.sh build --headless --steps 240
-./mine_model/run.sh export  # 创建新时间版本 并更新工程 manifest
+./mine_model/run.sh evaluate --headless \
+  --checkpoint /完整路径/model_XXXXX.pt \
+  --overrides_json /完整路径/overrides.json
 ```
 
-评估入口默认 9 种工况、43/44/45 三个扰动种子、每工况 8 秒，启动立即按 0.8 m/s²
-斜坡下发速度。原策略参数不变，采用对应模型当前 VMC 配置；不训练。
-初始根速度扰动幅值 0.05，较历史 0.5 的扰动评估更温和。
-
-## 目前状态
-
-闭链结构、五连杆映射和悬空驱动已通过；直接迁移的 7738 策略在新模型上会失稳，
-不能把机械驱动测试通过理解为 RL 平地运动通过。详见最新评估目录中的误差曲线和失败记录。
-原开源模型仍由 `WheelLeggedVMC-Legacy-v0` 提供，默认 `WheelLeggedVMC-Flat-v0` 使用本模型。
-
-## 当前自动试训与优化
-
-当前流程为 `auto_training_implicit_20pct_20261004`，早期使用256个环境，现按实测切换为4096个环境。
-正常USD克隆4096环境短测约29118步/秒，进程组内存峰值17.17 GiB；6144触及22 GiB上限。
-详见[环境数实测与建议](results/auto_training_implicit_20pct_20261004/环境数实测与建议.md)。
-5500 轮策略配合 96 边轮胎碰撞，在两轮 12 秒验收中均 27/27 通过、零重置；
-30 秒回放仍全部存活，但三个工况的偏航误差超限，最大 0.060219 rad/s，容差 0.05 rad/s。
-当前在此资产上继续精度训练，尚未通过最终验收，尚未关机。
-
-- [开链转闭链图文教程 Word 十八页](docs/开链转闭链图文教程_v3.docx)
-- [开链转闭链图文教程 PDF](docs/开链转闭链图文教程_v3.pdf)
-- [实时流程状态](results/auto_training_implicit_20pct_20261004/status.json)
-- [当前流程与验收说明](results/auto_training_implicit_20pct_20261004/README.md)
-- [闭链文件交付目录](deliveries/)
-
-当前服务 `mine-rl-implicit-20pct-20261004.service` 管理训练、评估、优化、导出与条件关机。
-这是从新网络开始的独立实验：五连杆逆解把虚拟腿长和摆角目标转换为电机角目标，
-由 PhysX 隐式关节 force Drive 执行，初始关节刚度/阻尼 300/3，腿轮正式限幅 10 Nm。
-观测为 27 维、动作 6 维；执行器契约已改变，MuJoCo 必须同步使用逆解和关节 PD。
-旧显式 VMC 实验及失败回放完整保留；不能与本实验权重或成功结论混用。
+MuJoCo 回放同样要求明确的新车权重和相同资产的审计文件：
 
 ```bash
-systemctl --user status mine-rl-implicit-20pct-20261004 --no-pager
-cat mine_model/results/auto_training_implicit_20pct_20261004/status.json
+./sim2sim_mujoco.sh --checkpoint /完整路径/model_XXXXX.pt \
+  --mjcf mine_model/exports/mujoco_protected_stops_v2_20261004/scene_protected_contact.xml
 ```
 
-使用4096个环境继续训练，模型保存在原训练目录旁的 `IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/`。
-首次1000轮试训，后续每200轮优化回放9工况和3个种子，保存完整误差曲线。独立种子和 30 秒复测全部通过后，
-保存模型、参数、教程、源码及更改说明，校验并刷盘后关机。未通过验收不会关机。
-当前继续精度训练，尚无通过全部三阶段验收的模型；状态以实际 replay/assessment.json 为准。
+## 控制模式
+
+截至 2026-10-11，新平地训练默认使用 `implicit_joint_position`：策略直接输出
+LB、LL、RB、RL 四个主动髋关节目标角，PhysX 隐式位置 PD 产生反馈力矩，
+保留下位机对应的 `Jᵀ[F_gravity, 0]` 重力前馈。轮子目标轮速控制不变。
+不经过虚拟腿 PD 或 IK；新动作和观测语义不能加载旧虚拟腿权重。
+训练状态以当前优化任务的 `status.json` 为准，不以本说明中的历史进程为准。
+新模型目录为 `../IsaacLab/logs/rsl_rl/mine_wheel_legged_joint_pd_flat/`。
+修改、硬件限幅来源和本轮有限验证见
+[主动关节目标角和隐式 PD 改造说明](docs/主动关节目标角和隐式PD改造说明_20261011.md)。
+
+以下是此前显式 VMC 的历史验证，不能当作新直接关节模式的训练结果。
+2026-10-10 的默认模式使用显式 VMC：策略输出 L 和 theta，环境计算
+虚拟腿 PD、下位机对应的重力前馈和五连杆 `Jᵀ[F,T]`，下发腿关节力矩。
+腿关节内置 PD 为 0/0；轮子仍为隐式轮速驱动。腿/轮限幅分别为 35.574/4.80944 N·m。
+新 VMC 运行启用 `enable_external_forces_every_iteration`，修复 TGS 下的支撑失败。
+导轨支撑已通过 10 秒测试。第 200 次新策略已通过独立种子 30 秒无导轨回放，
+27/27 组无重置；0.30 m 零速站立稳态姿态约 0.35°、前后漂移约 0.0001 m/s。
+高度及轮速误差仍未全部达标；运动指令尚未正确跟踪，不能将存活等同于精度验收。
+
+历史 IK 参考策略的训练、评估和导出记录已按保存配置清理，不再支持回放或续训。
+`explicit_vmc` 的代码与记录仍保留；测试 VMC 权重请显式传入匹配的
+checkpoint 与 overrides，不混用关节角策略。旧 IK 跳跃任务也已移除，当前空格只记录请求，不执行跳跃。
+
+正在运行的进程保留内存中的配置；源码修改不会自动改变其控制器。
+新的进程使用大五连杆表达，其几何与原映射数学等价。保留的 VMC 和关节角 PD 权重及参数按版本管理。
+
+## 训练代码在哪里
+
+`mine_model` 不再定义一份环境配置或车辆适配子类。唯一入口为
+`../wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env_cfg.py`。
+随后读同目录 `wheel_legged_vmc_flat_env.py`，再读 `agents/rsl_rl_ppo_cfg.py`
+和 `../wheel_legged_isaaclab/scripts/rsl_rl/train.py`。
+
+这里的脚本只管车辆导入、实验组织、误差检查、回放和记录，不是另一套 RL 环境。
+旧 `mine_env_cfg.py`、重复源码快照、过时交付副本、已完成的 IK 清理器和
+一次性碰撞变体构建脚本已清理；有效新车模型和机械验证证据保留。
+
+## 目录职责
+
+inputs 和 source 保存用户原始导入文件；config 保存闭合铰链与机械核对数据。
+exports 保存新车各版本资产；scripts 提供构建、检查、训练与评估工具。
+results 保存训练和验收记录；docs 保存学习说明及优化报告。
+归档恢复包位于 archive，只有压缩包，不再保留可被编辑器索引的重复 Python 工程。
+训练结果统一在 ../IsaacLab/logs/rsl_rl/。历史虚拟腿模型位于
+mine_wheel_legged_vmc_flat，新直接关节 PD 模型位于 mine_wheel_legged_joint_pd_flat。

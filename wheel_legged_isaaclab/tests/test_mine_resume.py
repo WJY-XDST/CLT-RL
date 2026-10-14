@@ -9,8 +9,37 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[2]/'mine_model/scripts'))
 import auto_train_mine as training
 
 
+class TestCooperativeCheckpointStop(unittest.TestCase):
+    def test_stop_saves_complete_runner_only_after_the_logging_boundary(self):
+        from types import SimpleNamespace
+        from wheel_legged_gym_isaaclab.training_state import install_checkpoint_stop, CheckpointStopRequested
+        with tempfile.TemporaryDirectory() as d:
+            marker=Path(d)/'STOP';events=[]
+            runner=SimpleNamespace(current_learning_iteration=2156,
+                log=lambda data:events.append(('logged',data)),save=lambda path:events.append(('saved',path)))
+            install_checkpoint_stop(runner,marker,d)
+            runner.log({'it':2155})
+            self.assertEqual([e[0] for e in events],['logged'])
+            marker.touch()
+            with self.assertRaises(CheckpointStopRequested):runner.log({'it':2156})
+            self.assertEqual([e[0] for e in events],['logged','logged','saved'])
+            self.assertEqual(Path(events[-1][1]).name,'model_2156_interrupted.pt')
+
+    def test_no_stop_file_does_not_wrap_the_runner(self):
+        from types import SimpleNamespace
+        from wheel_legged_gym_isaaclab.training_state import install_checkpoint_stop
+        runner=SimpleNamespace(log=Mock())
+        original=runner.log;install_checkpoint_stop(runner,None,'unused')
+        self.assertIs(runner.log,original)
+
+    def test_exec_stop_cannot_write_to_an_unrelated_directory(self):
+        with tempfile.TemporaryDirectory() as d:
+            with self.assertRaises(ValueError):training.request_checkpoint_stop(Path(d))
+            self.assertFalse((Path(d)/'STOP').exists())
+
+
 class TestPilotInitialization(unittest.TestCase):
-    def launch_command(self, recovered, safe_standing=False, motion=False, fine_tuning=False, wheel_precision=False, num_envs=None):
+    def launch_command(self, recovered, safe_standing=False, motion=False, fine_tuning=False, wheel_precision=False, num_envs=None, full_policy=False, reset_full_optimizer=False):
         with tempfile.TemporaryDirectory() as d:
             root=Path(d);logs=root/'logs';logs.mkdir()
             output=root/'new_experiment'
@@ -25,14 +54,16 @@ class TestPilotInitialization(unittest.TestCase):
                     'checkpoint':str(incumbent),'best_checkpoint':str(incumbent),'best_assessment':str(best),
                     **({'agent_overrides':{'algorithm.entropy_coef':.001}} if fine_tuning else {}),
                     **({'wheel_head_only_finetune':True} if wheel_precision else {}),
-                    **({'overrides':{'leg_control_mode':'implicit_joint_reference','commands.standing_only_steps':48000}} if motion else {})}))
+                    **({'full_policy_reset_optimizer_pending':True} if reset_full_optimizer else {}),
+                    **({'overrides':{'leg_control_mode':'explicit_vmc','commands.standing_only_steps':48000}} if motion else {})}))
             checkpoint=None
             if recovered:
-                run=logs/'20261004_mine_auto_r000_new_experiment';run.mkdir()
-                checkpoint=run/'model_5.pt';checkpoint.write_bytes(b'saved weights and optimizer')
+                run=logs/('20261004_mine_auto_r001_new_experiment' if safe_standing else '20261004_mine_auto_r000_new_experiment');run.mkdir()
+                checkpoint=run/('model_999.pt' if safe_standing else 'model_5.pt');checkpoint.write_bytes(b'saved weights and optimizer')
             child=Mock(pid=123);child.wait.return_value=1
             argv=['train','--fresh','--trial_target','10','--output',str(output)]
             if num_envs is not None:argv+=['--num_envs',str(num_envs)]
+            if full_policy:argv+=['--full-policy-training']
             with patch.object(training,'ROOT',root),patch.object(training,'LOG_ROOT',logs),patch.object(sys,'argv',argv),patch.object(training.subprocess,'Popen',return_value=child) as start:
                 with self.assertRaisesRegex(RuntimeError,'Job failed'):
                     training.main()
@@ -42,6 +73,26 @@ class TestPilotInitialization(unittest.TestCase):
     def test_fresh_pilot_does_not_load_an_existing_policy(self):
         command,_=self.launch_command(False)
         self.assertNotIn('--checkpoint_path',command)
+
+    def test_fresh_vmc_pilot_pins_actual_execution_mode(self):
+        command,_=self.launch_command(False)
+        self.assertEqual(command[command.index('--require_leg_control_mode')+1],'explicit_vmc')
+        self.assertIn('env.leg_control_mode="explicit_vmc"',command)
+
+    def test_supported_vmc_resume_remains_explicitly_identified(self):
+        command,_=self.launch_command(False,safe_standing=True,motion=True)
+        self.assertEqual(command[command.index('--require_leg_control_mode')+1],'explicit_vmc')
+
+    def test_execution_mode_switch_cannot_reuse_existing_experiment(self):
+        import json
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);logs=root/'logs';logs.mkdir();output=root/'old';output.mkdir()
+            (output/'status.json').write_text(json.dumps({'overrides':{'leg_control_mode':'implicit_joint_position'}}))
+            argv=['train','--fresh','--output',str(output),'--leg-control-mode','explicit_vmc']
+            with patch.object(training,'ROOT',root),patch.object(training,'LOG_ROOT',logs),patch.object(sys,'argv',argv),patch.object(training.subprocess,'Popen') as start:
+                with self.assertRaisesRegex(ValueError,'new --output'):
+                    training.main()
+                start.assert_not_called()
 
     def test_large_environment_count_reaches_resumed_training_command(self):
         command,_=self.launch_command(False,safe_standing=True,wheel_precision=True,num_envs=12288)
@@ -61,9 +112,9 @@ class TestPilotInitialization(unittest.TestCase):
         self.assertNotIn('--reset_optimizer',command)
         self.assertNotIn('--reset_exploration_std',command)
 
-    def test_motion_transition_changes_only_wheel_exploration(self):
+    def test_vmc_motion_transition_does_not_apply_retired_ik_exploration_override(self):
         command,_=self.launch_command(False,safe_standing=True,motion=True)
-        self.assertEqual(command[command.index('--wheel_exploration_std')+1],'0.08')
+        self.assertNotIn('--wheel_exploration_std',command)
         self.assertNotIn('--reset_optimizer',command)
         self.assertNotIn('--reset_exploration_std',command)
 
@@ -73,16 +124,43 @@ class TestPilotInitialization(unittest.TestCase):
         self.assertNotIn('--reset_optimizer',command)
         self.assertNotIn('--reset_exploration_std',command)
 
-    def test_wheel_precision_mode_survives_service_restart(self):
+    def test_retired_wheel_precision_state_cannot_freeze_restarted_policy(self):
         command,_=self.launch_command(False,safe_standing=True,fine_tuning=True,wheel_precision=True)
-        self.assertIn('--wheel_head_only_finetune',command)
+        self.assertNotIn('--wheel_head_only_finetune',command)
         self.assertNotIn('--reset_optimizer',command)
         self.assertNotIn('--reset_exploration_std',command)
 
-    def test_wheel_precision_warm_start_does_not_reenter_motion_exploration_reset(self):
+    def test_retired_precision_state_keeps_full_vmc_motion_training(self):
         command,_=self.launch_command(False,safe_standing=True,motion=True,wheel_precision=True)
-        self.assertIn('--wheel_head_only_finetune',command)
+        self.assertNotIn('--wheel_head_only_finetune',command)
         self.assertNotIn('--wheel_exploration_std',command)
+        self.assertNotIn('--reset_optimizer',command)
+
+    def test_explicit_full_policy_overrides_persisted_wheel_only_mode(self):
+        command,_=self.launch_command(False,safe_standing=True,fine_tuning=True,
+                                      wheel_precision=True,full_policy=True)
+        self.assertNotIn('--wheel_head_only_finetune',command)
+        self.assertIn('--checkpoint_path',command)
+        self.assertIn('agent.algorithm.entropy_coef=0.001',command)
+        self.assertNotIn('--reset_optimizer',command)
+        self.assertNotIn('--reset_exploration_std',command)
+
+    def test_full_policy_is_default_without_saved_precision_mode(self):
+        command,_=self.launch_command(False,safe_standing=True)
+        self.assertNotIn('--wheel_head_only_finetune',command)
+
+    def test_explicit_full_policy_optimizer_transition_keeps_weights_and_noise(self):
+        command,_=self.launch_command(False,safe_standing=True,fine_tuning=True,
+                                      wheel_precision=True,full_policy=True,reset_full_optimizer=True)
+        self.assertIn('--checkpoint_path',command)
+        self.assertIn('--reset_optimizer',command)
+        self.assertNotIn('--reset_exploration_std',command)
+        self.assertNotIn('--wheel_head_only_finetune',command)
+
+    def test_same_iteration_recovery_keeps_this_branch_and_its_new_optimizer(self):
+        command,checkpoint=self.launch_command(True,safe_standing=True,full_policy=True,
+                                              reset_full_optimizer=True)
+        self.assertEqual(command[command.index('--checkpoint_path')+1],checkpoint)
         self.assertNotIn('--reset_optimizer',command)
 
 
@@ -174,7 +252,7 @@ class TestMeasuredPlanning(unittest.TestCase):
         limits={key:1. for key in metrics};limits['wheel_speed_mae_rad_s']=.3
         trial={'metrics':metrics,'limits':limits}
         report={'conditions':[{'passed':False,'survivors':3,'trials':[trial]*3}]}
-        overrides={'leg_control_mode':'implicit_joint_reference','wheel_damping':.5,'rewards.termination':-12}
+        overrides={'leg_control_mode':'explicit_vmc','wheel_damping':.5,'rewards.termination':-12}
         changed,purpose=training.plan_after(report,overrides,1000)
         self.assertEqual(changed['rewards.termination'],-12)
         self.assertEqual(changed['wheel_damping'],.5)
@@ -212,7 +290,7 @@ class TestMeasuredPlanning(unittest.TestCase):
         trial={'metrics':{k:0. for k in keys},'limits':{k:1. for k in keys}}
         trial['metrics']['wheel_speed_mae_rad_s']=.35;trial['limits']['wheel_speed_mae_rad_s']=.3
         report={'conditions':[{'passed':False,'survivors':3,'trials':[trial]*3}]}
-        overrides={'leg_control_mode':'implicit_joint_reference','commands.standing_only_steps':67200}
+        overrides={'leg_control_mode':'explicit_vmc','commands.standing_only_steps':67200}
         changed,_=training.plan_after(report,overrides,1600)
         self.assertEqual(changed['commands.standing_only_steps'],67200)
         self.assertIn('rewards.standing_wheel_tracking',changed)

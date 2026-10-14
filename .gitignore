@@ -22,3 +22,20 @@ __pycache__/
 /mine_model/deliveries/
 /mine_model/exports/*
 !/mine_model/exports/mujoco_protected_stops_v2_20261004/
+
+# 本地重复工程与下位机重复备份，保留在磁盘上
+/wheel_legged_isaaclab (1)/
+/sim2real/series_balance_rtos (2)/series_balance_rtos/series_balance_rtos/series_balance_rtos/
+
+# 下位机编译输出；Drivers 中的预编译依赖库仍保留
+/sim2real/series_balance_rtos (2)/**/output/
+/sim2real/series_balance_rtos (2)/**/Listenings/
+/sim2real/series_balance_rtos (2)/**/*.o
+/sim2real/series_balance_rtos (2)/**/*.d
+/sim2real/series_balance_rtos (2)/**/*.crf
+/sim2real/series_balance_rtos (2)/**/*.axf
+/sim2real/series_balance_rtos (2)/**/*.hex
+/sim2real/series_balance_rtos (2)/**/*.map
+/sim2real/series_balance_rtos (2)/**/*.dep
+/sim2real/series_balance_rtos (2)/**/*.lst
+/sim2real/series_balance_rtos (2)/**/*.lnp

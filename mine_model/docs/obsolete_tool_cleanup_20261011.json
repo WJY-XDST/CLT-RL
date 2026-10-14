@@ -1,0 +1,52 @@
+{
+  "date": "2026-10-11",
+  "operation": "recoverable_gio_trash",
+  "purpose": "Remove unregistered jump scaffold and obsolete historical figure generators; keep VMC, current direct joint PD, keyboard space placeholder, firmware and mechanical evidence.",
+  "completed": true,
+  "files": [
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/scripts/build_collision_figure.py",
+      "relative": "mine_model/scripts/build_collision_figure.py",
+      "bytes": 2659,
+      "lines": 32,
+      "sha256": "1c121c6d1400d4999b5207aee0d73ec026d2c63aa5485b2b45a2f4333e6d2944"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/scripts/build_implicit_figures.py",
+      "relative": "mine_model/scripts/build_implicit_figures.py",
+      "bytes": 1828,
+      "lines": 27,
+      "sha256": "709aebd5252d487db50139ed859562b7d0d3e3a661d4f363b217da4e1d22b255"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/scripts/build_feedback_figure.py",
+      "relative": "mine_model/scripts/build_feedback_figure.py",
+      "bytes": 2339,
+      "lines": 38,
+      "sha256": "136fa14b7b4d997bb520825a2021882100db705c4bb8a8ce4f384c202c49f133"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/scripts/build_reward_figures.py",
+      "relative": "mine_model/scripts/build_reward_figures.py",
+      "bytes": 1218,
+      "lines": 24,
+      "sha256": "2f2ec974ae60ebd1acb5ca8d51e07031b7d61451ea9880e0e48beb4fe56eb6c0"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/wheel_legged_gym_isaaclab/jump_training.py",
+      "relative": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/jump_training.py",
+      "bytes": 9582,
+      "lines": 194,
+      "sha256": "27514dceeeebf9b7a021f14c87cfaf074f6df88bf2ff2283050e482bcbf2bf48"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/tests/test_jump_training.py",
+      "relative": "wheel_legged_isaaclab/tests/test_jump_training.py",
+      "bytes": 5601,
+      "lines": 129,
+      "sha256": "c2ea94fdc2cb3fafdeef87d6fe3f8581ea0603ed0044d14160d828f0dc2083e1"
+    }
+  ],
+  "bytes": 23227,
+  "lines": 444
+}

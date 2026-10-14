@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-11",
+  "completed": true,
+  "operation": "recoverable_gio_trash",
+  "purpose": "Orphan bytecode of retired jump scaffold and obsolete figure generators.",
+  "files": [
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/tests/__pycache__/test_jump_training.cpython-311.pyc",
+      "bytes": 14394,
+      "sha256": "951b7d59d46906957c35bcbc0dafa67ee99a0893f7afe16c1205840fe3560aa8"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/tests/__pycache__/test_jump_training.cpython-311-pytest-9.1.1.pyc",
+      "bytes": 14128,
+      "sha256": "06b6239a57be6ead84f11f7937910b8cde72b559e097999a9c34837fce8932c4"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/scripts/__pycache__/build_feedback_figure.cpython-310.pyc",
+      "bytes": 3038,
+      "sha256": "6683c03d2a8b1d4f333cf2357f733e04360a1f3a1f49e6891ccd2576ced20e95"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/scripts/__pycache__/build_implicit_figures.cpython-310.pyc",
+      "bytes": 2525,
+      "sha256": "bf1427ae36c8da767e4be3442a7846870927903bce5573308d88c82118ac49d4"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/wheel_legged_gym_isaaclab/__pycache__/jump_training.cpython-311.pyc",
+      "bytes": 15819,
+      "sha256": "dd4a7617426089ed19c76501b4f2f6cc381b35444e40755dfd51ad7952c8d6f6"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/scripts/__pycache__/build_collision_figure.cpython-310.pyc",
+      "bytes": 3339,
+      "sha256": "db7fcbc2b710e4a6a65a992c9930eb6bedd7be351c15a6ee46037100b0a2f3fe"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/scripts/__pycache__/build_reward_figures.cpython-310.pyc",
+      "bytes": 1473,
+      "sha256": "7feb6b01ab22f2a588b0e9649ef0ee1b33e97f50bbe7ce80e66d393425fd85dd"
+    }
+  ]
+}

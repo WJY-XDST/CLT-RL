@@ -1,0 +1,1009 @@
+{
+  "state": "completed",
+  "requested_scope": "original open-source URDF robot old training records",
+  "created_at": "2026-10-04T23:04:00.991244+08:00",
+  "training_main_pid": 80539,
+  "preserved_latest_checkpoint": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-10-01_21-06-47_autotune_r0002_20261001_210642/model_7738.pt",
+  "preserved_validated_checkpoint": "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/checkpoints/optimized/yaw_heading_followup_20261001_200205_round0001_improved/model.pt",
+  "protected_sha256": {
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/results/auto_training_implicit_20pct_20261004/round_039_optimization/replay/assessment_10pct.json": "dbc0e98278e8ff72cce47702733b6f08ba837b4be7049b060dcb53e09377e0d0",
+    "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/checkpoints/optimized/yaw_heading_followup_20261001_200205_round0001_improved/env.yaml": "3fe0d9c99840351c8b64d002909912a65404bdd10870f1f6e6d1e1347ecf6811",
+    "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-04_21-46-15_mine_auto_r042_auto_training_implicit_20pct_20261004_protected_stops_v2_env8192/model_7899.pt": "ae682d11ab2961fc215f3312f5eb99caf6fb6154aace6554b633264945e1d4ef",
+    "/home/aaa/studyRL/src/CLT-RL/mine_model/results/auto_training_implicit_20pct_20261004/round_042_optimization/replay/assessment.json": "8cf0efb37dcfff091d70c32158e6ffd85227c11bda804122964987863adddecd",
+    "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/checkpoints/optimized/yaw_heading_followup_20261001_200205_round0001_improved/model.pt": "729711fd6c013c56678f159bbfbb344163d487ad3c3a195ab9ebd010f7c09a48",
+    "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/checkpoints/optimized/yaw_heading_followup_20261001_200205_round0001_improved/agent.yaml": "f3950cad27c5c8d44d99547820da7f95a7c6045c1eb3df7e20f4faf4c5a343fe",
+    "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-04_19-48-29_mine_auto_r039_auto_training_implicit_20pct_20261004_protected_stops_v2_env8192/model_7299.pt": "c5fa622ec236f43918e1ba4149011db03ff5b415fa7c1805ab8ba9582cbbdb96",
+    "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-10-01_21-06-47_autotune_r0002_20261001_210642/model_7738.pt": "9f5b04086641a0db00935860c79886cdc6a9121241c0cf7a9e18d7a7826beddf",
+    "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-10-01_20-10-22_autotune_r0001_20261001_201018/model_6739.pt": "729711fd6c013c56678f159bbfbb344163d487ad3c3a195ab9ebd010f7c09a48",
+    "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/wl/urdf/wl.urdf": "cfc5c4987efcab0360b9e17e026987e503a1ca9d8406a67f8bd9e58f1e1ffd65"
+  },
+  "delete": [
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-09-29_13-13-50_heading_hold_yaw_sq_scratch_3k",
+      "files": 11,
+      "bytes": 6953253,
+      "allocated_bytes": 6983680
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-09-29_13-46-22_heading_hold_yaw_sq_resume_400_to_3000",
+      "files": 46,
+      "bytes": 44609743,
+      "allocated_bytes": 44703744
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-09-29_16-38-24_hwleg025_safety_smoke",
+      "files": 7,
+      "bytes": 2415246,
+      "allocated_bytes": 2433024
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-09-29_16-40-24_hwleg025_resume_smoke",
+      "files": 7,
+      "bytes": 2416867,
+      "allocated_bytes": 2433024
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-09-29_16-41-32_hwleg025_safety_learning_probe_100",
+      "files": 7,
+      "bytes": 2622706,
+      "allocated_bytes": 2646016
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-09-29_16-45-03_hwleg025_short_reset_smoke",
+      "files": 7,
+      "bytes": 2415833,
+      "allocated_bytes": 2433024
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-09-29_16-52-25_l0_target_only_scratch_smoke_10",
+      "files": 7,
+      "bytes": 2420180,
+      "allocated_bytes": 2437120
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-09-29_17-24-24_height_ab_scratch_width001_2k",
+      "files": 28,
+      "bytes": 29587115,
+      "allocated_bytes": 29646848
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-09-29_18-19-34_height_ab_scratch_width0004_2k",
+      "files": 28,
+      "bytes": 29587114,
+      "allocated_bytes": 29650944
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-09-29_20-07-17_height_width0004_state_timing_fix_gui_2k",
+      "files": 28,
+      "bytes": 29589991,
+      "allocated_bytes": 29650944
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-09-29_21-55-45_height_l0max026_smoke_10",
+      "files": 7,
+      "bytes": 2419629,
+      "allocated_bytes": 2437120
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-09-29_21-56-58_height_l0max026_width0004_gui_2k",
+      "files": 28,
+      "bytes": 29591263,
+      "allocated_bytes": 29650944
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-09-29_23-49-16_bidirectional_12288_smoke",
+      "files": 7,
+      "bytes": 2421648,
+      "allocated_bytes": 2437120
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-09-29_23-53-54_bidirectional_12288_stage1_500",
+      "files": 13,
+      "bytes": 8674835,
+      "allocated_bytes": 8708096
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-09-30_00-23-47_bidirectional_leg_support_smoke",
+      "files": 7,
+      "bytes": 2413747,
+      "allocated_bytes": 2433024
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-09-30_00-25-43_bidirectional_leg_support_stage2_500",
+      "files": 13,
+      "bytes": 8715916,
+      "allocated_bytes": 8749056
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-09-30_00-52-26_archived_checkpoint_resume_smoke",
+      "files": 6,
+      "bytes": 1206074,
+      "allocated_bytes": 1220608
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-09-30_00-54-16_height_branch_smoke",
+      "files": 7,
+      "bytes": 2396953,
+      "allocated_bytes": 2412544
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-09-30_00-55-08_height_branch_symmetry_reverse_12288_500",
+      "files": 13,
+      "bytes": 8716095,
+      "allocated_bytes": 8749056
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-09-30_01-16-20_height_branch_full_reverse_12288_500",
+      "files": 13,
+      "bytes": 8716091,
+      "allocated_bytes": 8749056
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-09-30_01-57-26_support_clamp_stage1_smoke",
+      "files": 7,
+      "bytes": 2415158,
+      "allocated_bytes": 2428928
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-09-30_01-58-48_support_clamp_stage1_finetune_12288_500",
+      "files": 11,
+      "bytes": 8319299,
+      "allocated_bytes": 8347648
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-09-30_02-20-00_support_clamp_termination_diagnostic_50",
+      "files": 7,
+      "bytes": 2542876,
+      "allocated_bytes": 2564096
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-09-30_02-23-57_support_clamp_termination_detail_50",
+      "files": 7,
+      "bytes": 2564154,
+      "allocated_bytes": 2584576
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-09-30_02-30-12_speed_slew_termination_comparison_50",
+      "files": 9,
+      "bytes": 2971635,
+      "allocated_bytes": 2994176
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-09-30_02-44-56_speed_slew_refine_300",
+      "files": 9,
+      "bytes": 5799184,
+      "allocated_bytes": 5824512
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-09-30_10-14-14_height_symmetry_reward_v2_200",
+      "files": 7,
+      "bytes": 3040433,
+      "allocated_bytes": 3059712
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-09-30_13-56-51_height_feedback_standing_150",
+      "files": 7,
+      "bytes": 2919021,
+      "allocated_bytes": 2936832
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-09-30_14-12-05_height_feedback_symmetry_v3_150",
+      "files": 9,
+      "bytes": 5290106,
+      "allocated_bytes": 5316608
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-09-30_14-25-44_boundary_height_v4_200",
+      "files": 10,
+      "bytes": 6666816,
+      "allocated_bytes": 6692864
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-09-30_14-53-01_corrected_vmc_height_reference_v5_200",
+      "files": 10,
+      "bytes": 6658049,
+      "allocated_bytes": 6680576
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-09-30_15-33-10_damping_symmetry_speed_v6_200",
+      "files": 10,
+      "bytes": 6670064,
+      "allocated_bytes": 6692864
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-09-30_15-47-18_corrected_vmc_scratch_v7_2000",
+      "files": 18,
+      "bytes": 19818218,
+      "allocated_bytes": 19861504
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-09-30_16-57-09_bootstrap_terminal_v8_2000",
+      "files": 11,
+      "bytes": 9043033,
+      "allocated_bytes": 9068544
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-09-30_23-52-39_bootstrap_terminal_v8_resume1500",
+      "files": 21,
+      "bytes": 24554549,
+      "allocated_bytes": 24600576
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-10-01_01-10-38_autotune_r0001_20261001_011034",
+      "files": 16,
+      "bytes": 16646456,
+      "allocated_bytes": 16683008
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-10-01_01-56-36_autotune_r0002_20261001_015632",
+      "files": 16,
+      "bytes": 16625596,
+      "allocated_bytes": 16662528
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-10-01_13-44-48_yaw_training_smoke_20261001",
+      "files": 6,
+      "bytes": 1219659,
+      "allocated_bytes": 1232896
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-10-01_13-56-44_yaw_grouped_smoke_20261001",
+      "files": 6,
+      "bytes": 1232493,
+      "allocated_bytes": 1245184
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-10-01_14-14-08_autotune_r0001_20261001_141404",
+      "files": 16,
+      "bytes": 16681452,
+      "allocated_bytes": 16719872
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-10-01_19-05-55_autotune_r0001_20261001_190548",
+      "files": 16,
+      "bytes": 16688207,
+      "allocated_bytes": 16723968
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/external_checkpoint_play",
+      "files": 2,
+      "bytes": 403148,
+      "allocated_bytes": 405504
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-10-01_21-06-47_autotune_r0002_20261001_210642/model_7700.pt",
+      "files": 1,
+      "bytes": 1185973,
+      "allocated_bytes": 1187840
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-10-01_21-06-47_autotune_r0002_20261001_210642/model_7400.pt",
+      "files": 1,
+      "bytes": 1185973,
+      "allocated_bytes": 1187840
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-10-01_21-06-47_autotune_r0002_20261001_210642/model_7000.pt",
+      "files": 1,
+      "bytes": 1185973,
+      "allocated_bytes": 1187840
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-10-01_21-06-47_autotune_r0002_20261001_210642/model_6900.pt",
+      "files": 1,
+      "bytes": 1185973,
+      "allocated_bytes": 1187840
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-10-01_21-06-47_autotune_r0002_20261001_210642/model_7500.pt",
+      "files": 1,
+      "bytes": 1185973,
+      "allocated_bytes": 1187840
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-10-01_21-06-47_autotune_r0002_20261001_210642/model_7200.pt",
+      "files": 1,
+      "bytes": 1185973,
+      "allocated_bytes": 1187840
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-10-01_21-06-47_autotune_r0002_20261001_210642/model_6800.pt",
+      "files": 1,
+      "bytes": 1185973,
+      "allocated_bytes": 1187840
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-10-01_21-06-47_autotune_r0002_20261001_210642/model_7300.pt",
+      "files": 1,
+      "bytes": 1185973,
+      "allocated_bytes": 1187840
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-10-01_21-06-47_autotune_r0002_20261001_210642/model_7600.pt",
+      "files": 1,
+      "bytes": 1185973,
+      "allocated_bytes": 1187840
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-10-01_21-06-47_autotune_r0002_20261001_210642/model_7100.pt",
+      "files": 1,
+      "bytes": 1185973,
+      "allocated_bytes": 1187840
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-10-01_20-10-22_autotune_r0001_20261001_201018/model_6100.pt",
+      "files": 1,
+      "bytes": 1185973,
+      "allocated_bytes": 1187840
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-10-01_20-10-22_autotune_r0001_20261001_201018/model_5900.pt",
+      "files": 1,
+      "bytes": 1185973,
+      "allocated_bytes": 1187840
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-10-01_20-10-22_autotune_r0001_20261001_201018/model_6200.pt",
+      "files": 1,
+      "bytes": 1185973,
+      "allocated_bytes": 1187840
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-10-01_20-10-22_autotune_r0001_20261001_201018/model_6400.pt",
+      "files": 1,
+      "bytes": 1185973,
+      "allocated_bytes": 1187840
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-10-01_20-10-22_autotune_r0001_20261001_201018/model_5800.pt",
+      "files": 1,
+      "bytes": 1185973,
+      "allocated_bytes": 1187840
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-10-01_20-10-22_autotune_r0001_20261001_201018/model_6700.pt",
+      "files": 1,
+      "bytes": 1185973,
+      "allocated_bytes": 1187840
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-10-01_20-10-22_autotune_r0001_20261001_201018/model_6500.pt",
+      "files": 1,
+      "bytes": 1185973,
+      "allocated_bytes": 1187840
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-10-01_20-10-22_autotune_r0001_20261001_201018/model_6300.pt",
+      "files": 1,
+      "bytes": 1185973,
+      "allocated_bytes": 1187840
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-10-01_20-10-22_autotune_r0001_20261001_201018/model_6600.pt",
+      "files": 1,
+      "bytes": 1185973,
+      "allocated_bytes": 1187840
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-10-01_20-10-22_autotune_r0001_20261001_201018/model_6000.pt",
+      "files": 1,
+      "bytes": 1185973,
+      "allocated_bytes": 1187840
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/acceptance_smoke",
+      "files": 4,
+      "bytes": 9730412,
+      "allocated_bytes": 9744384
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/autonomous_robot_20261001_211953",
+      "files": 116,
+      "bytes": 147798811,
+      "allocated_bytes": 148074496
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/baseline_feedback_height_summary.json",
+      "files": 1,
+      "bytes": 5240,
+      "allocated_bytes": 8192
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/blend3543_v-0.8_height_seed43.csv",
+      "files": 1,
+      "bytes": 1168131,
+      "allocated_bytes": 1171456
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/blend3543_v-0.8_height_seed43.log",
+      "files": 1,
+      "bytes": 10841,
+      "allocated_bytes": 12288
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/blend3543_v0.0_height_seed43.csv",
+      "files": 1,
+      "bytes": 1175572,
+      "allocated_bytes": 1179648
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/blend3543_v0.0_height_seed43.log",
+      "files": 1,
+      "bytes": 10832,
+      "allocated_bytes": 12288
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/blend3543_v0.8_height_seed43.csv",
+      "files": 1,
+      "bytes": 1146097,
+      "allocated_bytes": 1146880
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/blend3543_v0.8_height_seed43.log",
+      "files": 1,
+      "bytes": 10832,
+      "allocated_bytes": 12288
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/bootstrap_terminal_v8_2000.log",
+      "files": 1,
+      "bytes": 1430189,
+      "allocated_bytes": 1437696
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/bootstrap_terminal_v8_resume1500.log",
+      "files": 1,
+      "bytes": 4073166,
+      "allocated_bytes": 4079616
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/boundary_height_v4_200.log",
+      "files": 1,
+      "bytes": 526232,
+      "allocated_bytes": 532480
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/continuous_optimization_20261001",
+      "files": 76,
+      "bytes": 155013030,
+      "allocated_bytes": 155222016
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/continuous_optimization_20261001.log",
+      "files": 1,
+      "bytes": 4945,
+      "allocated_bytes": 8192
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/corrected_vmc_height_reference_v5_200.log",
+      "files": 1,
+      "bytes": 525201,
+      "allocated_bytes": 532480
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/corrected_vmc_scratch_v7_2000.log",
+      "files": 1,
+      "bytes": 3213484,
+      "allocated_bytes": 3219456
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/damping_symmetry_speed_v6_200.log",
+      "files": 1,
+      "bytes": 524323,
+      "allocated_bytes": 532480
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/evaluate_v7_after_training.py",
+      "files": 1,
+      "bytes": 3950,
+      "allocated_bytes": 4096
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/feedback3046_floor025_h020.csv",
+      "files": 1,
+      "bytes": 1436686,
+      "allocated_bytes": 1437696
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/feedback3046_floor025_h020.log",
+      "files": 1,
+      "bytes": 11019,
+      "allocated_bytes": 12288
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/feedback3046_height.csv",
+      "files": 1,
+      "bytes": 856119,
+      "allocated_bytes": 860160
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/feedback3046_height.log",
+      "files": 1,
+      "bytes": 10713,
+      "allocated_bytes": 12288
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/feedback3046_speed_h0.16_complete.csv",
+      "files": 1,
+      "bytes": 1439817,
+      "allocated_bytes": 1441792
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/feedback3046_speed_h0.16_complete.log",
+      "files": 1,
+      "bytes": 11026,
+      "allocated_bytes": 12288
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/feedback3046_speed_h0.20_complete.csv",
+      "files": 1,
+      "bytes": 1449082,
+      "allocated_bytes": 1449984
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/feedback3046_speed_h0.20_complete.log",
+      "files": 1,
+      "bytes": 11026,
+      "allocated_bytes": 12288
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/feedback3046_speed_h016.csv",
+      "files": 1,
+      "bytes": 1084406,
+      "allocated_bytes": 1085440
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/feedback3046_speed_h016.log",
+      "files": 1,
+      "bytes": 10684,
+      "allocated_bytes": 12288
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/height_feedback_standing_150.log",
+      "files": 1,
+      "bytes": 395243,
+      "allocated_bytes": 401408
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/height_feedback_symmetry_v3_150.log",
+      "files": 1,
+      "bytes": 393526,
+      "allocated_bytes": 401408
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/jacobian3543_v-0.8_height_seed43.csv",
+      "files": 1,
+      "bytes": 1168817,
+      "allocated_bytes": 1171456
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/jacobian3543_v-0.8_height_seed43.log",
+      "files": 1,
+      "bytes": 10844,
+      "allocated_bytes": 12288
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/jacobian3543_v0.0_height_seed43.csv",
+      "files": 1,
+      "bytes": 1172863,
+      "allocated_bytes": 1175552
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/jacobian3543_v0.0_height_seed43.log",
+      "files": 1,
+      "bytes": 10835,
+      "allocated_bytes": 12288
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/jacobian3543_v0.8_height_seed43.csv",
+      "files": 1,
+      "bytes": 1145798,
+      "allocated_bytes": 1146880
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/jacobian3543_v0.8_height_seed43.log",
+      "files": 1,
+      "bytes": 10835,
+      "allocated_bytes": 12288
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/jacobian_blend3543_forward.csv",
+      "files": 1,
+      "bytes": 1146467,
+      "allocated_bytes": 1146880
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/jacobian_blend3543_forward.log",
+      "files": 1,
+      "bytes": 10830,
+      "allocated_bytes": 12288
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/model3195_height_summary.json",
+      "files": 1,
+      "bytes": 10187,
+      "allocated_bytes": 12288
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/model3195_v-0.8_height_seed43.csv",
+      "files": 1,
+      "bytes": 1169302,
+      "allocated_bytes": 1171456
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/model3195_v-0.8_height_seed43.log",
+      "files": 1,
+      "bytes": 10847,
+      "allocated_bytes": 12288
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/model3195_v0.0_height_seed43.csv",
+      "files": 1,
+      "bytes": 1180053,
+      "allocated_bytes": 1183744
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/model3195_v0.0_height_seed43.log",
+      "files": 1,
+      "bytes": 10841,
+      "allocated_bytes": 12288
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/model3195_v0.8_height_seed43.csv",
+      "files": 1,
+      "bytes": 1142523,
+      "allocated_bytes": 1142784
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/model3195_v0.8_height_seed43.log",
+      "files": 1,
+      "bytes": 10838,
+      "allocated_bytes": 12288
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/model3344_height_summary.json",
+      "files": 1,
+      "bytes": 10191,
+      "allocated_bytes": 12288
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/model3344_v-0.8_height_seed43.csv",
+      "files": 1,
+      "bytes": 1173800,
+      "allocated_bytes": 1175552
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/model3344_v-0.8_height_seed43.log",
+      "files": 1,
+      "bytes": 10848,
+      "allocated_bytes": 12288
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/model3344_v0.0_height_seed43.csv",
+      "files": 1,
+      "bytes": 1179585,
+      "allocated_bytes": 1179648
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/model3344_v0.0_height_seed43.log",
+      "files": 1,
+      "bytes": 10841,
+      "allocated_bytes": 12288
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/model3344_v0.8_height_seed43.csv",
+      "files": 1,
+      "bytes": 1147574,
+      "allocated_bytes": 1150976
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/model3344_v0.8_height_seed43.log",
+      "files": 1,
+      "bytes": 10841,
+      "allocated_bytes": 12288
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/model3543_v-0.8_height_seed43.csv",
+      "files": 1,
+      "bytes": 1164103,
+      "allocated_bytes": 1167360
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/model3543_v-0.8_height_seed43.log",
+      "files": 1,
+      "bytes": 10841,
+      "allocated_bytes": 12288
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/model3543_v0.0_height_seed43.csv",
+      "files": 1,
+      "bytes": 1173335,
+      "allocated_bytes": 1175552
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/model3543_v0.0_height_seed43.log",
+      "files": 1,
+      "bytes": 10832,
+      "allocated_bytes": 12288
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/model3543_v0.8_height_seed43.csv",
+      "files": 1,
+      "bytes": 1148137,
+      "allocated_bytes": 1150976
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/model3543_v0.8_height_seed43.log",
+      "files": 1,
+      "bytes": 10832,
+      "allocated_bytes": 12288
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/model_3046_height.csv",
+      "files": 1,
+      "bytes": 855113,
+      "allocated_bytes": 856064
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/model_3046_speed_h020.csv",
+      "files": 1,
+      "bytes": 1452743,
+      "allocated_bytes": 1454080
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/model_3200_height.csv",
+      "files": 1,
+      "bytes": 857119,
+      "allocated_bytes": 860160
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/model_3200_speed_h020.csv",
+      "files": 1,
+      "bytes": 1456513,
+      "allocated_bytes": 1458176
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/old5740_damping_sweep_20261001",
+      "files": 21,
+      "bytes": 2021598,
+      "allocated_bytes": 2068480
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/response5740_20261001",
+      "files": 41,
+      "bytes": 33378685,
+      "allocated_bytes": 33456128
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/startup_damping_sweep_20261001",
+      "files": 17,
+      "bytes": 1972023,
+      "allocated_bytes": 2011136
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/startup_kp_kd_optimization_20261001",
+      "files": 15,
+      "bytes": 1335417,
+      "allocated_bytes": 1372160
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/startup_visual_best6739_20261001_230353",
+      "files": 5,
+      "bytes": 8887476,
+      "allocated_bytes": 8908800
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/v6_evaluation.log",
+      "files": 1,
+      "bytes": 407,
+      "allocated_bytes": 4096
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/v6_model3941",
+      "files": 5,
+      "bytes": 6673530,
+      "allocated_bytes": 6688768
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/v7_evaluation.log",
+      "files": 1,
+      "bytes": 0,
+      "allocated_bytes": 0
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/v7_failure1200",
+      "files": 7,
+      "bytes": 4247226,
+      "allocated_bytes": 4255744
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/v7_scratch_model1999",
+      "files": 0,
+      "bytes": 0,
+      "allocated_bytes": 0
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/v8_bootstrap_checks",
+      "files": 4,
+      "bytes": 479771,
+      "allocated_bytes": 487424
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/v8_evaluation_plan.json",
+      "files": 1,
+      "bytes": 8523,
+      "allocated_bytes": 12288
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/v8_monitor.log",
+      "files": 1,
+      "bytes": 0,
+      "allocated_bytes": 0
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/v8_monitor_status.json",
+      "files": 1,
+      "bytes": 350,
+      "allocated_bytes": 4096
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/v8_scratch_model1999",
+      "files": 0,
+      "bytes": 0,
+      "allocated_bytes": 0
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/visual_best5740_20261001",
+      "files": 44,
+      "bytes": 144324804,
+      "allocated_bytes": 144465920
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/visual_model3742",
+      "files": 29,
+      "bytes": 45453470,
+      "allocated_bytes": 45535232
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/yaw_grouped_recovery_20261001_190518",
+      "files": 7,
+      "bytes": 4822066,
+      "allocated_bytes": 4837376
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/yaw_grouped_recovery_20261001_190548",
+      "files": 52,
+      "bytes": 36028070,
+      "allocated_bytes": 36171776
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/yaw_grouped_resume_20261001",
+      "files": 45,
+      "bytes": 60014793,
+      "allocated_bytes": 60133376
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/yaw_grouped_scratch_20261001",
+      "files": 17,
+      "bytes": 14618840,
+      "allocated_bytes": 14667776
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/yaw_grouped_smoke_20261001",
+      "files": 3,
+      "bytes": 16295,
+      "allocated_bytes": 24576
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/yaw_training_smoke_20261001",
+      "files": 3,
+      "bytes": 16196,
+      "allocated_bytes": 24576
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2/yaw_heading_followup_20261001_200205/baseline5740_yaw",
+      "files": 10,
+      "bytes": 14518199,
+      "allocated_bytes": 14540800
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/checkpoints/optimized/continuous_optimization_20261001_round0002",
+      "files": 5,
+      "bytes": 1314584,
+      "allocated_bytes": 1323008
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/checkpoints/optimized/pre_yaw_grouped_training_20261001",
+      "files": 13,
+      "bytes": 2780000,
+      "allocated_bytes": 2805760
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/checkpoints/optimized/continuous_optimization_20261001_round0001",
+      "files": 5,
+      "bytes": 1314496,
+      "allocated_bytes": 1323008
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/checkpoints/optimized/continuous_optimization_20261001_round0002_accepted",
+      "files": 5,
+      "bytes": 1433278,
+      "allocated_bytes": 1441792
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/checkpoints/height_feedback_symmetry_model_3344.pt",
+      "files": 1,
+      "bytes": 1185973,
+      "allocated_bytes": 1187840
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/checkpoints/bidirectional_leg_support_stage2_model_2699.pt",
+      "files": 1,
+      "bytes": 1185973,
+      "allocated_bytes": 1187840
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/checkpoints/corrected_vmc_height_model_3742.pt",
+      "files": 1,
+      "bytes": 1185973,
+      "allocated_bytes": 1187840
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/checkpoints/bidirectional_speed_slew_model_3046.pt",
+      "files": 1,
+      "bytes": 1185973,
+      "allocated_bytes": 1187840
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/checkpoints/diagnostics",
+      "files": 50,
+      "bytes": 3150117,
+      "allocated_bytes": 3260416
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/checkpoints/TRAINING_NOTES.md",
+      "files": 1,
+      "bytes": 76258,
+      "allocated_bytes": 81920
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/sim2sim/outputs/smoke",
+      "files": 5,
+      "bytes": 176689,
+      "allocated_bytes": 188416
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/sim2sim/outputs/render_smoke",
+      "files": 6,
+      "bytes": 143827,
+      "allocated_bytes": 159744
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/sim2sim/outputs/transfer_initial",
+      "files": 5,
+      "bytes": 1309862,
+      "allocated_bytes": 1318912
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/sim2sim/outputs/visual_demo",
+      "files": 5,
+      "bytes": 1320686,
+      "allocated_bytes": 1331200
+    }
+  ],
+  "planned_files": 1230,
+  "planned_bytes": 1180336556,
+  "planned_allocated_bytes": 1183326208,
+  "allowed_roots": [
+    "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat",
+    "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/checkpoints",
+    "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/sim2sim/outputs"
+  ],
+  "completed_at": "2026-10-04T23:04:50.100780+08:00",
+  "removed_entries": 162,
+  "protected_hashes_verified": true,
+  "deleted_files": 1230,
+  "deleted_bytes": 1180336556,
+  "deleted_allocated_bytes": 1183326208,
+  "retention_index": "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/checkpoints/README.md"
+}

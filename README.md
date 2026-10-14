@@ -1,13 +1,8 @@
-# Isaac Lab 二进制版轮腿工程
+# 自定义五连杆轮腿强化学习工程
 
-这是一个彼此自包含的版本目录，用于后续多版本管理。运行时不依赖旧的
-`env_isaaclab` Conda 环境，也不需要先执行 `conda activate`。
-
-当前完整路径为：
-
-```text
-/home/aaa/studyRL/src/CLT-RL
-```
+本目录同时管理自定义闭链机器人工程、配套 Isaac Lab 源码和 Isaac Sim 二进制运行时。
+当前训练使用四个主动关节目标角加隐式 PD，并保留独立重力前馈；显式 VMC 仍可选择。
+旧开源示例车和 `implicit_joint_reference` IK 控制已经退役，不再提供它们的运行命令。
 
 ## 固定版本
 
@@ -16,105 +11,76 @@
 - 二进制内置 Python：3.11.13
 - PyTorch：2.7.0+cu128
 - RSL-RL：3.0.1
-- 当前自定义闭链机器人任务：`WheelLeggedVMC-Flat-v0`
-- 原开源串联腿任务：`WheelLeggedVMC-Legacy-v0`
+
+运行不依赖旧的 `env_isaaclab` Conda 环境，无需先执行 `conda activate`。
+完整工程位置为 `/home/aaa/studyRL/src/CLT-RL`。
 
 ## 目录结构
 
 ```text
 CLT-RL/
-├── isaacsim-5.1.0/          # 官方 Isaac Sim 二进制运行时
-├── IsaacLab/                # Isaac Lab v2.3.1 源码、logs 和 checkpoint
-├── wheel_legged_isaaclab/   # 轮腿机器人强化学习工程
-├── mine_model/              # 自定义闭链建模、配置、训练评估及报告
-├── downloads/               # 官方安装包归档
-├── run_python.sh            # 使用二进制版 Python
-├── train_wheel.sh           # 训练入口
-└── play_wheel.sh            # 回放入口
+├── isaacsim-5.1.0/         # 官方二进制运行时
+├── IsaacLab/              # 配套框架源码及训练日志
+├── wheel_legged_isaaclab/  # 训练环境、PPO 入口和 MuJoCo 接口
+├── mine_model/            # 新车建模、几何证据、诊断和修改报告
+├── sim2real/              # 离线部署接口及用户提供的下位机源码
+├── run_python.sh          # 二进制 Python 入口
+├── train_wheel.sh         # 训练入口
+└── play_wheel.sh          # 回放入口
 ```
 
-`IsaacLab/_isaac_sim` 是指向同级 `isaacsim-5.1.0` 的相对符号链接。移动整个
-`CLT-RL` 文件夹不会破坏该链接，但不要只移动其中一个子目录。
+`IsaacLab/_isaac_sim` 相对链接到同级 `isaacsim-5.1.0`。移动整个目录可保留这一关系，不要只移动其中一个子目录。
+VS Code 可打开 `CLT-RL.code-workspace`，使用相同运行时和源码分析路径。
 
-## 常用命令
+## 当前训练和回放
 
-以下命令都从本目录运行。
-
-### 2026-10-05 最新版本
-
-本次提交包含自定义闭链机器人适配、训练/评估工具、MuJoCo 接口、实机执行器接口、
-持续优化记录和自动键盘回放。最新权重快照与对应参数保存于
-[`wheel_legged_isaaclab/checkpoints/mine_20261005_model_12600/`](wheel_legged_isaaclab/checkpoints/mine_20261005_model_12600/)。
-这是 iteration **12600** 的训练候选模型，不是已通过最终验收或完成 sim2real 的模型。
-
-详见 [版本更改与验证说明](CHANGELOG.md) 和 [键盘控制说明](mine_model/docs/键盘可视化控制说明.md)。
-当前机器的最新已评估模型可这样回放：
+从本目录启动新的关节角 PD 对照训练：
 
 ```bash
+./train_wheel.sh --task WheelLeggedJointPD-Flat-v0 --headless \
+  --device cuda:0 --num_envs 8192 --max_iterations 1000 \
+  --require_leg_control_mode implicit_joint_position
+```
+
+这是新训练命令，不要在后台训练已运行时重复执行。当前课程前 1000 iteration 为站立阶段；
+运动学习需要后续训练和独立回放，不能由站立成绩推断。
+
+当前实验日志根目录：
+
+```text
+IsaacLab/logs/rsl_rl/mine_wheel_legged_joint_pd_flat/
+```
+
+显式 VMC 实验通常保存于 `IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/`。
+任务名带 VMC 不代表执行模式必为 VMC；以配套 `params/env.yaml` 的 `leg_control_mode` 为准。
+VMC 与关节角策略的动作和腿部观测含义不同，不能混用检查点。
+
+默认键盘回放优先选择最近优化任务已评估并保留的最佳检查点，不选未评估的新候选：
+
+```bash
+./mine_model/run.sh play --dry_run
 ./mine_model/run.sh play
 ```
 
-GitHub 下载的权重请使用快照目录中的显式回放命令；不要把原开源模型的 0.18 m
-高度命令用于自定义机器人。Isaac Sim/Isaac Lab、原始 CAD 压缩包、训练历史和日志
-均不随这次提交上传，需在本地按固定版本准备。模型目录中保留原训练配置及路径说明。
+第一条只核对模型和启动命令。第二条启动可视化，WASD 控制运动，Q/E 调整平滑高度命令；
+空格仅记录请求，当前没有训练好的跳跃策略。原 IK 的 12600 快照已清理，不是当前可用模型。
 
-检查 GPU：
+GPU 检查：
 
 ```bash
 ./run_python.sh -c "import torch; print(torch.__version__, torch.cuda.is_available(), torch.cuda.get_device_name(0))"
 ```
 
-无窗口训练 10000 iterations：
+## 代码和验证说明
 
-```bash
-./train_wheel.sh --task WheelLeggedVMC-Legacy-v0 --headless --device cuda:0 --num_envs 4096 --max_iterations 10000
-```
+- [机器人工程入口](wheel_legged_isaaclab/README.md)
+- [当前代码框架和阅读指南](wheel_legged_isaaclab/learning/工程代码框架全解析_20261012.md)
+- [本轮精简验证](mine_model/results/framework_cleanup_20261012/validation.json)
+- [累计修改记录](mine_model/docs/训练修改记录_latest.md)
+- [IK 清理范围和恢复方式](mine_model/docs/IK清理说明_20261011.md)
+- [MuJoCo 接口](wheel_legged_isaaclab/sim2sim/README.md)
+- [离线部署接口](sim2real/README.md)
+- [本次暂停状态](mine_model/results/joint_pd_optimization_20261012_framework/status.json)
 
-从指定 checkpoint 继续训练：
-
-```bash
-./train_wheel.sh --headless --device cuda:0 --num_envs 4096 \
-  --task WheelLeggedVMC-Legacy-v0 \
-  --resume \
-  --load_run 2026-09-22_17-34-52_angle_guard_resume_to_29999 \
-  --checkpoint model_18100.pt \
-  --max_iterations 10000
-```
-
-可视化回放，目标速度 `0.5 m/s`、yaw 目标 `0 rad/s`、高度目标 `0.18 m`：
-
-```bash
-./play_wheel.sh --device cuda:0 --num_envs 1 \
-  --task WheelLeggedVMC-Legacy-v0 --no_keyboard \
-  --load_run 2026-09-22_17-34-52_angle_guard_resume_to_29999 \
-  --checkpoint model_18100.pt \
-  --fixed_command 0.5 0.0 0.18 --print_obs
-```
-
-VS Code 可直接打开 `CLT-RL.code-workspace`，其中已经选择二进制
-运行时的 Python，并加入 Isaac Lab 与轮腿工程的源码分析路径。
-
-## 已完成的验证
-
-2026-09-22 已完成以下测试：
-
-1. RTX 5070 Ti 可被二进制运行时与 PyTorch CUDA 正确识别。
-2. 16 个环境执行 1 个 PPO iteration，正常生成 `model_0.pt`。
-3. 从既有 `model_18100.pt` 加载策略，成功执行 10 步 GPU 回放。
-4. 回放可读取 27 维 observation，并成功导出 JIT、ONNX 与 MP4。
-5. 清除旧 Conda 环境的 pip 安装后，再次完成 1 个 PPO iteration，证明本目录不依赖旧环境。
-
-测试日志位于 `IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/`。启动时出现的 CPU
-governor、IOMMU、MESA 和 deprecated 参数信息属于性能或兼容性警告，本次测试中
-没有阻止仿真、训练、checkpoint 加载或导出。
-
-旧 `/home/aaa/miniconda3/envs/env_isaaclab` 中的 `isaacsim*`、`isaaclab*` 和
-`wheel_legged_gym_isaaclab` pip 安装记录已清除。原始源码目录与 checkpoint 被保留，
-新目录内复制的 246 个既有模型也已通过数量和 `model_18100.pt` 校验和核对。
-
-## 版本管理建议
-
-以后创建新版本时，使用新的同级目录，例如
-`isaaclab_binary_v2.4.x/`，并让该目录拥有自己的 Isaac Sim、Isaac Lab、轮腿源码
-与日志。不要在不同版本之间共用可编辑安装的 Python 环境，以免导入路径串到另一
-个源码副本。
+本轮回归核对了控制和观测接口、奖励数值及终止计时；导轨支撑验证不是自由平衡或实机验收。
+历史模型报告只代表当时配置。部署需要选定检查点及其配套配置，不能自动跟随变化的 latest。

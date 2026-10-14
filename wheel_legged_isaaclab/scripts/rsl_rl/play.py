@@ -17,7 +17,9 @@ from isaaclab.app import AppLauncher
 # local imports
 import cli_args  # isort: skip
 from heading_feedback import HeadingFeedback
-from keyboard_control import KeyboardConfig, IsaacKeyboardController, apply_keyboard_command
+from keyboard_control import (
+    KeyboardConfig, IsaacKeyboardController, apply_keyboard_command, supports_keyboard_task,
+)
 
 # add argparse arguments
 parser = argparse.ArgumentParser(description="Train an RL agent with RSL-RL.")
@@ -187,12 +189,15 @@ keyboard_group.add_argument('--keyboard', dest='keyboard', action='store_true',
 keyboard_group.add_argument('--no_keyboard', dest='keyboard', action='store_false',
                             help='Disable automatic keyboard control for reproducible evaluation')
 parser.set_defaults(keyboard=None)
-parser.add_argument('--keyboard_speed', type=float, default=0.5, help='Held W/S speed [m/s]')
-parser.add_argument('--keyboard_yaw_rate', type=float, default=0.3, help='Held A/D yaw rate [rad/s]')
-parser.add_argument('--keyboard_height_rate', type=float, default=0.01, help='Held Q/E height change [m/s]')
+parser.add_argument('--keyboard_speed', type=float, default=0.8, help='Held W/S speed [m/s]')
+parser.add_argument('--keyboard_yaw_rate', type=float, default=0.6, help='Held A/D yaw rate [rad/s]')
+parser.add_argument('--keyboard_height_rate', type=float, default=0.02, help='Held Q/E height change [m/s]')
+parser.add_argument('--keyboard_height_step', type=float, default=0.005, help='Q/E initial press height step [m]')
+parser.add_argument('--keyboard_height_slew_rate', type=float, default=0.02,
+                    help='Maximum ramped policy height-command rate [m/s], including after key release')
 # append RSL-RL cli arguments
 cli_args.add_rsl_rl_args(parser)
-# append AppLauncher cli args
+# LAB 将 --headless、--device、--enable_cameras 等应用参数加入同一个 parser。
 AppLauncher.add_app_launcher_args(parser)
 # parse the arguments
 args_cli, hydra_args = parser.parse_known_args()
@@ -203,7 +208,8 @@ if args_cli.video:
 # clear out sys.argv for Hydra
 sys.argv = [sys.argv[0]] + hydra_args
 
-# launch omniverse app
+# LAB AppLauncher 创建 Kit/Isaac Sim 应用；.app 才是应用句柄。
+# 顺序不能反过来：需要仿真扩展的 isaaclab.envs、omni 等模块在启动后再导入。
 app_launcher = AppLauncher(args_cli)
 simulation_app = app_launcher.app
 
@@ -225,7 +231,6 @@ from isaaclab.envs import (
     multi_agent_to_single_agent,
 )
 from isaaclab.utils.dict import print_dict
-from isaaclab.utils.pretrained_checkpoint import get_published_pretrained_checkpoint
 
 from isaaclab_rl.rsl_rl import RslRlBaseRunnerCfg, RslRlVecEnvWrapper, export_policy_as_jit, export_policy_as_onnx
 
@@ -237,6 +242,8 @@ from isaaclab_tasks.utils.hydra import hydra_task_config
 import wheel_legged_gym_isaaclab.tasks  # noqa: F401  (registers WheelLeggedVMC-Flat-v0)
 
 
+# LAB 装饰器从 Gym 注册信息取得环境/PPO 配置，合并 Hydra 的 env.xxx=... 覆盖项，
+# 再把配置对象传给 main；不是策略网络的一层，也不启动 PPO 更新。
 @hydra_task_config(args_cli.task, args_cli.agent)
 def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agent_cfg: RslRlBaseRunnerCfg):
     """Play with RSL-RL agent."""
@@ -275,7 +282,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     keyboard_enabled = args_cli.keyboard
     if keyboard_enabled is None:
         keyboard_enabled = (not args_cli.headless and not args_cli.video
-                            and task_name.startswith('WheelLeggedVMC')
+                            and supports_keyboard_task(task_name)
                             and not args_cli.startup_focus and not args_cli.zero_actions
                             and args_cli.fixed_leg_length is None and args_cli.fixed_wheel_action is None)
     if keyboard_enabled and (args_cli.headless or args_cli.video):
@@ -287,16 +294,24 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     keyboard_config = None
     keyboard_starts_active = keyboard_enabled and args_cli.fixed_command is None
     if keyboard_enabled:
-        if not task_name.startswith('WheelLeggedVMC'):
-            raise ValueError('Keyboard height commands currently support only WheelLeggedVMC tasks')
+        if hasattr(env_cfg, 'jump'):
+            # Interactive jumps require SPACE, never a periodic auto-trigger.
+            env_cfg.jump.automatic = False
+        if not supports_keyboard_task(task_name):
+            raise ValueError('Keyboard commands support the registered wheel-legged VMC and joint-PD flat tasks only')
         if args_cli.num_envs is None:
             env_cfg.scene.num_envs = 1
         height_min, height_max = env_cfg.commands.ranges_height
         initial_height = args_cli.fixed_command[2] if args_cli.fixed_command else env_cfg.rewards.base_height_target
         keyboard_config = KeyboardConfig(args_cli.keyboard_speed, args_cli.keyboard_yaw_rate,
-                                         args_cli.keyboard_height_rate, height_min, height_max, initial_height)
+                                         args_cli.keyboard_height_rate, height_min, height_max, initial_height,
+                                         height_step=args_cli.keyboard_height_step,
+                                         height_slew_rate=args_cli.keyboard_height_slew_rate)
         if keyboard_config.speed > env_cfg.wheel_radius * env_cfg.action_scale_vel:
             raise ValueError('Keyboard speed exceeds the wheel action range')
+        if args_cli.heading_feedback and keyboard_config.yaw_rate > 0.5:
+            raise ValueError('Heading feedback requires --keyboard_yaw_rate <= 0.5 rad/s; '
+                             'use direct keyboard yaw-rate mode for larger commands')
         if keyboard_starts_active:
             args_cli.fixed_command = [0.0, 0.0, initial_height]
     if args_cli.heading_feedback and (env_cfg.scene.num_envs != 1 or args_cli.fixed_command is None):
@@ -331,6 +346,8 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     # 1 and 4 (left/right l0) after policy inference.
     fixed_leg_action = None
     if args_cli.fixed_leg_length is not None:
+        if env_cfg.leg_control_mode == 'implicit_joint_position':
+            raise ValueError('--fixed_leg_length is incompatible with a direct-joint policy; use height commands, not length-action overrides')
         required_leg_cfg = ("l0_offset", "action_scale_l0", "l0_ref_min", "l0_ref_max")
         if not all(hasattr(env_cfg, name) for name in required_leg_cfg):
             raise ValueError("--fixed_leg_length is supported only by WheelLeggedVMC tasks.")
@@ -373,17 +390,12 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         )
     )
     print(f"[INFO] Loading experiment from directory: {log_root_path}")
-    if args_cli.use_pretrained_checkpoint and args_cli.checkpoint_path is not None:
-        raise ValueError("--checkpoint_path cannot be combined with --use_pretrained_checkpoint.")
+    if args_cli.use_pretrained_checkpoint:
+        raise ValueError("This vehicle requires locally trained weights and their paired env.yaml; published example-vehicle weights are not supported.")
     if args_cli.checkpoint_path is not None:
         resume_path = str(Path(args_cli.checkpoint_path).expanduser().resolve())
         if not os.path.isfile(resume_path):
             raise FileNotFoundError(f"Checkpoint not found: {resume_path}")
-    elif args_cli.use_pretrained_checkpoint:
-        resume_path = get_published_pretrained_checkpoint("rsl_rl", train_task_name)
-        if not resume_path:
-            print("[INFO] Unfortunately a pre-trained checkpoint is currently unavailable for this task.")
-            return
     else:
         resume_path = get_checkpoint_path(log_root_path, agent_cfg.load_run, agent_cfg.load_checkpoint)
 
@@ -399,9 +411,29 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     env_cfg.log_dir = log_dir
 
     # create isaac environment
+    from wheel_legged_gym_isaaclab.robot_model import validate_checkpoint_robot
+    from wheel_legged_gym_isaaclab.physics_contract import (
+        EXTERNAL_FORCE_FIELD, ROBOT_ASSET_FIELD, checkpoint_force_iteration_setting,
+        checkpoint_robot_asset_setting,
+    )
+    saved_config = validate_checkpoint_robot(resume_path)
+    from wheel_legged_gym_isaaclab.leg_control import require_matching_policy_contract
+    require_matching_policy_contract(saved_config, env_cfg.to_dict())
+    physics_overrides = json.loads(args_cli.overrides_json.read_text()) if args_cli.overrides_json else {}
+    if any(arg.startswith(f'env.{ROBOT_ASSET_FIELD}=') for arg in hydra_args):
+        physics_overrides[ROBOT_ASSET_FIELD] = env_cfg.robot.spawn.usd_path
+    env_cfg.robot.spawn.usd_path = checkpoint_robot_asset_setting(saved_config, physics_overrides)
+    if any(arg.startswith(f'env.{EXTERNAL_FORCE_FIELD}=') for arg in hydra_args):
+        physics_overrides[EXTERNAL_FORCE_FIELD] = env_cfg.enable_external_forces_every_iteration
+    env_cfg.enable_external_forces_every_iteration = checkpoint_force_iteration_setting(
+        saved_config, physics_overrides,
+    )
+    # Gym 根据注册入口创建 LAB 环境；cfg 是已解析的配置，scene.num_envs 决定批量。
+    # 此调用会触发 DirectRLEnv 初始化、_setup_scene() 和物理句柄创建。
     env = gym.make(args_cli.task, cfg=env_cfg, render_mode="rgb_array" if args_cli.video else None)
 
-    # convert to single-agent instance if required by the RL algorithm
+    # .unwrapped 取出最内层 LAB 环境，越过 Gym/视频/RSL-RL 包装器。
+    # 下面是通用多智能体兼容分支；当前轮腿任务本身是单智能体。
     if isinstance(env.unwrapped, DirectMARLEnv):
         env = multi_agent_to_single_agent(env)
 
@@ -417,18 +449,21 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         print_dict(video_kwargs, nesting=4)
         env = gym.wrappers.RecordVideo(env, **video_kwargs)
 
-    # wrap around environment for rsl-rl
+    # LAB wrapper 将 dict obs 包为 TensorDict，并合并 terminated/truncated 为 done。
+    # 返回接口从 Gym 的 5 项变为 RSL-RL 的 4 项；不改变物理控制器。
     env = RslRlVecEnvWrapper(env, clip_actions=agent_cfg.clip_actions)
 
     print(f"[INFO]: Loading model checkpoint from: {resume_path}")
-    # load previously trained model
+    # OnPolicyRunner 属于 RSL-RL，不是 LAB：此处借它构建 actor/critic 并加载权重。
+    # 不调用 runner.learn()，所以回放没有 PPO 参数更新。
     if agent_cfg.class_name == "OnPolicyRunner":
         runner = OnPolicyRunner(env, agent_cfg.to_dict(), log_dir=None, device=agent_cfg.device)
     else:
         raise ValueError(f"Unsupported runner class: {agent_cfg.class_name}")
     runner.load(resume_path)
 
-    # obtain the trained policy for inference
+    # get_inference_policy() 切到 eval 模式，返回 actor.act_inference 的可调用句柄。
+    # policy(obs) 得到动作均值 [N, 6]，不进行训练时的高斯采样。
     policy = runner.get_inference_policy(device=env.unwrapped.device)
 
     # extract the neural network module
@@ -445,13 +480,19 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     else:
         normalizer = None
 
-    # export policy to onnx/jit
+    # LAB 导出 actor 和可选观测归一化器，不导出环境、reward、PD 或安全控制器。
+    # 导出的网络仍需要配套 obs/action 单位与顺序，不能单靠文件就部署到实车。
     export_model_dir = os.path.join(log_dir, "exported")
     export_policy_as_jit(policy_nn, normalizer=normalizer, path=export_model_dir, filename="policy.pt")
     export_policy_as_onnx(policy_nn, normalizer=normalizer, path=export_model_dir, filename="policy.onnx")
 
+    # LAB step_dt = sim.dt × decimation，是策略周期；不是物理子步长。
+    # 当前为 0.020 s；键盘斜坡、阶段时长和统计都按这个周期计算。
     dt = env.unwrapped.step_dt
-    keyboard_controller = IsaacKeyboardController(keyboard_config, keyboard_starts_active) if keyboard_enabled else None
+    keyboard_controller = IsaacKeyboardController(
+        keyboard_config, keyboard_starts_active,
+        jump_handler=getattr(env.unwrapped, 'request_jump', None),
+    ) if keyboard_enabled else None
 
     velocity_phase_steps = None
     last_velocity_phase = None
@@ -646,6 +687,23 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
             "symmetry": ("Left - right leg angle (deg)", -3.0, 3.0, ("zero", "leg_difference_deg"),
                          ("Target", "Measured")),
         }
+        # Use the loaded robot's height range, not the legacy 0.14--0.22 m
+        # chart base which compresses the own-model height adjustments.
+        chart_height_min, chart_height_max = (
+            (keyboard_config.height_min, keyboard_config.height_max) if keyboard_config is not None
+            else env.unwrapped.cfg.commands.ranges_height)
+        live_chart_specs["height"] = (
+            "Body height (mm)", chart_height_min * 1000 - 10, chart_height_max * 1000 + 10,
+            ("height_target_mm", "height_measured_mm"), ("Target", "Measured"))
+        if keyboard_config is not None:
+            live_chart_specs["height"] = (
+                "Body height (mm)", chart_height_min * 1000 - 10, chart_height_max * 1000 + 10,
+                ("height_goal_mm", "height_target_mm", "height_measured_mm"),
+                ("Keyboard goal", "Ramped cmd", "Measured"))
+        yaw_chart_limit = max(0.5, keyboard_config.yaw_rate) if keyboard_config is not None else 0.5
+        live_chart_specs["yaw"] = (
+            "Yaw rate (rad/s)", -yaw_chart_limit, yaw_chart_limit,
+            ("cmd_yaw", "yaw_rate_body"), ("Command", "Measured"))
         if args_cli.heading_feedback:
             live_chart_specs["yaw"] = ("Yaw rate (rad/s)", -0.5, 0.5,
                                        ("yaw_rate_requested", "yaw_rate_body", "cmd_yaw"),
@@ -703,7 +761,8 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                                             style={"color": color, "background_color": 0x0})
         print("[INFO] Live command/feedback panel enabled: six rolling charts including yaw angle, 10 Hz simulation samples.", flush=True)
 
-    # reset environment
+    # wrapper 构造时已 reset。这里计算当前观测，不再重置或推进物理时间；
+    # Direct 环境仍会调用 _get_observations()，其中包含命令/动作历史的更新。
     obs = env.get_observations()
     track_yaw = trace_file is not None or bool(live_labels) or args_cli.heading_feedback
     heading_feedback = HeadingFeedback() if args_cli.heading_feedback else None
@@ -718,10 +777,10 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
     previous_yaw = measured_yaw_degrees() if track_yaw else 0.0
     timestep = 0
-    # simulate environment
+    # simulation_app 是 Kit 应用句柄；is_running() 判断应用是否仍运行。
     while simulation_app.is_running():
         start_time = time.time()
-        # run everything in inference mode
+        # PyTorch inference_mode 禁用自动求导和训练图，不会冻结 PhysX 中的机器人。
         with torch.inference_mode():
             apply_velocity_cycle_command(obs, timestep)
             keyboard_command = keyboard_controller.advance(dt) if keyboard_controller is not None else None
@@ -740,7 +799,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
             if track_yaw:
                 # Capture the command actually presented to the policy for this step.
                 yaw_rate_applied = env.unwrapped._commands[args_cli.trace_env_id, 1].item()
-            # agent stepping
+            # 推理输入为 LAB wrapper 返回的观测组；动作如何变成力矩由环境决定。
             actions = policy(obs)
             if args_cli.zero_actions:
                 actions = torch.zeros_like(actions)
@@ -754,7 +813,8 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                 actions = actions.clone()
                 actions[:, 2] = args_cli.fixed_wheel_action[0]
                 actions[:, 5] = args_cli.fixed_wheel_action[1]
-            # env stepping
+            # wrapper.step() 内部走 LAB：动作预处理 → 4 个物理子步 → 终止/奖励
+            # → 必要的自动 reset → 新观测。这里忽略 reward/done/extras，并非没计算。
             obs, _, _, _ = env.step(actions)
             if track_yaw:
                 yaw_degrees = measured_yaw_degrees()
@@ -793,9 +853,12 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
             if write_trace or update_live or sample_live:
                 base_env = env.unwrapped
                 env_id = args_cli.trace_env_id
+                # LAB .data 提供状态张量：_w 是世界系、_b 是机体系；不能混用速度分量。
+                # 当前显示的前向/侧向速度另投影到水平航向系，不随 pitch/roll 倾斜。
                 heading_velocity = base_env._get_heading_frame_horizontal_velocity()[env_id]
                 gravity = base_env._robot.data.projected_gravity_b[env_id]
                 wheel_velocity = base_env._get_wheel_vel_forward_positive()[env_id]
+                # 隐式执行器的 applied_torque 是 LAB 估计量，不是原生 PD 实测反馈力矩。
                 logical_torque = base_env._robot.data.applied_torque[
                     env_id, base_env._torque_joint_ids
                 ]
@@ -803,7 +866,8 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                     "step": timestep,
                     "sim_time_s": timestep * dt,
                     "env_id": env_id,
-                    # State on a done row is already reset by DirectRLEnv.
+                    # LAB 在 step 返回前已自动 reset；done 行的状态可能属于新回合。
+                    # 因此终止标志必须一起保存，不能把重置后的状态算作旧回合稳态。
                     "terminated": int(base_env.reset_terminated[env_id].item()),
                     "time_out": int(base_env.reset_time_outs[env_id].item()),
                     "episode_step": int(base_env.episode_length_buf[env_id].item()),
@@ -821,6 +885,9 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                     "keyboard_jump_requests": keyboard_controller.state.jump_requests if keyboard_controller else 0,
                     "yaw_rate_requested": requested_yaw_rate,
                     "height_cmd": base_env._commands[env_id, 2].item(),
+                    "keyboard_height_target": (keyboard_controller.state.target_height
+                                               if keyboard_command is not None
+                                               else base_env._commands[env_id, 2].item()),
                     "vel_x_heading": heading_velocity[0].item(),
                     "vel_y_heading": heading_velocity[1].item(),
                     "vel_z_body": base_env._robot.data.root_lin_vel_b[env_id, 2].item(),
@@ -874,6 +941,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                     }
                 if sample_live:
                     chart_row = dict(row, zero=0.0,
+                                     height_goal_mm=1000 * row["keyboard_height_target"],
                                      height_target_mm=1000 * row["height_cmd"],
                                      height_measured_mm=1000 * row["base_height"],
                                      pitch_deg=57.29578 * row["pitch_est_rad"],
@@ -1012,12 +1080,16 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                     flush=True,
                 )
                 if len(obs_values) == 27:
+                    leg_fields = (
+                        f"active_joint_position_error={obs_values[9:13]}, active_joint_velocity={obs_values[13:17]}, "
+                        if env_cfg.leg_control_mode == 'implicit_joint_position' else
+                        f"theta0={obs_values[9:11]}, theta0_dot={obs_values[11:13]}, "
+                        f"leg_length={obs_values[13:15]}, leg_length_dot={obs_values[15:17]}, "
+                    )
                     print(
                         "[OBS fields] "
                         f"ang_vel={obs_values[0:3]}, gravity={obs_values[3:6]}, "
-                        f"command={obs_values[6:9]}, theta0={obs_values[9:11]}, "
-                        f"theta0_dot={obs_values[11:13]}, leg_length={obs_values[13:15]}, "
-                        f"leg_length_dot={obs_values[15:17]}, lin_vel_xy={obs_values[17:19]}, "
+                        f"command={obs_values[6:9]}, {leg_fields}lin_vel_xy={obs_values[17:19]}, "
                         f"wheel_vel={obs_values[19:21]}, last_action={obs_values[21:27]}",
                         flush=True,
                     )
@@ -1060,6 +1132,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         camera_subscription.unsubscribe()
     if camera_window is not None:
         camera_window.destroy()
+    # 关闭 LAB 环境，释放场景、传感器和回调；外层 finally 再关闭 Kit 应用。
     env.close()
 
 

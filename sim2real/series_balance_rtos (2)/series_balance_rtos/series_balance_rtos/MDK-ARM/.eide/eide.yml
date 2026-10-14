@@ -1,0 +1,352 @@
+version: "4.1"
+name: project_h7
+type: ARM
+deviceName: null
+packDir: null
+srcDirs: []
+virtualFolder:
+  name: <virtual_root>
+  files: []
+  folders:
+    - name: Application
+      files: []
+      folders:
+        - name: MDK-ARM
+          files:
+            - path: startup_stm32h750xx.s
+          folders: []
+        - name: User
+          files: []
+          folders:
+            - name: Core
+              files:
+                - path: ../Core/Src/main.c
+                - path: ../Core/Src/gpio.c
+                - path: ../Core/Src/freertos.c
+                - path: ../Core/Src/dma.c
+                - path: ../Core/Src/fdcan.c
+                - path: ../Core/Src/i2c.c
+                - path: ../Core/Src/spi.c
+                - path: ../Core/Src/usart.c
+                - path: ../Core/Src/stm32h7xx_it.c
+                - path: ../Core/Src/stm32h7xx_hal_msp.c
+                - path: ../Core/Src/stm32h7xx_hal_timebase_tim.c
+              folders: []
+    - name: Drivers
+      files: []
+      folders:
+        - name: STM32H7xx_HAL_Driver
+          files:
+            - path: ../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_cortex.c
+            - path: ../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_fdcan.c
+            - path: ../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_rcc.c
+            - path: ../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_rcc_ex.c
+            - path: ../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_flash.c
+            - path: ../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_flash_ex.c
+            - path: ../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_gpio.c
+            - path: ../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_hsem.c
+            - path: ../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_dma.c
+            - path: ../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_dma_ex.c
+            - path: ../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_mdma.c
+            - path: ../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_pwr.c
+            - path: ../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_pwr_ex.c
+            - path: ../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal.c
+            - path: ../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_i2c.c
+            - path: ../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_i2c_ex.c
+            - path: ../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_exti.c
+            - path: ../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_spi.c
+            - path: ../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_spi_ex.c
+            - path: ../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_tim.c
+            - path: ../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_tim_ex.c
+            - path: ../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_uart.c
+            - path: ../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_uart_ex.c
+          folders: []
+        - name: CMSIS
+          files:
+            - path: ../Core/Src/system_stm32h7xx.c
+          folders: []
+    - name: Middlewares
+      files: []
+      folders:
+        - name: FreeRTOS
+          files:
+            - path: ../Middlewares/Third_Party/FreeRTOS/Source/croutine.c
+            - path: ../Middlewares/Third_Party/FreeRTOS/Source/event_groups.c
+            - path: ../Middlewares/Third_Party/FreeRTOS/Source/list.c
+            - path: ../Middlewares/Third_Party/FreeRTOS/Source/queue.c
+            - path: ../Middlewares/Third_Party/FreeRTOS/Source/stream_buffer.c
+            - path: ../Middlewares/Third_Party/FreeRTOS/Source/tasks.c
+            - path: ../Middlewares/Third_Party/FreeRTOS/Source/timers.c
+            - path: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.c
+            - path: ../Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.c
+            - path: ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F/port.c
+          folders: []
+    - name: user
+      files:
+        - path: ../Usr/all_init.c
+      folders: []
+    - name: driver
+      files:
+        - path: ../support/linux_list.h
+        - path: ../cubotMiddleware/Drivers/uart_base.c
+        - path: ../cubotMiddleware/Drivers/uart_base.h
+        - path: ../cubotMiddleware/Drivers/can_base.c
+        - path: ../cubotMiddleware/Drivers/can_base.h
+        - path: ../cubotMiddleware/Drivers/driver_counter.c
+        - path: ../cubotMiddleware/Drivers/driver_spi.c
+        - path: ../cubotMiddleware/Drivers/drv_iic.c
+      folders: []
+    - name: cubot
+      files: []
+      folders:
+        - name: devices
+          files:
+            - path: ../cubotMiddleware/Devices/DMmotor.c
+            - path: ../cubotMiddleware/Devices/BMI088/bmi088.c
+            - path: ../cubotMiddleware/Devices/MPU6050/mpu6050.c
+            - path: ../cubotMiddleware/Devices/dr16.c
+            - path: ../Joints/A1.c
+            - path: ../Joints/A1_stm32.c
+            - path: ../cubotMiddleware/Devices/HI04.c
+            - path: ../cubotMiddleware/Devices/BMI088/ins.c
+            - path: ../cubotMiddleware/Devices/vt13.c
+            - path: ../cubotMiddleware/Devices/motor.c
+          folders: []
+        - name: Algorithm
+          files:
+            - path: ../cubotMiddleware/Devices/user_lib.c
+            - path: ../cubotMiddleware/Algorithms/pid.c
+            - path: ../cubotMiddleware/Algorithms/kalman_filter.c
+            - path: ../cubotMiddleware/Algorithms/quaternions_EKF.c
+            - path: ../cubotMiddleware/Algorithms/filter.c
+            - path: ../cubotMiddleware/Algorithms/Matrix/matrix.c
+            - path: ../cubotMiddleware/Algorithms/mahony_filter.c
+          folders: []
+    - name: DSP
+      files:
+        - path: ../support/ARM/DSP/Source/BasicMathFunctions/BasicMathFunctions.c
+        - path: ../support/ARM/DSP/Source/CommonTables/CommonTables.c
+        - path: ../support/ARM/DSP/Source/FastMathFunctions/FastMathFunctions.c
+        - path: ../support/ARM/DSP/Source/MatrixFunctions/MatrixFunctions.c
+        - path: ../support/ARM/DSP/Source/QuaternionMathFunctions/QuaternionMathFunctions.c
+      folders: []
+    - name: module_task
+      files:
+        - path: ../Usr/Module_task/joint_task.c
+        - path: ../Usr/Module_task/gyro_task.c
+        - path: ../Usr/Module_task/chassis_task.c
+        - path: ../Usr/Module_task/check_task.c
+        - path: ../Usr/Module_task/observe_task.c
+        - path: ../Usr/Module_task/stp_task.c
+        - path: ../Usr/Module_task/can_modify_task.c
+        - path: ../Usr/Module_task/online_check_task.c
+      folders: []
+    - name: Module_Control
+      files:
+        - path: ../control/additional_con.c
+        - path: ../control/torque.c
+        - path: ../control/vmc.c
+        - path: ../control/WBR.c
+        - path: ../control/wheel.c
+        - path: ../control/interboard.c
+        - path: ../control/power_con.cpp
+        - path: ../control/power_controller.cpp
+        - path: ../control/resurgence_control.c
+        - path: ../control/supercap.c
+      folders: []
+    - name: MRAC
+      files:
+        - path: ../control/MRAC/mrac_control.c
+        - path: ../control/MRAC/mrac_control_data.c
+        - path: ../control/MRAC/ert_mrac.c
+      folders: []
+    - name: ::CMSIS
+      files: []
+      folders: []
+dependenceList: []
+outDir: build
+miscInfo:
+  uid: d6b846d764c5496e2a35d09617d3fb31
+targets:
+  project_h7:
+    cppPreprocessAttrs:
+      defineList:
+        - USE_HAL_DRIVER
+        - STM32H750xx
+      incList:
+        - ../Core/Inc
+        - ../Drivers/STM32H7xx_HAL_Driver/Inc
+        - ../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy
+        - ../Middlewares/Third_Party/FreeRTOS/Source/include
+        - ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS
+        - ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F
+        - ../Drivers/CMSIS/Device/ST/STM32H7xx/Include
+        - ../Drivers/CMSIS/Include
+        - ../cubotMiddleware/Drivers
+        - ../support
+        - ../cubotMiddleware/Devices
+        - ../Usr
+        - ../support/ARM/DSP/Include
+        - ../support/ARM/DSP/Include/dsp
+        - ../support/ARM/DSP/Source/BasicMathFunctions
+        - ../support/ARM/DSP/Source/CommonTables
+        - ../support/ARM/DSP/Source/FastMathFunctions
+        - ../support/ARM/DSP/Source/MatrixFunctions
+        - ../support/ARM/DSP/Source/QuaternionMathFunctions
+        - ../cubotMiddleware/Devices/BMI088
+        - ../cubotMiddleware/Devices/MPU6050
+        - ../Usr/Module_task
+        - ../Joints
+        - ../cubotMiddleware/Algorithms
+        - ../control
+        - ../cubotMiddleware/Algorithms/Matrix
+        - ../control/MRAC
+        - .cmsis/include
+        - RTE/_project_h7
+        - ..
+      libList:
+        - ..
+    excludeList: []
+    toolchain: AC5
+    toolchainConfigMap:
+      AC5:
+        archExtensions: ""
+        cpuType: Cortex-M7
+        floatingPointHardware: double
+        options:
+          version: 4
+          afterBuildTasks: []
+          asm-compiler:
+            defines:
+              - USE_HAL_DRIVER
+              - STM32H750xx
+            ASM_FLAGS: ""
+          beforeBuildTasks: []
+          c/cpp-compiler:
+            language-c: c99
+            language-cpp: c++11
+            optimization: level-3
+            optimization-lto: false
+            one-elf-section-per-function: true
+            one-elf-section-per-data: true
+            signed-char: false
+            no-rtti: false
+            no-exceptions: false
+            no-use-cxa-atexit: false
+            no-threadsafe-statics: false
+            warnings: all-warnings
+            turn-Warning-into-errors: false
+            C_FLAGS: ""
+            CXX_FLAGS: ""
+          global:
+            arm-thumb-mode: thumb
+            arm-thumb-interwork: false
+            $float-abi-type: hard
+            output-debug-info: enable
+            use-newlib-nano: true
+            not-use-syscalls: true
+            misc-control: ""
+          linker:
+            $toolName: gcc
+            output-format: elf
+            $disableOutputTask: false
+            $outputTaskExcludes:
+              - .bin
+            remove-unused-input-sections: true
+            not-print-mem-usage: false
+            use-float-printf: false
+            use-float-scanf: false
+            LD_FLAGS: ""
+            LIB_FLAGS: ""
+            object-order: []
+        scatterFilePath: ""
+        storageLayout:
+          RAM:
+            - id: 1
+              isChecked: false
+              mem:
+                size: "0x0"
+                startAddr: "0x0"
+              noInit: false
+              tag: RAM
+            - id: 2
+              isChecked: false
+              mem:
+                size: "0x0"
+                startAddr: "0x0"
+              noInit: false
+              tag: RAM
+            - id: 3
+              isChecked: false
+              mem:
+                size: "0x0"
+                startAddr: "0x0"
+              noInit: false
+              tag: RAM
+            - id: 1
+              isChecked: true
+              mem:
+                size: "0x20000"
+                startAddr: "0x20000000"
+              noInit: false
+              tag: IRAM
+            - id: 2
+              isChecked: true
+              mem:
+                size: "0x80000"
+                startAddr: "0x24000000"
+              noInit: false
+              tag: IRAM
+          ROM:
+            - id: 1
+              isChecked: false
+              isStartup: false
+              mem:
+                size: "0x0"
+                startAddr: "0x0"
+              tag: ROM
+            - id: 2
+              isChecked: false
+              isStartup: false
+              mem:
+                size: "0x0"
+                startAddr: "0x0"
+              tag: ROM
+            - id: 3
+              isChecked: false
+              isStartup: false
+              mem:
+                size: "0x0"
+                startAddr: "0x0"
+              tag: ROM
+            - id: 1
+              isChecked: true
+              isStartup: true
+              mem:
+                size: "0x20000"
+                startAddr: "0x8000000"
+              tag: IROM
+            - id: 2
+              isChecked: false
+              isStartup: false
+              mem:
+                size: "0x0"
+                startAddr: "0x0"
+              tag: IROM
+        useCustomScatterFile: false
+    uploadConfigMap:
+      JLink:
+        baseAddr: ""
+        bin: ""
+        cpuInfo:
+          cpuName: "null"
+          vendor: "null"
+        otherCmds: ""
+        proType: 1
+        speed: 8000
+      OpenOCD:
+        baseAddr: "0x08000000"
+        bin: ""
+        interface: stlink
+        target: stm32f1x
+    uploader: OpenOCD

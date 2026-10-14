@@ -3,30 +3,28 @@ import json
 from pathlib import Path
 import unittest
 import torch
-from wheel_legged_gym_isaaclab.five_bar_vmc import five_bar_state, five_bar_torques, five_bar_inverse
+from wheel_legged_gym_isaaclab.five_bar_vmc import five_bar_state, five_bar_torques
+from wheel_legged_gym_isaaclab.robot_model import MAPPED_FIVE_BAR
 
 ROOT = Path(__file__).resolve().parents[1] / "assets/robots/mine"
 MODEL = json.loads((ROOT / json.loads((ROOT / "manifest.json").read_text())["metadata"]).read_text())
-GEOMETRY = MODEL["five_bar"]
+GEOMETRY = MAPPED_FIVE_BAR
 
 
 class TestFiveBar(unittest.TestCase):
-    def test_inverse_reconstructs_entire_action_reference_range(self):
-        length,angle=torch.meshgrid(torch.linspace(.18,.36,41,dtype=torch.float64),torch.linspace(-.2,.2,31,dtype=torch.float64),indexing='ij')
-        length=length.reshape(-1,1).expand(-1,2)
-        angle=angle.reshape(-1,1).expand(-1,2)
-        b,l,valid=five_bar_inverse(length,angle,**GEOMETRY)
+    def test_mirrored_motor_grid_has_mirrored_jacobian(self):
+        b,l=torch.meshgrid(torch.linspace(-.25,.25,41,dtype=torch.float64),torch.linspace(-.25,.25,31,dtype=torch.float64),indexing='ij')
+        sign=torch.tensor([[1.,-1.]],dtype=torch.float64)
+        b,l=(x.reshape(-1,1)*sign for x in (b,l))
+        length,angle,jac,valid=five_bar_state(b,l,**GEOMETRY)
         self.assertTrue(valid.all())
-        actual_length,actual_angle,_,actual_valid=five_bar_state(b,l,**GEOMETRY)
-        self.assertTrue(actual_valid.all())
-        self.assertTrue((b.abs()<1.57).all() and (l.abs()<1.57).all())
-        torch.testing.assert_close(length,actual_length,rtol=1e-10,atol=1e-10)
-        torch.testing.assert_close(angle,actual_angle,rtol=1e-10,atol=1e-10)
+        torch.testing.assert_close(length[:,0],length[:,1])
+        torch.testing.assert_close(angle[:,0],angle[:,1])
+        torch.testing.assert_close(jac[:,0],-jac[:,1])
 
-    def test_inverse_rejects_unreachable_length(self):
-        length=torch.tensor([[.8,.8]],dtype=torch.float64)
-        _,_,valid=five_bar_inverse(length,torch.zeros_like(length),**GEOMETRY)
-        self.assertFalse(valid.any())
+    def test_removed_inverse_is_not_exported(self):
+        from wheel_legged_gym_isaaclab import five_bar_vmc
+        self.assertFalse(hasattr(five_bar_vmc,'five_bar_inverse'))
 
     def test_virtual_work_and_velocity(self):
         g = torch.Generator().manual_seed(37)

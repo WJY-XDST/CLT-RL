@@ -26,6 +26,8 @@ parser.add_argument(
 )
 parser.add_argument("--seed", type=int, default=None, help="Seed used for the environment")
 parser.add_argument("--max_iterations", type=int, default=None, help="RL Policy training iterations.")
+parser.add_argument('--stop_file', type=str, default=None,
+                    help='Save a complete checkpoint and exit after an update when this marker exists.')
 parser.add_argument(
     "--target_iteration", type=int, default=None,
     help="Stop at a total PPO iteration target, including iterations loaded from a checkpoint.",
@@ -34,8 +36,14 @@ parser.add_argument("--reset_exploration_std", type=float, default=None,
                     help="Reset policy exploration after loading a failed pilot checkpoint.")
 parser.add_argument("--wheel_exploration_std", type=float, default=None,
                     help="Set wheel-action exploration only, preserving stable leg exploration and optimizer state.")
-parser.add_argument("--wheel_head_only_finetune", action="store_true",
-                    help="Precision trial: freeze shared actor and leg outputs; train wheel output rows/std and critic.")
+parser.add_argument("--min_exploration_std", type=float, default=1.e-4,
+                    help="Positive floor for all learned exploration std entries, enforced after optimizer steps.")
+parser.add_argument('--min_wheel_exploration_std', type=float, default=None,
+                    help='Optional persistent floor for wheel entries 2/5 in direct joint PD; retain leg noise and Adam.')
+parser.add_argument('--require_leg_control_mode', choices=('explicit_vmc','implicit_joint_position'), default=None,
+                    help='Fail if Hydra overrides select a different leg execution chain.')
+parser.add_argument('--allow_physics_contract_change', action='store_true',
+                    help='Explicitly allow a different robot asset or external-effort solver flag for a new experiment.')
 parser.add_argument(
     "--checkpoint_path",
     type=str,
@@ -92,8 +100,7 @@ import os
 import torch
 from datetime import datetime
 
-import omni
-from rsl_rl.runners import DistillationRunner, OnPolicyRunner
+from rsl_rl.runners import OnPolicyRunner
 
 from isaaclab.envs import (
     DirectMARLEnv,
@@ -136,6 +143,9 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     # note: certain randomizations occur in the environment initialization so we set the seed here
     env_cfg.seed = agent_cfg.seed
     env_cfg.sim.device = args_cli.device if args_cli.device is not None else env_cfg.sim.device
+    from wheel_legged_gym_isaaclab.leg_control import require_leg_control_mode
+    require_leg_control_mode(env_cfg.leg_control_mode, args_cli.require_leg_control_mode)
+    print(f'[INFO]: Resolved leg control mode: {env_cfg.leg_control_mode}')
 
     # specify directory for logging experiments
     log_root_path = os.path.abspath(
@@ -176,6 +186,24 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                 raise FileNotFoundError(f"Checkpoint not found: {resume_path}")
         else:
             resume_path = get_checkpoint_path(log_root_path, agent_cfg.load_run, agent_cfg.load_checkpoint)
+        from wheel_legged_gym_isaaclab.robot_model import validate_checkpoint_robot
+        source_config = validate_checkpoint_robot(resume_path)
+        from wheel_legged_gym_isaaclab.leg_control import require_matching_policy_contract
+        require_matching_policy_contract(source_config, env_cfg.to_dict())
+        source_mode = source_config.get('leg_control_mode')
+        require_leg_control_mode(source_mode)
+        require_leg_control_mode(env_cfg.leg_control_mode, source_mode)
+        from wheel_legged_gym_isaaclab.physics_contract import (
+            require_matching_force_iteration_setting, require_matching_robot_asset_setting,
+        )
+        require_matching_robot_asset_setting(
+            source_config, env_cfg.robot.spawn.usd_path,
+            allow_change=args_cli.allow_physics_contract_change,
+        )
+        require_matching_force_iteration_setting(
+            source_config, env_cfg.enable_external_forces_every_iteration,
+            allow_change=args_cli.allow_physics_contract_change,
+        )
 
     # wrap for video recording
     if args_cli.video:
@@ -206,6 +234,11 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         runner.load(resume_path, load_optimizer=not args_cli.reset_optimizer)
         if args_cli.reset_optimizer:
             print("[INFO]: Loaded policy weights with a fresh optimizer state.")
+        else:
+            from wheel_legged_gym_isaaclab.training_state import restore_adaptive_learning_rate
+            restored_lr = restore_adaptive_learning_rate(runner.alg)
+            agent_cfg.algorithm.learning_rate = restored_lr
+            print(f"[INFO]: Restored PPO adaptive learning rate from optimizer: {restored_lr}")
         # The environment curriculum is driven by control steps, whereas the
         # checkpoint stores PPO iterations. Keep both clocks aligned so a
         # resumed run does not silently return to the standing-only phase.
@@ -236,17 +269,30 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         from wheel_legged_gym_isaaclab.exploration import set_wheel_exploration_std
         set_wheel_exploration_std(runner.alg.policy, args_cli.wheel_exploration_std)
         print(f"[INFO]: Set wheel-only exploration std to {args_cli.wheel_exploration_std}; leg exploration retained.")
-    if args_cli.wheel_head_only_finetune:
-        if not agent_cfg.resume:
-            raise ValueError('Wheel-head precision mode requires a pretrained checkpoint')
-        from wheel_legged_gym_isaaclab.precision_finetune import enable_wheel_head_finetuning
-        precision_handles=enable_wheel_head_finetuning(runner.alg.policy, runner.alg.optimizer)
-        dump_yaml(os.path.join(log_dir, 'params', 'precision_mode.yaml'), {
-            'mode': 'wheel_head_only', 'source_checkpoint': resume_path,
-            'trainable_actor_rows': [2,5], 'trainable_std_entries': [2,5],
-            'shared_actor_features_frozen': True, 'leg_output_rows_frozen': [0,1,3,4],
-            'critic_trainable': True, 'inference_contract_unchanged': True})
-        print('[INFO]: Precision mode: wheel head/std and critic train; actor features and leg outputs frozen.')
+    from wheel_legged_gym_isaaclab.exploration import enforce_positive_exploration
+    if args_cli.min_wheel_exploration_std is not None and env_cfg.leg_control_mode != 'implicit_joint_position':
+        raise ValueError('A selective wheel exploration floor requires direct joint-position PD.')
+    exploration_guard = enforce_positive_exploration(
+        runner.alg.policy, runner.alg.optimizer, args_cli.min_exploration_std,
+        minimum_wheel_std=args_cli.min_wheel_exploration_std)
+    print(f'[INFO]: Learned exploration std floor: {args_cli.min_exploration_std}; all entries remain trainable.')
+    if args_cli.min_wheel_exploration_std is not None:
+        print(f'[INFO]: Wheel-only exploration floor: {args_cli.min_wheel_exploration_std}; saved leg noise retained.')
+    # Checkpoints store weights, not gradient hooks. A rebuilt policy trains
+    # every leg/wheel output and the shared features; partial-head mode retired.
+    frozen = [name for name, parameter in runner.alg.policy.named_parameters()
+              if not parameter.requires_grad]
+    if frozen:
+        raise ValueError(f'Full-policy training unexpectedly has frozen parameters: {frozen}')
+    dump_yaml(os.path.join(log_dir, 'params', 'precision_mode.yaml'), {
+        'mode': 'full_policy', 'source_checkpoint': resume_path if agent_cfg.resume else None,
+        'trainable_actor_rows': list(range(env.num_actions)),
+        'trainable_std_entries': list(range(env.num_actions)),
+        'shared_actor_features_frozen': False, 'leg_output_rows_frozen': [],
+        'critic_trainable': True, 'inference_contract_unchanged': True,
+        'exploration_std_floor': args_cli.min_exploration_std,
+        'wheel_exploration_std_floor': args_cli.min_wheel_exploration_std})
+    print('[INFO]: Full-policy training: actor features, all leg/wheel outputs, exploration and critic train.')
     if args_cli.target_iteration is not None:
         remaining = args_cli.target_iteration - runner.current_learning_iteration
         if remaining <= 0:
@@ -255,10 +301,61 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         print(f"[INFO]: Target total iteration {args_cli.target_iteration}; training {remaining} remaining iterations.")
     dump_yaml(os.path.join(log_dir, "params", "env.yaml"), env_cfg)
     dump_yaml(os.path.join(log_dir, "params", "agent.yaml"), agent_cfg)
+    from wheel_legged_gym_isaaclab.mcu_hardware import MCU_LIMIT_EVIDENCE
+    dump_yaml(os.path.join(log_dir, 'params', 'control_contract.yaml'), {
+        'hardware_profile': env_cfg.hardware_profile,
+        'hardware_limit_authority': MCU_LIMIT_EVIDENCE,
+        'joint_action_scale_is_hardware_limit': False,
+        'wheel_action_scale_is_hardware_limit': False,
+        'leg_control_mode': env_cfg.leg_control_mode,
+        'leg_action_order': (['LB_joint_position', 'LL_joint_position', 'LW_speed', 'RB_joint_position', 'RL_joint_position', 'RW_speed']
+                             if env_cfg.leg_control_mode == 'implicit_joint_position' else
+                             ['left_virtual_angle', 'left_virtual_length', 'LW_speed', 'right_virtual_angle', 'right_virtual_length', 'RW_speed']),
+        'leg_observation_contract': ('active_joint_position_relative_to_fixed_offset4_and_velocity4' if env_cfg.leg_control_mode == 'implicit_joint_position'
+                                     else 'virtual_angle2_velocity2_length2_velocity2'),
+        'leg_joint_position_offset': list(env_cfg.leg_joint_position_offset),
+        'leg_joint_position_scale': list(env_cfg.leg_joint_position_scale),
+        'leg_joint_target_limit_margin': env_cfg.leg_joint_target_limit_margin,
+        'leg_joint_gravity_feedforward': env_cfg.leg_joint_gravity_feedforward,
+        'joint_pd_total_effort_limit': ('PhysxDrivePerformanceEnvelopeAPI:angular'
+                                       if env_cfg.leg_control_mode == 'implicit_joint_position' else None),
+        'enable_external_forces_every_iteration': env.unwrapped._external_forces_every_iteration,
+        'leg_effort_path': ('virtual_coordinate_pd_jacobian_transpose' if
+                            env_cfg.leg_control_mode == 'explicit_vmc' else
+                            'direct_joint_position_implicit_pd'),
+        'leg_gravity_feedforward_applied': (env_cfg.leg_control_mode == 'explicit_vmc' or
+                                          (env_cfg.leg_control_mode == 'implicit_joint_position' and env_cfg.leg_joint_gravity_feedforward)),
+        'leg_joint_drive_stiffness': env_cfg.robot.actuators['legs'].stiffness,
+        'leg_joint_drive_damping': env_cfg.robot.actuators['legs'].damping,
+        'kp_theta': env_cfg.kp_theta, 'kd_theta': env_cfg.kd_theta,
+        'kp_l0': env_cfg.kp_l0, 'kd_l0': env_cfg.kd_l0,
+        'feedforward_force': env_cfg.feedforward_force,
+        'feedforward_mode': env_cfg.feedforward_mode,
+        'feedforward_angle_bias': env_cfg.feedforward_angle_bias,
+        'feedforward_force_limit': env_cfg.feedforward_force_limit,
+        'leg_effort_limit': env_cfg.leg_effort_limit,
+        'wheel_effort_limit': env_cfg.wheel_effort_limit,
+        'wheel_control_mode': env_cfg.wheel_control_mode,
+        'wheel_damping': env_cfg.wheel_damping,
+        'policy_dt': env_cfg.sim.dt * env_cfg.decimation, 'physics_dt': env_cfg.sim.dt,
+        'vmc_dt': env_cfg.sim.dt,
+        'solver_position_iterations': env_cfg.robot.spawn.articulation_props.solver_position_iteration_count,
+        'solver_velocity_iterations': env_cfg.robot.spawn.articulation_props.solver_velocity_iteration_count,
+        'fresh_weights': not agent_cfg.resume,
+        'hardware_controller_calibrated': False,
+    })
 
+    # 用户／服务正常停止时，等一次完整更新结束再保存，避免信号打断原生物理线程。
+    from wheel_legged_gym_isaaclab.training_state import (
+        CheckpointStopRequested, install_checkpoint_stop, install_episode_log_aggregation,
+    )
+    install_episode_log_aggregation(runner)
+    install_checkpoint_stop(runner, args_cli.stop_file, log_dir)
     # run training
     try:
         runner.learn(num_learning_iterations=agent_cfg.max_iterations, init_at_random_ep_len=True)
+    except CheckpointStopRequested as error:
+        print(f'[INFO]: Training stopped at a saved update boundary: {error}', flush=True)
     except KeyboardInterrupt:
         path = os.path.join(log_dir, f"model_{runner.current_learning_iteration}_interrupted.pt")
         runner.save(path)

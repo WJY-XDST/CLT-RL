@@ -1,0 +1,1406 @@
+{
+  "created": "2026-10-11T21:03:55.486492+08:00",
+  "root": "/home/aaa/studyRL/src/CLT-RL",
+  "retired_mode": "implicit_joint_reference",
+  "applied": true,
+  "removal_method": "gio trash; recover from desktop Trash",
+  "removed": [
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/smooth_tire_collision_5500_20261004/overrides.json",
+      "kind": "file",
+      "modes": [
+        "implicit_joint_reference"
+      ],
+      "evidence": {
+        "explicit_modes": [
+          "implicit_joint_reference"
+        ],
+        "retired_record_references": [],
+        "inspected_document_marker": null
+      },
+      "sha256": "a8b0f3796e6edaca6b561dccb27eba813b48e53f8b4c0b878eac8743b42a98bc",
+      "file_count": 1,
+      "bytes": 1363,
+      "trashed": true
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/smooth_tire_collision_5500_20261004/replay",
+      "modes": [
+        "implicit_joint_reference"
+      ],
+      "evidence": [
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/smooth_tire_collision_5500_20261004/replay/manifest.json",
+          "modes": [
+            "implicit_joint_reference"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/smooth_tire_collision_5500_20261004/replay/resolved_env.json",
+          "modes": [
+            "implicit_joint_reference"
+          ]
+        }
+      ],
+      "kind": "directory",
+      "file_count": 7,
+      "bytes": 10338426,
+      "trashed": true
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/checkpoints/mine_20261005_model_12600",
+      "modes": [
+        "implicit_joint_reference"
+      ],
+      "evidence": [
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/checkpoints/mine_20261005_model_12600/env.yaml",
+          "modes": [
+            "implicit_joint_reference"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/checkpoints/mine_20261005_model_12600/replay_overrides.json",
+          "modes": [
+            "implicit_joint_reference"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/checkpoints/mine_20261005_model_12600/manifest.json",
+          "modes": [
+            "implicit_joint_reference"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/checkpoints/mine_20261005_model_12600/training_overrides.json",
+          "modes": [
+            "implicit_joint_reference"
+          ]
+        }
+      ],
+      "kind": "directory",
+      "file_count": 9,
+      "bytes": 1241969,
+      "trashed": true
+    }
+  ],
+  "retained": [
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-09_22-53-50_explicit_vmc_contract_smoke_20261009",
+      "modes": [
+        "explicit_vmc"
+      ],
+      "evidence": [
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-09_22-53-50_explicit_vmc_contract_smoke_20261009/params/env.yaml",
+          "modes": [
+            "explicit_vmc"
+          ]
+        }
+      ],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-09_22-57-09_mine_auto_r000_auto_training_explicit_vmc_20261009",
+      "modes": [
+        "explicit_vmc"
+      ],
+      "evidence": [
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-09_22-57-09_mine_auto_r000_auto_training_explicit_vmc_20261009/params/env.yaml",
+          "modes": [
+            "explicit_vmc"
+          ]
+        }
+      ],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-09_23-03-38_mine_auto_r000_auto_training_explicit_vmc_20261009_patch1m_fresh",
+      "modes": [
+        "explicit_vmc"
+      ],
+      "evidence": [
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-09_23-03-38_mine_auto_r000_auto_training_explicit_vmc_20261009_patch1m_fresh/params/env.yaml",
+          "modes": [
+            "explicit_vmc"
+          ]
+        }
+      ],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-10_00-23-44_mine_auto_r001_auto_training_explicit_vmc_20261009_patch1m_fresh",
+      "modes": [
+        "explicit_vmc"
+      ],
+      "evidence": [
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-10_00-23-44_mine_auto_r001_auto_training_explicit_vmc_20261009_patch1m_fresh/params/env.yaml",
+          "modes": [
+            "explicit_vmc"
+          ]
+        }
+      ],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-10_01-36-35_mine_auto_r002_auto_training_explicit_vmc_20261009_patch1m_fresh",
+      "modes": [
+        "explicit_vmc"
+      ],
+      "evidence": [
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-10_01-36-35_mine_auto_r002_auto_training_explicit_vmc_20261009_patch1m_fresh/params/env.yaml",
+          "modes": [
+            "explicit_vmc"
+          ]
+        }
+      ],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-10_02-51-24_mine_auto_r003_auto_training_explicit_vmc_20261009_patch1m_fresh",
+      "modes": [
+        "explicit_vmc"
+      ],
+      "evidence": [
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-10_02-51-24_mine_auto_r003_auto_training_explicit_vmc_20261009_patch1m_fresh/params/env.yaml",
+          "modes": [
+            "explicit_vmc"
+          ]
+        }
+      ],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-10_04-05-36_mine_auto_r004_auto_training_explicit_vmc_20261009_patch1m_fresh",
+      "modes": [
+        "explicit_vmc"
+      ],
+      "evidence": [
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-10_04-05-36_mine_auto_r004_auto_training_explicit_vmc_20261009_patch1m_fresh/params/env.yaml",
+          "modes": [
+            "explicit_vmc"
+          ]
+        }
+      ],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-10_05-19-53_mine_auto_r005_auto_training_explicit_vmc_20261009_patch1m_fresh",
+      "modes": [
+        "explicit_vmc"
+      ],
+      "evidence": [
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-10_05-19-53_mine_auto_r005_auto_training_explicit_vmc_20261009_patch1m_fresh/params/env.yaml",
+          "modes": [
+            "explicit_vmc"
+          ]
+        }
+      ],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-10_06-34-06_mine_auto_r006_auto_training_explicit_vmc_20261009_patch1m_fresh",
+      "modes": [
+        "explicit_vmc"
+      ],
+      "evidence": [
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-10_06-34-06_mine_auto_r006_auto_training_explicit_vmc_20261009_patch1m_fresh/params/env.yaml",
+          "modes": [
+            "explicit_vmc"
+          ]
+        }
+      ],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-10_07-48-13_mine_auto_r007_auto_training_explicit_vmc_20261009_patch1m_fresh",
+      "modes": [
+        "explicit_vmc"
+      ],
+      "evidence": [
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-10_07-48-13_mine_auto_r007_auto_training_explicit_vmc_20261009_patch1m_fresh/params/env.yaml",
+          "modes": [
+            "explicit_vmc"
+          ]
+        }
+      ],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-10_09-02-31_mine_auto_r008_auto_training_explicit_vmc_20261009_patch1m_fresh",
+      "modes": [
+        "explicit_vmc"
+      ],
+      "evidence": [
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-10_09-02-31_mine_auto_r008_auto_training_explicit_vmc_20261009_patch1m_fresh/params/env.yaml",
+          "modes": [
+            "explicit_vmc"
+          ]
+        }
+      ],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-10_10-16-57_mine_auto_r009_auto_training_explicit_vmc_20261009_patch1m_fresh",
+      "modes": [
+        "explicit_vmc"
+      ],
+      "evidence": [
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-10_10-16-57_mine_auto_r009_auto_training_explicit_vmc_20261009_patch1m_fresh/params/env.yaml",
+          "modes": [
+            "explicit_vmc"
+          ]
+        }
+      ],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-10_11-30-32_mine_auto_r010_auto_training_explicit_vmc_20261009_patch1m_fresh",
+      "modes": [
+        "explicit_vmc"
+      ],
+      "evidence": [
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-10_11-30-32_mine_auto_r010_auto_training_explicit_vmc_20261009_patch1m_fresh/params/env.yaml",
+          "modes": [
+            "explicit_vmc"
+          ]
+        }
+      ],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-10_12-43-34_mine_auto_r011_auto_training_explicit_vmc_20261009_patch1m_fresh",
+      "modes": [
+        "explicit_vmc"
+      ],
+      "evidence": [
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-10_12-43-34_mine_auto_r011_auto_training_explicit_vmc_20261009_patch1m_fresh/params/env.yaml",
+          "modes": [
+            "explicit_vmc"
+          ]
+        }
+      ],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-10_13-56-26_mine_auto_r012_auto_training_explicit_vmc_20261009_patch1m_fresh",
+      "modes": [
+        "explicit_vmc"
+      ],
+      "evidence": [
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-10_13-56-26_mine_auto_r012_auto_training_explicit_vmc_20261009_patch1m_fresh/params/env.yaml",
+          "modes": [
+            "explicit_vmc"
+          ]
+        }
+      ],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-10_18-09-37_mcu_tgs_vmc_stand_scratch_500",
+      "modes": [
+        "explicit_vmc"
+      ],
+      "evidence": [
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-10_18-09-37_mcu_tgs_vmc_stand_scratch_500/params/env.yaml",
+          "modes": [
+            "explicit_vmc"
+          ]
+        }
+      ],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-10_23-16-12_mcu_tgs_vmc_stand500_motion_resume_1500",
+      "modes": [
+        "explicit_vmc"
+      ],
+      "evidence": [
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-10_23-16-12_mcu_tgs_vmc_stand500_motion_resume_1500/params/env.yaml",
+          "modes": [
+            "explicit_vmc"
+          ]
+        }
+      ],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-10_23-23-52_mcu_tgs_vmc_env8192_stand25_to1999",
+      "modes": [
+        "explicit_vmc"
+      ],
+      "evidence": [
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-10_23-23-52_mcu_tgs_vmc_env8192_stand25_to1999/params/env.yaml",
+          "modes": [
+            "explicit_vmc"
+          ]
+        }
+      ],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-11_01-16-22_vmc_p128_guarded_to_1000_20261011",
+      "modes": [
+        "explicit_vmc"
+      ],
+      "evidence": [
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-11_01-16-22_vmc_p128_guarded_to_1000_20261011/params/env.yaml",
+          "modes": [
+            "explicit_vmc"
+          ]
+        }
+      ],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-11_02-06-29_vmc_p128_guarded_to_1500_20261011",
+      "modes": [
+        "explicit_vmc"
+      ],
+      "evidence": [
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-11_02-06-29_vmc_p128_guarded_to_1500_20261011/params/env.yaml",
+          "modes": [
+            "explicit_vmc"
+          ]
+        }
+      ],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-11_04-11-40_vmc_p128_guarded_to_1998_20261011",
+      "modes": [
+        "explicit_vmc"
+      ],
+      "evidence": [
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-11_04-11-40_vmc_p128_guarded_to_1998_20261011/params/env.yaml",
+          "modes": [
+            "explicit_vmc"
+          ]
+        }
+      ],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-11_14-26-59_vmc_feedback_repair_to_1004_20261011",
+      "modes": [
+        "explicit_vmc"
+      ],
+      "evidence": [
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-11_14-26-59_vmc_feedback_repair_to_1004_20261011/params/env.yaml",
+          "modes": [
+            "explicit_vmc"
+          ]
+        }
+      ],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-11_14-34-47_vmc_feedback_repair_to_1009_20261011",
+      "modes": [
+        "explicit_vmc"
+      ],
+      "evidence": [
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-11_14-34-47_vmc_feedback_repair_to_1009_20261011/params/env.yaml",
+          "modes": [
+            "explicit_vmc"
+          ]
+        }
+      ],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-11_14-39-57_vmc_feedback_repair_to_1100_20261011",
+      "modes": [
+        "explicit_vmc"
+      ],
+      "evidence": [
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-11_14-39-57_vmc_feedback_repair_to_1100_20261011/params/env.yaml",
+          "modes": [
+            "explicit_vmc"
+          ]
+        }
+      ],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-11_15-06-40_vmc_feedback_repair_to_1200_20261011",
+      "modes": [
+        "explicit_vmc"
+      ],
+      "evidence": [
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-11_15-06-40_vmc_feedback_repair_to_1200_20261011/params/env.yaml",
+          "modes": [
+            "explicit_vmc"
+          ]
+        }
+      ],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-11_15-38-54_vmc_feedback_repair_to_1300_20261011",
+      "modes": [
+        "explicit_vmc"
+      ],
+      "evidence": [
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/2026-10-11_15-38-54_vmc_feedback_repair_to_1300_20261011/params/env.yaml",
+          "modes": [
+            "explicit_vmc"
+          ]
+        }
+      ],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/external_checkpoint_play",
+      "modes": [],
+      "evidence": [],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-10-01_20-10-22_autotune_r0001_20261001_201018",
+      "modes": [],
+      "evidence": [],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/2026-10-01_21-06-47_autotune_r0002_20261001_210642",
+      "modes": [],
+      "evidence": [],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/IsaacLab/logs/rsl_rl/wheel_legged_vmc_flat/evaluation_height_v2",
+      "modes": [],
+      "evidence": [],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/auto_training_20261003",
+      "modes": [],
+      "evidence": [],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/auto_training_20pct_20261004",
+      "modes": [],
+      "evidence": [],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/auto_training_explicit_vmc_20261009",
+      "modes": [
+        "explicit_vmc"
+      ],
+      "evidence": [
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/auto_training_explicit_vmc_20261009/status.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/auto_training_explicit_vmc_20261009/round_005_optimization/overrides.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/auto_training_explicit_vmc_20261009/round_005_optimization/replay/manifest.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/auto_training_explicit_vmc_20261009/round_005_optimization/replay/resolved_env.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/auto_training_explicit_vmc_20261009/round_000_pilot/overrides.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/auto_training_explicit_vmc_20261009/round_000_pilot/replay/manifest.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/auto_training_explicit_vmc_20261009/round_000_pilot/replay/resolved_env.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/auto_training_explicit_vmc_20261009/round_004_optimization/overrides.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/auto_training_explicit_vmc_20261009/round_004_optimization/replay/manifest.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/auto_training_explicit_vmc_20261009/round_004_optimization/replay/resolved_env.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/auto_training_explicit_vmc_20261009/round_011_optimization/overrides.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/auto_training_explicit_vmc_20261009/round_011_optimization/replay/manifest.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/auto_training_explicit_vmc_20261009/round_011_optimization/replay/resolved_env.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/auto_training_explicit_vmc_20261009/round_003_optimization/overrides.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/auto_training_explicit_vmc_20261009/round_003_optimization/replay/manifest.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/auto_training_explicit_vmc_20261009/round_003_optimization/replay/resolved_env.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/auto_training_explicit_vmc_20261009/round_002_optimization/overrides.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/auto_training_explicit_vmc_20261009/round_002_optimization/replay/manifest.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/auto_training_explicit_vmc_20261009/round_002_optimization/replay/resolved_env.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/auto_training_explicit_vmc_20261009/round_009_optimization/overrides.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/auto_training_explicit_vmc_20261009/round_009_optimization/replay/manifest.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/auto_training_explicit_vmc_20261009/round_009_optimization/replay/resolved_env.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/auto_training_explicit_vmc_20261009/round_001_optimization/overrides.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/auto_training_explicit_vmc_20261009/round_001_optimization/replay/manifest.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/auto_training_explicit_vmc_20261009/round_001_optimization/replay/resolved_env.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/auto_training_explicit_vmc_20261009/round_008_optimization/overrides.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/auto_training_explicit_vmc_20261009/round_008_optimization/replay/manifest.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/auto_training_explicit_vmc_20261009/round_008_optimization/replay/resolved_env.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/auto_training_explicit_vmc_20261009/round_010_optimization/overrides.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/auto_training_explicit_vmc_20261009/round_010_optimization/replay/manifest.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/auto_training_explicit_vmc_20261009/round_010_optimization/replay/resolved_env.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/auto_training_explicit_vmc_20261009/round_006_optimization/overrides.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/auto_training_explicit_vmc_20261009/round_006_optimization/replay/manifest.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/auto_training_explicit_vmc_20261009/round_006_optimization/replay/resolved_env.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/auto_training_explicit_vmc_20261009/round_012_optimization/overrides.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/auto_training_explicit_vmc_20261009/round_007_optimization/overrides.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/auto_training_explicit_vmc_20261009/round_007_optimization/replay/manifest.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/auto_training_explicit_vmc_20261009/round_007_optimization/replay/resolved_env.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        }
+      ],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/bench_drive",
+      "modes": [],
+      "evidence": [],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/bench_implicit_wheels",
+      "modes": [],
+      "evidence": [],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/bench_implicit_wheels_drives",
+      "modes": [],
+      "evidence": [],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/contact_order_audit_20261004",
+      "modes": [],
+      "evidence": [],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/coupled_gain_audit_20261004",
+      "modes": [],
+      "evidence": [],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/direct_joint_pd_feasibility_20261011",
+      "modes": [],
+      "evidence": [],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/explicit_hold_audit_20261004",
+      "modes": [],
+      "evidence": [],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/explicit_hold_small_dt_20261004",
+      "modes": [],
+      "evidence": [],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/fd_audit_20261004",
+      "modes": [],
+      "evidence": [],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/force_drive_audit_20261004",
+      "modes": [],
+      "evidence": [],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/free_wheels_audit_20261004",
+      "modes": [],
+      "evidence": [],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/frozen_policy_solver_check_20261011",
+      "modes": [
+        "explicit_vmc"
+      ],
+      "evidence": [
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/frozen_policy_solver_check_20261011/physics200_control200_policy50_p128/manifest.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/frozen_policy_solver_check_20261011/physics200_control200_policy50_p128/resolved_env.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/frozen_policy_solver_check_20261011/physics400_control200_policy50_p128/manifest.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/frozen_policy_solver_check_20261011/physics400_control200_policy50_p128/resolved_env.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/frozen_policy_solver_check_20261011/physics200_control200_policy50_p64/manifest.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/frozen_policy_solver_check_20261011/physics200_control200_policy50_p64/resolved_env.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/frozen_policy_solver_check_20261011/physics800_control200_policy50_p128/manifest.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/frozen_policy_solver_check_20261011/physics800_control200_policy50_p128/resolved_env.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        }
+      ],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/gain_audit_20261004",
+      "modes": [],
+      "evidence": [],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/gravity_check",
+      "modes": [],
+      "evidence": [],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/ground_force_audit_20261004",
+      "modes": [],
+      "evidence": [],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/joint_hold_audit_20261004",
+      "modes": [],
+      "evidence": [],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/joint_pd_reward_audit_20261011",
+      "modes": [
+        "implicit_joint_position"
+      ],
+      "evidence": [
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/joint_pd_reward_audit_20261011/baseline_contact_verified/manifest.json",
+          "modes": [
+            "implicit_joint_position"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/joint_pd_reward_audit_20261011/baseline_contact_verified/resolved_env.json",
+          "modes": [
+            "implicit_joint_position"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/joint_pd_reward_audit_20261011/baseline_contact/manifest.json",
+          "modes": [
+            "implicit_joint_position"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/joint_pd_reward_audit_20261011/baseline_contact/resolved_env.json",
+          "modes": [
+            "implicit_joint_position"
+          ]
+        }
+      ],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/joint_pd_scratch_20261011_163122",
+      "modes": [
+        "implicit_joint_position"
+      ],
+      "evidence": [
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/joint_pd_scratch_20261011_163122/checkpoint_200/manifest.json",
+          "modes": [
+            "implicit_joint_position"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/joint_pd_scratch_20261011_163122/checkpoint_200/resolved_env.json",
+          "modes": [
+            "implicit_joint_position"
+          ]
+        }
+      ],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/joint_pd_scratch_20261011_181337",
+      "modes": [
+        "implicit_joint_position"
+      ],
+      "evidence": [
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/joint_pd_scratch_20261011_181337/checkpoint_200/manifest.json",
+          "modes": [
+            "implicit_joint_position"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/joint_pd_scratch_20261011_181337/checkpoint_200/resolved_env.json",
+          "modes": [
+            "implicit_joint_position"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/joint_pd_scratch_20261011_181337/checkpoint_600/manifest.json",
+          "modes": [
+            "implicit_joint_position"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/joint_pd_scratch_20261011_181337/checkpoint_600/resolved_env.json",
+          "modes": [
+            "implicit_joint_position"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/joint_pd_scratch_20261011_181337/checkpoint_400/manifest.json",
+          "modes": [
+            "implicit_joint_position"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/joint_pd_scratch_20261011_181337/checkpoint_400/resolved_env.json",
+          "modes": [
+            "implicit_joint_position"
+          ]
+        }
+      ],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/mcu_standing_restart_20261010",
+      "modes": [
+        "explicit_vmc"
+      ],
+      "evidence": [
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/mcu_standing_restart_20261010/policy_200_replay_30s/manifest.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/mcu_standing_restart_20261010/policy_200_replay_30s/resolved_env.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/mcu_standing_restart_20261010/policy_100_replay_12s/manifest.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/mcu_standing_restart_20261010/policy_100_replay_12s/resolved_env.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        }
+      ],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/mcu_vmc_support_20261010",
+      "modes": [
+        "explicit_vmc"
+      ],
+      "evidence": [
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/mcu_vmc_support_20261010/frozen_2400_new_mcu_execution/manifest.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/mcu_vmc_support_20261010/frozen_2400_new_mcu_execution/resolved_env.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        }
+      ],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/parameter_audit",
+      "modes": [],
+      "evidence": [],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/policy_7738_20261003",
+      "modes": [],
+      "evidence": [],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/self_righting_20261005",
+      "modes": [],
+      "evidence": [],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/solver_audit_20261004",
+      "modes": [],
+      "evidence": [],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/stiffness_audit_20261004",
+      "modes": [],
+      "evidence": [],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/support_diagnosis_20261003",
+      "modes": [],
+      "evidence": [],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/support_force_audit_20261004",
+      "modes": [],
+      "evidence": [],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/support_gain_sweep_20261003",
+      "modes": [],
+      "evidence": [],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/support_rail_audit_20261004",
+      "modes": [],
+      "evidence": [],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/support_rail_confirm_20261004",
+      "modes": [],
+      "evidence": [],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/tgs_numerical_convergence_20261011",
+      "modes": [],
+      "evidence": [],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/timestep_audit_20261004",
+      "modes": [],
+      "evidence": [],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/upright_reset_audit_20261004",
+      "modes": [],
+      "evidence": [],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/vmc_feedback_repair_20261011",
+      "modes": [
+        "explicit_vmc"
+      ],
+      "evidence": [
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/vmc_feedback_repair_20261011/to_1004/scheduled_diagnosis/replay/manifest.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/vmc_feedback_repair_20261011/to_1004/scheduled_diagnosis/replay/resolved_env.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        }
+      ],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/vmc_feedback_repair_curriculum_20261011",
+      "modes": [
+        "explicit_vmc"
+      ],
+      "evidence": [
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/vmc_feedback_repair_curriculum_20261011/to_1100/scheduled_diagnosis/replay/manifest.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/vmc_feedback_repair_curriculum_20261011/to_1100/scheduled_diagnosis/replay/resolved_env.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/vmc_feedback_repair_curriculum_20261011/to_1009/scheduled_diagnosis/replay/manifest.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/vmc_feedback_repair_curriculum_20261011/to_1009/scheduled_diagnosis/replay/resolved_env.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/vmc_feedback_repair_curriculum_20261011/to_1200/scheduled_diagnosis/replay/manifest.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/vmc_feedback_repair_curriculum_20261011/to_1200/scheduled_diagnosis/replay/resolved_env.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        }
+      ],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/vmc_p128_guarded_resume_20261011",
+      "modes": [
+        "explicit_vmc"
+      ],
+      "evidence": [
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/vmc_p128_guarded_resume_20261011/to_1998/replay/manifest.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/vmc_p128_guarded_resume_20261011/to_1998/replay/resolved_env.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/vmc_p128_guarded_resume_20261011/to_1500/replay/manifest.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/vmc_p128_guarded_resume_20261011/to_1500/replay/resolved_env.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/vmc_p128_guarded_resume_20261011/to_1000/replay/manifest.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/vmc_p128_guarded_resume_20261011/to_1000/replay/resolved_env.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        }
+      ],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/wheel_direction_20261004",
+      "modes": [],
+      "evidence": [],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/wheel_response_diagnosis_20261011",
+      "modes": [
+        "explicit_vmc"
+      ],
+      "evidence": [
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/wheel_response_diagnosis_20261011/observation_source_replay/manifest.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/wheel_response_diagnosis_20261011/observation_source_replay/resolved_env.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/wheel_response_diagnosis_20261011/fixed_target_replay/manifest.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/wheel_response_diagnosis_20261011/fixed_target_replay/resolved_env.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/wheel_response_diagnosis_20261011/bias_replay/manifest.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        },
+        {
+          "file": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/wheel_response_diagnosis_20261011/bias_replay/resolved_env.json",
+          "modes": [
+            "explicit_vmc"
+          ]
+        }
+      ],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/build/auto_preflight_20261003",
+      "modes": [],
+      "evidence": [],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/build/auto_preflight_v2_20261003",
+      "modes": [],
+      "evidence": [],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/build/configuration",
+      "modes": [],
+      "evidence": [],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/build/export_smoke_policy",
+      "modes": [],
+      "evidence": [],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/build/export_smoke_replay",
+      "modes": [],
+      "evidence": [],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/mine_model/build/logs",
+      "modes": [],
+      "evidence": [],
+      "kind": "directory",
+      "reason": "supported mode or no conclusive configuration"
+    }
+  ]
+}

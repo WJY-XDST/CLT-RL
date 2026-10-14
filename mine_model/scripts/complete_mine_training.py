@@ -1,6 +1,7 @@
 """Finalize accepted weights and explanations; power off only after every gate.
 
-Invoked by the training supervisor after held-out and 30-second export replay.
+The direct-joint supervisor requires independent 30- and 60-second steady
+replays. The older VMC supervisor additionally verifies its exported policy.
 """
 import argparse
 from datetime import datetime
@@ -12,7 +13,8 @@ import shlex
 import subprocess
 import zipfile
 import sys
-from summarize_mine_trial import assess,plot_optimization_history
+import tarfile
+from summarize_mine_trial import assess,assess_stability,plot_optimization_history,acceptance_criteria
 from build_training_record import build_record,verify_record
 from optimization_journal import sync_journal
 
@@ -22,13 +24,149 @@ from wheel_legged_gym_isaaclab.asset_integrity import verify_asset_chain
 
 def sha(path):return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
+
+def finish_joint_pd(state_path, shutdown=False):
+    """Save the verified training checkpoint before any explicitly requested poweroff.
+
+    This is simulation acceptance, not randomization/sim2real approval. Old
+    tutorial files and obsolete VMC delivery narratives are not completion gates.
+    """
+    from auto_train_mine import write_json
+    from wheel_legged_gym_isaaclab.robot_model import validate_checkpoint_robot
+    import torch
+    state_path=Path(state_path).resolve();output=state_path.parent
+    state=json.loads(state_path.read_text())
+    if (output.parent!=ROOT/'mine_model/results' or not output.name.startswith('joint_pd_optimization_')
+            or state.get('state')!='simulation_accepted_pending_sim2sim_and_randomization'):
+        raise RuntimeError('No scoped verified joint-PD completion state')
+    criteria=acceptance_criteria()
+    if criteria['relative_error']>.1 or state.get('acceptance_criteria')!=criteria:
+        raise RuntimeError('Completion criteria differ or exceed the requested 10 percent target')
+    checkpoint=Path(state['best_checkpoint']).resolve()
+    if not checkpoint.is_relative_to(ROOT/'IsaacLab/logs/rsl_rl/mine_wheel_legged_joint_pd_flat'):
+        raise RuntimeError('Completion checkpoint is outside this vehicle task')
+    runtime=validate_checkpoint_robot(checkpoint)
+    if runtime['leg_control_mode']!='implicit_joint_position':
+        raise RuntimeError('Completion has the wrong leg execution chain')
+    saved=torch.load(checkpoint,map_location='cpu',weights_only=True)
+    def finite_tensors(value):
+        if torch.is_tensor(value):return bool(torch.isfinite(value).all())
+        if isinstance(value,dict):return all(finite_tensors(v) for v in value.values())
+        if isinstance(value,(list,tuple)):return all(finite_tensors(v) for v in value)
+        return True
+    if (not saved.get('optimizer_state_dict') or not saved.get('model_state_dict')
+            or not finite_tensors(saved['model_state_dict'])
+            or not finite_tensors(saved['optimizer_state_dict'])):
+        raise RuntimeError('Missing optimizer or nonfinite saved policy')
+    directories=[Path(state[k]).parent for k in ('best_assessment','heldout_assessment','extended_assessment')]
+    reports=[assess(d,report_name='assessment_final_gate.json') for d in directories]
+    manifests=[json.loads((d/'manifest.json').read_text()) for d in directories]
+    stable=[assess_stability(d,seconds) for d,seconds in zip(directories[1:],(20.,40.))]
+    names={'stand','forward_0p3','forward_0p6','reverse_0p3','reverse_0p6',
+           'spin_left','spin_right','height_low','height_high'}
+    for report,manifest,minimum in zip(reports,manifests,(20.,30.,60.)):
+        if (not report['passed'] or report['resets'] or report['survivors']!=27
+                or report['total_trials']!=27 or report['acceptance_criteria']!=criteria
+                or len(manifest['cases'])!=9 or {c['name'] for c in manifest['cases']}!=names
+                or len(set(manifest['seeds']))!=3 or manifest['seconds_per_case']<minimum
+                or manifest.get('command_scale',1.)!=1.
+                or manifest.get('curriculum_progress') not in (None,1.)
+                or manifest.get('heading')!='constant requested yaw rate; no added heading feedback'):
+            raise RuntimeError('Incomplete or failed full-command completion replay')
+    if not all(r['passed'] for r in stable):
+        raise RuntimeError('Errors are not stable across the required steady windows')
+    if any(manifest['cases']!=manifests[0]['cases'] for manifest in manifests[1:]):
+        raise RuntimeError('Completion command matrices differ')
+    expected={'stand':(0.,0.),'forward_0p3':(.3,0.),'forward_0p6':(.6,0.),
+              'reverse_0p3':(-.3,0.),'reverse_0p6':(-.6,0.),'spin_left':(0.,.3),
+              'spin_right':(0.,-.3),'height_low':(0.,0.),'height_high':(0.,0.)}
+    for case in manifests[0]['cases']:
+        height=(runtime['commands']['ranges_height'][0] if case['name']=='height_low' else
+                runtime['commands']['ranges_height'][1] if case['name']=='height_high' else
+                runtime['rewards']['base_height_target'])
+        if ((case['speed'],case['yaw'])!=expected[case['name']] or abs(case['height']-height)>1.e-9):
+            raise RuntimeError('Completion silently changed the full acceptance commands')
+    seeds=[set(m['seeds']) for m in manifests]
+    if any(seeds[i]&seeds[j] for i in range(3) for j in range(i)):
+        raise RuntimeError('Completion reset seeds overlap')
+    digest=sha(checkpoint)
+    if any(r['checkpoint_sha256']!=digest or m['checkpoint_sha256']!=digest
+           for r,m in zip(reports,manifests)):
+        raise RuntimeError('Completion checkpoint differs from verified weights')
+    chain,_=verify_asset_chain(runtime['robot']['spawn']['usd_path'])
+    physical=('leg_control_mode','leg_joint_position_offset','leg_joint_position_scale',
+              'leg_joint_target_limit_margin','leg_joint_gravity_feedforward',
+              'leg_joint_stiffness','leg_joint_damping','leg_effort_limit','wheel_effort_limit',
+              'wheel_control_mode','wheel_damping','wheel_radius','wheel_track_width',
+              'five_bar_geometry','hardware_profile','feedforward_mode','feedforward_force',
+              'feedforward_angle_bias','feedforward_force_limit','enable_external_forces_every_iteration',
+              'action_scale_vel','obs_scales','obs_clip','decimation','robot')
+    from wheel_legged_gym_isaaclab.config_overrides import strip_retired_config_fields
+    for directory,manifest in zip(directories,manifests):
+        cfg=strip_retired_config_fields(json.loads((directory/'resolved_env.json').read_text()))
+        if (manifest.get('asset_chain_sha256')!=chain or cfg['sim']['dt']!=runtime['sim']['dt']
+                or any(cfg[k]!=runtime[k] for k in physical)):
+            raise RuntimeError('Completion controller or complete vehicle asset changed')
+    sources=state.get('source_files',{})
+    if not sources or any(not Path(p).is_relative_to(ROOT) or sha(p)!=digest for p,digest in sources.items()):
+        raise RuntimeError('Completion source snapshot changed or missing')
+    delivery=output/'final_delivery'
+    if delivery.exists():
+        raise RuntimeError('Final delivery already exists; inspect it before retrying')
+    delivery.mkdir()
+    shutil.copy2(checkpoint,delivery/'model.pt')
+    shutil.copytree(checkpoint.parent/'params',delivery/'params')
+    for label,directory in zip(('training','heldout_30s','extended_60s'),directories):
+        target=delivery/'validation'/label;target.mkdir(parents=True)
+        for name in ('manifest.json','completed.json','resolved_env.json','assessment_final_gate.json','assessment_stability.json'):
+            if (directory/name).is_file():shutil.copy2(directory/name,target/name)
+    with tarfile.open(delivery/'source.tar.gz','w:gz') as archive:
+        for path in sources:archive.add(path,arcname=str(Path(path).relative_to(ROOT)))
+    if sha(delivery/'model.pt')!=sha(checkpoint):
+        raise RuntimeError('Saved delivery checkpoint differs from verified model')
+    files={str(p.relative_to(delivery)):sha(p) for p in delivery.rglob('*') if p.is_file()}
+    write_json(delivery/'manifest.json',dict(format='clt_verified_joint_pd_checkpoint_v1',
+        checkpoint=str(checkpoint),checkpoint_sha256=sha(checkpoint),files=files,
+        acceptance_criteria=criteria,all_stable_simulation_gates_passed=True,
+        hardware_approved=False,randomization_and_sim2sim_pending=True))
+    if any(sha(delivery/name)!=h for name,h in files.items()):
+        raise RuntimeError('Saved delivery verification failed')
+    cancelled=(output/'CANCEL_SHUTDOWN').exists() or (output/'STOP').exists()
+    completion=dict(model_saved=True,optimizer_saved=True,parameters_saved=True,
+        final_delivery=str(delivery),checkpoint_sha256=sha(checkpoint),
+        all_errors_stable_under_requested_limits=True,shutdown_requested=shutdown and not cancelled,
+        shutdown_cancelled=cancelled,hardware_approved=False)
+    write_json(output/'completion.json',completion)
+    state.update(training_active=False,child_pid=None,completion=str(output/'completion.json'),
+                 final_delivery=str(delivery),state='completed_model_saved')
+    write_json(state_path,state)
+    subprocess.run(['/usr/bin/sync'],check=True)
+    cancelled=(output/'CANCEL_SHUTDOWN').exists() or (output/'STOP').exists()
+    if cancelled and not completion['shutdown_cancelled']:
+        completion.update(shutdown_requested=False,shutdown_cancelled=True)
+        write_json(output/'completion.json',completion)
+    if shutdown and not cancelled:
+        try:
+            subprocess.run(['/usr/bin/systemctl','--no-ask-password','poweroff'],check=True)
+        except BaseException as error:
+            completion.update(shutdown_requested=False,shutdown_error=repr(error))
+            write_json(output/'completion.json',completion)
+            raise
+    return completion
+
 def main():
     p=argparse.ArgumentParser()
     p.add_argument('--state',type=Path,required=True)
     p.add_argument('--shutdown',action='store_true')
+    p.add_argument('--require-leg-control-mode',choices=('explicit_vmc','implicit_joint_position'))
     args=p.parse_args()
     state=json.loads(args.state.read_text())
+    if state.get('state')=='simulation_accepted_pending_sim2sim_and_randomization':
+        return finish_joint_pd(args.state,args.shutdown)
     if state['state']!='accepted':raise RuntimeError('No accepted training state')
+    if (args.require_leg_control_mode is not None and
+            state.get('overrides',{}).get('leg_control_mode')!=args.require_leg_control_mode):
+        raise RuntimeError('Accepted experiment has the wrong leg execution chain')
     output=args.state.parent
     export=Path(state['export_directory'])
     acceptance=json.loads((export/'acceptance.json').read_text())
@@ -42,6 +180,12 @@ def main():
         requested=json.loads(requirements.read_text())
         if criteria['relative_error']>requested['relative_error_target']:
             raise RuntimeError('Acceptance is looser than the requested completion target')
+        expected=requested.get('acceptance_criteria',{})
+        for key,limit in expected.items():
+            actual=criteria.get(key)
+            if (actual is None or actual!=actual or
+                    (actual<limit if key=='minimum_height_fraction' else actual>limit)):
+                raise RuntimeError('Acceptance criterion was relaxed: '+key)
     if any(r['acceptance_criteria']!=criteria for r in reports):
         raise RuntimeError('Acceptance criteria differ between verification stages')
     acceptance.update(criterion=reports[-1]['criterion'],acceptance_criteria=criteria)
@@ -72,6 +216,12 @@ def main():
         if not (export/name).is_file() or not (export/name).stat().st_size:raise RuntimeError('Missing export: '+name)
     contract=json.loads((export/'sim2sim_contract.json').read_text())
     runtime=contract['runtime_config']
+    if (args.require_leg_control_mode is not None and
+            runtime.get('leg_control_mode')!=args.require_leg_control_mode):
+        raise RuntimeError('Export has the wrong leg execution chain')
+    if requirements.exists() and requested.get('leg_control_mode') is not None:
+        if runtime.get('leg_control_mode')!=requested['leg_control_mode']:
+            raise RuntimeError('Export does not meet the requested leg execution chain')
     for name in ('policy.pt','policy.onnx'):
         if sha(export/name)!=contract['export_sha256'][name]:raise RuntimeError('Export changed after replay: '+name)
     if len({m['asset_sha256'] for m in manifests})!=1 or sha(runtime['robot']['spawn']['usd_path'])!=manifests[0]['asset_sha256']:
@@ -98,10 +248,19 @@ def main():
     physical_fields+=('theta0_ref_min','theta0_ref_max','leg_length_height_offset',
         'forward_support_speed_threshold','forward_support_height_margin','forward_support_min_leg_length')
     resolved=[json.loads((p/'resolved_env.json').read_text()) for p in paths+[export_replay]]
+    # Missing fields mean the historical constant-feedforward controller, not
+    # the new MCU controller. Never accept replays with different force laws.
+    legacy_control_defaults = {'hardware_profile': None, 'feedforward_mode': 'constant',
+        'feedforward_angle_bias': 0.0, 'feedforward_force_limit': 150.0,
+        'enable_external_forces_every_iteration': False}
     for cfg in resolved:
-        if any(cfg[k]!=runtime[k] for k in physical_fields) or cfg['sim']['dt']!=runtime['sim']['dt']:
+        if (any(cfg[k]!=runtime[k] for k in physical_fields) or cfg['sim']['dt']!=runtime['sim']['dt']
+                or any(cfg.get(k, default)!=runtime.get(k, default)
+                       for k, default in legacy_control_defaults.items())):
             raise RuntimeError('Controller differs between validation runs and export')
-    implicit=runtime.get('leg_control_mode')=='implicit_joint_reference'
+    from wheel_legged_gym_isaaclab.leg_control import require_leg_control_mode
+    require_leg_control_mode(runtime.get('leg_control_mode'))
+    implicit=runtime.get('leg_control_mode')=='implicit_joint_position'
     if implicit and any(m.get('heading')!='constant requested yaw rate; no added heading feedback' for m in manifests):
         raise RuntimeError('Fixed-command acceptance contains extra heading feedback')
     tutorial=ROOT/('mine_model/docs/开链转闭链图文教程_v3' if implicit else 'mine_model/docs/开链转闭链图文教程_v2')
@@ -134,26 +293,25 @@ def main():
         'wheel_legged_isaaclab/wheel_legged_gym_isaaclab/five_bar_vmc.py',
         'wheel_legged_isaaclab/wheel_legged_gym_isaaclab/config_overrides.py',
         'wheel_legged_isaaclab/wheel_legged_gym_isaaclab/exploration.py',
-        'wheel_legged_isaaclab/wheel_legged_gym_isaaclab/checkpoint_initialization.py',
-        'wheel_legged_isaaclab/wheel_legged_gym_isaaclab/precision_finetune.py',
-        'wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/mine_env_cfg.py',
         'wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py',
         'wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env_cfg.py',
+        'wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/env_commands.py',
         'wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/agents/rsl_rl_ppo_cfg.py',
         'wheel_legged_isaaclab/scripts/rsl_rl/train.py','wheel_legged_isaaclab/scripts/evaluate_mine_policy.py',
         'wheel_legged_isaaclab/scripts/rsl_rl/play.py',
         'wheel_legged_isaaclab/scripts/rsl_rl/keyboard_control.py',
         'mine_model/scripts/play_keyboard.py',
-        'mine_model/docs/键盘可视化控制说明.md',
         'mine_model/run.sh',
         'mine_model/scripts/auto_train_mine.py','mine_model/scripts/complete_mine_training.py',
+        'mine_model/scripts/watch_training_completion.py',
+        'wheel_legged_isaaclab/wheel_legged_gym_isaaclab/leg_control.py',
+        'wheel_legged_isaaclab/wheel_legged_gym_isaaclab/physics_contract.py',
+        'wheel_legged_isaaclab/scripts/check_mine_vmc.py',
+        'wheel_legged_isaaclab/scripts/sweep_mine_vmc_gains.py',
         'mine_model/scripts/build_training_record.py',
         'mine_model/scripts/optimization_journal.py',
         'mine_model/config/tracking_acceptance.json',
         'mine_model/scripts/benchmark_env_scale.py',
-        'mine_model/scripts/build_training_collision_variant.py',
-        'mine_model/scripts/build_protected_leg_collision_variant.py',
-        'mine_model/scripts/build_stop_contact_variant.py',
         'mine_model/scripts/compare_collision_variants.py',
         'mine_model/scripts/summarize_collision_capacity.py',
         'mine_model/scripts/audit_leg_stop_geometry.py',
@@ -161,16 +319,14 @@ def main():
         'mine_model/scripts/audit_live_stop_geometry.py',
         'mine_model/scripts/export_collision_viewer.py',
         'mine_model/scripts/templates/collision_viewer.html',
-        'wheel_legged_isaaclab/scripts/test_mine_leg_stops.py',
+        'wheel_legged_isaaclab/scripts/check_direct_joint_pd.py',
         'wheel_legged_isaaclab/wheel_legged_gym_isaaclab/mine_collision_filters.py',
         'wheel_legged_isaaclab/wheel_legged_gym_isaaclab/asset_integrity.py',
         'mine_model/scripts/summarize_mine_trial.py',
-        'mine_model/scripts/audit_policy_feedback.py','mine_model/scripts/trial_feedback_initialization.py',
-        'mine_model/scripts/trial_wheel_precision.py',
-        'mine_model/scripts/build_smooth_tire_variant.py',
-        'mine_model/scripts/build_guide.py','mine_model/scripts/build_feedback_figure.py',
-        'mine_model/scripts/build_collision_figure.py',
-        'mine_model/README.md','mine_model/results/auto_training_implicit_20pct_20261004/README.md',
+        'mine_model/scripts/diagnose_policy_feedback.py',
+        'wheel_legged_isaaclab/wheel_legged_gym_isaaclab/robot_model.py',
+        'wheel_legged_isaaclab/tests/test_robot_model.py',
+        'mine_model/README.md','mine_model/docs/IK清理说明_20261011.md',
         'mine_model/run.sh','mine_model/config/closures.json','mine_model/config/hole_candidates.json',
         'mine_model/scripts/run_isaac.py','mine_model/scripts/export_project_model.py',
         'mine_model/scripts/find_closure_axes.py','mine_model/scripts/inspect_joints.py',
@@ -235,7 +391,7 @@ def main():
         *(['3000轮曲线显示轮速参考接近22–25 Hz快速摆动。固定2799轮权重的阻尼1.0及0.5对照均完整存活，但没有解决全部误差且轮速跟踪变差，因此正式阻尼保留2.0。已有action_rate包含轮动作，action_smooth仅覆盖腿；从3200阶段将action_rate由-0.01改为-0.5，并新增独立action_rate_penalty_clip、随权重覆盖六维动作全部变化范围。该项仅改变训练奖励，执行器契约不变。'] if (output/'wheel_flutter_audit_20261004.json').exists() else []),
         '自动规划器达到偏航或静止轮速惩罚上限后，不再将未变的参数记为调整。若完整回放全部存活且轮参考单步变化RMS超过1 rad/s，可逐轮增强已有action_rate，最大绝对权重2；没有该实测依据则保持参数继续学习。诊断统计与验收误差分开保存，验收容差保持不变。',
         *([f"精度阶段单独调整PPO算法参数：{json.dumps(state['agent_overrides'],ensure_ascii=False)}。轮探索标准差从运动切换时0.08增长到约0.40–0.57，现有平滑惩罚已降低动作振荡但偏航仍超标，因此将熵系数0.01降为0.001；保留当前权重、优化器和std，由后续学习逐步收敛。最终PPO参数以training_params/agent.yaml为准。"] if state.get('agent_overrides') else []),
-        *(['后续精度训练采用wheel-head-only模式：冻结actor共享特征及腿角、腿长输出行0/1/3/4和对应探索参数；只更新轮输出行2/5、轮探索std及critic。清除冻结行的Adam历史，避免零梯度仍被旧动量移动；轮与critic历史保留。该模式仅改变训练梯度，导出仍为普通27维观测、6动作的MLP，推理无额外控制器。训练参数与独立对照证据见training_params/precision_mode.yaml和optimization_history。'] if state.get('wheel_head_only_finetune') else []),
+        '当前训练更新完整 actor 和 critic，包括全部腿/轮输出、共享特征与探索参数。历史只调轮输出的状态不再启用冻结逻辑；旧模式记录仅保留在历史证据中。',
         *(['检查CAD网格发现轮胎碰撞外轮廓只有18边，半径60 mm时每个平面中点比圆轮低约0.912 mm。另存96边圆轮碰撞USD叠加层，保持半径、轴向宽度、原CAD显示网格、15刚体质量/COM/惯量、14个树关节及4个闭合关节。原18边轮胎碰撞关闭，新碰撞外形使用96边及hullVertexLimit=255，避免默认64顶点的凸包简化。原文件保留。固定已训练5500权重，从18边改用96边后首轮27/27全部通过；5500权重的独立12秒复测同样通过，但30秒延长回放存在偏航超标，未标记达标、未关机。随后在96边资产上继续轮输出精度训练，使用实际失败的独立或延长回放报告调整下一轮，保持原验收阈值。最终三阶段验收均使用本次选中权重及同一碰撞变体，没有添加额外航向反馈。资产与来源哈希见robot_assets中的变体清单，底层CAD源USD哈希也由交付门控校验。'] if tire_variant else []),
         *(['原策略持续反向响应时，另建受控续训初始化：actor/critic首层速度命令列6及Adam一阶矩取负；actor腿摆角输出行0、3改为25%原输出与75%CAD零位名义角的混合，只清除对应行优化器历史。其它权重和探索std保留，回放和最终模型使用正常27维输入，没有运行时指令翻转。修改来源与哈希见optimization_history/interventions.json及独立初始化清单。'] if any(e.get('angle_initialization_manifest') for e in state.get('interventions',[])) else []),
         *([f"高度参考混合系数为{runtime['height_reference_blend']}，高度误差反馈增益为{runtime['height_feedback_gain']}。采用轮阻尼2.0及温和高度外环的初始化对照曾27/27完整存活、所有姿态p95不超过5度，但跟踪精度仍超标，仅作为续训起点。最终验收配置见runtime_config.json；MuJoCo需同步腿长参考混合、高度修正和物理限幅。"] if any(e.get('angle_initialization_manifest') for e in state.get('interventions',[])) else []),
@@ -243,7 +399,7 @@ def main():
         *(['底盘与普通连杆碰撞简化、保留的限位块和小腿接触面、闭链求解树及动态joint映射、真实接触限制、同权重误差对照和并行环境实测见随包《碰撞简化与机械限位说明_20261004.md》。验收同时记录并核对全部USD来源层及共享网格哈希，避免只核对顶层USD。'] if collision_note.is_file() else []),
         '自动训练先试训1000轮，后续每200轮回放。通过站立精度验收后加入运动；每轮依据实测误差调整奖励和课程。站稳时保留optimizer/std，实际倒地才恢复探索；最佳checkpoint先比较存活数和时长，再比较全部指标的最大及平均归一化误差。初始化分支单独命名并记录真实迭代偏移，避免恢复旧分支较大编号的checkpoint。完整变更见各轮 overrides.json。','',
         '## 最终控制参数','',
-        (f"腿部执行为 implicit_joint_reference：虚拟腿目标经五连杆逆解转换为原始电机角目标，PhysX force Drive 联合求解闭环；关节 Kp/Kd 为 {runtime['leg_joint_stiffness']} / {runtime['leg_joint_damping']}，限幅 {runtime['leg_effort_limit']} Nm，轮速阻尼 {runtime['wheel_damping']}。旧显式 VMC 的角度、腿长 PD 和重力前馈不再作为腿电机力矩施加。MuJoCo 复现须同步采用该执行器契约。" if implicit else
+        (f"腿部执行为 implicit_joint_position：策略直接给出四个主动电机目标角，关节隐式 PD 提供反馈；关节 Kp/Kd 为 {runtime['leg_joint_stiffness']} / {runtime['leg_joint_damping']}，总力矩限幅 {runtime['leg_effort_limit']} Nm，轮速阻尼 {runtime['wheel_damping']}。重力前馈由独立力矩通道提供，开关以保存配置为准；不施加虚拟腿反馈 PD。MuJoCo 复现须同步采用该执行器契约。" if implicit else
          f"摆角 Kp/Kd：{runtime['kp_theta']} / {runtime['kd_theta']}；腿长 Kp/Kd：{runtime['kp_l0']} / {runtime['kd_l0']}；轮速阻尼：{runtime['wheel_damping']}。接入时为 50/3、900/90、0.5，后续调整依据短测和逐轮回放。"),
         '新模型初期 1000 次追加训练后仍为 0/27 完成，探索 std 由 0.3 降到约 0.04。20 组摆角增益短测中，Kp=10 比 Kp=50 减轻塌腿但没有通过站立；据此建立低刚度训练对照，并将新模型 PPO 熵系数由 0.001 提高到 0.01。最终值以随包 training_params 和 runtime_config 为准。','',
         '## 验收口径','',report['criterion'],'',
@@ -316,10 +472,14 @@ def main():
             'post_training_optimization':str(training_record/'训练后优化流程.md'),
             'training_record_manifest_sha256':sha(training_record/'record_manifest.json')}
     record=output/'completion.json';record.write_text(json.dumps(status,indent=2,ensure_ascii=False))
-    subprocess.run(['/usr/bin/sync'],check=True)
     if args.shutdown:
         if (output/'CANCEL_SHUTDOWN').exists():
-            status['shutdown_cancelled']=True;record.write_text(json.dumps(status,indent=2));return
+            status['shutdown_cancelled']=True
+            record.write_text(json.dumps(status,indent=2))
+            subprocess.run(['/usr/bin/sync'],check=True)
+            return
+    subprocess.run(['/usr/bin/sync'],check=True)
+    if args.shutdown:
         result=subprocess.run(['/usr/bin/systemctl','--no-ask-password','poweroff'],capture_output=True,text=True)
         if result.returncode:
             status['shutdown_error']=result.stderr;record.write_text(json.dumps(status,indent=2));raise RuntimeError(result.stderr)

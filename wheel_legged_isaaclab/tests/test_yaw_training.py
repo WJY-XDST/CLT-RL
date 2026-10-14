@@ -3,16 +3,60 @@
 import unittest
 from types import SimpleNamespace
 import torch
-from wheel_legged_gym_isaaclab.yaw_training import sample_grouped_motion, sample_yaw_rates, spin_center_velocity_penalty
+from wheel_legged_gym_isaaclab.yaw_training import grouped_task_ids, sample_grouped_motion, sample_yaw_rates, spin_center_velocity_penalty
 
 
 class TestYawTraining(unittest.TestCase):
-    def grouped(self, ids, phase=0, progress=1.):
+    def grouped(self, ids, phase=0, progress=1., dedicated_standing_count=None):
         cfg = SimpleNamespace(ranges_lin_vel_x=(.2,.8), ranges_reverse_lin_vel_x=(-.8,-.2),
                               ranges_transition_lin_vel_x=(-.2,.2), ranges_ang_vel_yaw=(-.5,.5),
                               speed_boundary_fraction=.3, grouped_low_speed_fraction=1/3,
                               yaw_min_abs_rate=.15, yaw_boundary_fraction=.2)
-        return sample_grouped_motion(ids, cfg, progress, progress, progress, phase)
+        return sample_grouped_motion(ids, cfg, progress, progress, progress, phase,
+                                     dedicated_standing_count=dedicated_standing_count)
+
+    def test_fixed_standing_count_and_five_motion_populations(self):
+        ids = torch.arange(8192)
+        for phase in range(10):
+            speed, yaw = self.grouped(ids, phase, dedicated_standing_count=2048)
+            masks = ((speed == 0) & (yaw == 0), (speed == 0) & (yaw != 0),
+                     (speed > 0) & (yaw == 0), (speed < 0) & (yaw == 0),
+                     (speed > 0) & (yaw != 0), (speed < 0) & (yaw != 0))
+            self.assertTrue(torch.equal(masks[0], ids < 2048))
+            counts = [m.sum().item() for m in masks]
+            self.assertEqual(counts[0], 2048)
+            self.assertEqual(sum(counts[1:]), 6144)
+            self.assertEqual(sorted(counts[1:]), [1228, 1229, 1229, 1229, 1229])
+
+    def test_dedicated_ids_never_rotate_or_turn_after_partial_reset(self):
+        ids = torch.tensor([0, 13, 2047, 2048, 4000, 8191])
+        for phase in range(10):
+            groups = grouped_task_ids(ids, phase, dedicated_standing_count=2048)
+            speed, yaw = self.grouped(ids, phase, dedicated_standing_count=2048)
+            self.assertTrue(torch.equal(groups[:3], torch.zeros(3, dtype=groups.dtype)))
+            self.assertEqual(speed[:3].count_nonzero().item(), 0)
+            self.assertEqual(yaw[:3].count_nonzero().item(), 0)
+            expected = grouped_task_ids(torch.arange(8192), phase, 2048)[ids]
+            self.assertTrue(torch.equal(groups, expected))
+            self.assertTrue(torch.all((speed[3:] != 0) | (yaw[3:] != 0)).item())
+
+    def test_only_nonstanding_ids_rotate_through_every_motion_role(self):
+        ids = torch.tensor([0, 2047, 2048, 2049])
+        observed = torch.stack([grouped_task_ids(ids, phase, 2048) for phase in range(5)])
+        self.assertEqual(observed[:, :2].count_nonzero().item(), 0)
+        for column in (2, 3):
+            self.assertEqual(sorted(observed[:, column].tolist()), [1, 2, 3, 4, 5])
+
+    def test_dedicated_standing_preserves_zero_startup_and_small_previews(self):
+        speed, yaw = self.grouped(torch.arange(8192), progress=0., dedicated_standing_count=2048)
+        self.assertEqual(speed.count_nonzero().item(), 0)
+        self.assertEqual(yaw.count_nonzero().item(), 0)
+        self.assertEqual(grouped_task_ids(torch.tensor([0]), 0, 0).item(), 1)
+
+    def test_invalid_fixed_population_count_is_rejected(self):
+        for value in (-1, 0.25, True):
+            with self.assertRaises(ValueError):
+                grouped_task_ids(torch.arange(8), dedicated_standing_count=value)
 
     def test_exact_group_counts_and_role_rotation(self):
         ids = torch.arange(12288)

@@ -17,25 +17,44 @@ WATCHED = (
     'mine_model/scripts/auto_train_mine.py',
     'mine_model/scripts/summarize_mine_trial.py',
     'mine_model/scripts/complete_mine_training.py',
+    'mine_model/scripts/watch_training_completion.py',
     'mine_model/scripts/build_training_record.py',
     'mine_model/scripts/optimization_journal.py',
     'mine_model/scripts/play_keyboard.py',
     'mine_model/run.sh',
-    'mine_model/docs/键盘可视化控制说明.md',
+    'mine_model/README.md',
+    'mine_model/docs/IK清理说明_20261011.md',
     'mine_model/config/tracking_acceptance.json',
     'wheel_legged_isaaclab/scripts/rsl_rl/train.py',
     'wheel_legged_isaaclab/scripts/rsl_rl/play.py',
     'wheel_legged_isaaclab/scripts/rsl_rl/keyboard_control.py',
     'wheel_legged_isaaclab/scripts/evaluate_mine_policy.py',
     'wheel_legged_isaaclab/wheel_legged_gym_isaaclab/five_bar_vmc.py',
-    'wheel_legged_isaaclab/wheel_legged_gym_isaaclab/precision_finetune.py',
+    'wheel_legged_isaaclab/wheel_legged_gym_isaaclab/leg_control.py',
+    'wheel_legged_isaaclab/wheel_legged_gym_isaaclab/physics_contract.py',
+    'wheel_legged_isaaclab/tests/test_physics_contract.py',
+    'wheel_legged_isaaclab/scripts/check_mcu_vmc_support.py',
+    'wheel_legged_isaaclab/scripts/check_mine_vmc.py',
+    'wheel_legged_isaaclab/scripts/sweep_mine_vmc_gains.py',
+    'wheel_legged_isaaclab/tests/test_leg_control.py',
+    'wheel_legged_isaaclab/tests/test_mine_resume.py',
+    'wheel_legged_isaaclab/wheel_legged_gym_isaaclab/exploration.py',
+    'wheel_legged_isaaclab/tests/test_exploration.py',
+    'wheel_legged_isaaclab/wheel_legged_gym_isaaclab/robot_model.py',
+    'wheel_legged_isaaclab/tests/test_robot_model.py',
+    'wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/__init__.py',
+    'wheel_legged_isaaclab/sim2sim/core.py',
+    'wheel_legged_isaaclab/sim2sim/run.py',
+    'wheel_legged_isaaclab/sim2sim/evaluate_mine.py',
+    'mine_model/docs/新车数据清理与大五连杆配置说明.md',
+    'wheel_legged_isaaclab/tests/test_env_modules.py',
     'wheel_legged_isaaclab/wheel_legged_gym_isaaclab/config_overrides.py',
     'wheel_legged_isaaclab/deployment/actuator_bridge.py',
     'wheel_legged_isaaclab/tests/test_optimization_journal.py',
     'wheel_legged_isaaclab/tests/test_keyboard_control.py',
-    'wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/mine_env_cfg.py',
     'wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py',
     'wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env_cfg.py',
+    'wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/env_commands.py',
     'wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/agents/rsl_rl_ppo_cfg.py',
 )
 HEADER = '''# 新模型持续优化报告
@@ -135,6 +154,14 @@ def launch_records(log):
 def sync_journal(output, report=None, root=ROOT):
     output = Path(output).resolve()
     root = Path(root).resolve()
+    # Validate before creating anything: retired watchers must not recreate
+    # a cleaned IK run or write a new report for incompatible action semantics.
+    if not output.is_dir():
+        raise FileNotFoundError(f'Training output does not exist: {output}')
+    state = read_json(output / 'status.json')
+    mode = state.get('overrides', {}).get('leg_control_mode', state.get('leg_control_mode'))
+    if mode is not None and mode not in ('explicit_vmc', 'implicit_joint_position'):
+        raise ValueError(f'Retired or unsupported leg control mode: {mode}')
     report = Path(report) if report else output / '持续优化报告.md'
     report.parent.mkdir(parents=True, exist_ok=True)
     archive = output / 'optimization_journal'
@@ -144,7 +171,6 @@ def sync_journal(output, report=None, root=ROOT):
         if not report.exists():
             report.write_text(HEADER)
         existing = report.read_text()
-        state = read_json(output / 'status.json')
         def append(event, title, body):
             nonlocal existing
             eid = identity(event)
@@ -159,7 +185,9 @@ def sync_journal(output, report=None, root=ROOT):
                 stream.flush()
             existing += block
 
-        log = root / 'mine_model/build/logs' / f'{output.name.replace("_20261004", "")}_service.log'
+        log = output / 'service.log'
+        if not log.exists():
+            log = root / 'mine_model/build/logs' / f'{output.name.replace("_20261004", "")}_service.log'
         # The existing supervisor has a historic log name without the date.
         if not log.exists():
             log = root / 'mine_model/build/logs' / f'{output.name}_service.log'

@@ -1,0 +1,16 @@
+{
+  "root": "/home/aaa/studyRL/src/CLT-RL",
+  "applied": true,
+  "removal_method": "gio trash; recover from desktop Trash",
+  "basis": "Orphan bytecode of the eight removed IK-only scripts/tasks; source paths no longer exist",
+  "paths": [
+    "mine_model/scripts/__pycache__/train_jump.cpython-311.pyc",
+    "mine_model/scripts/__pycache__/check_jump.cpython-311.pyc",
+    "mine_model/scripts/__pycache__/build_flutter_figures.cpython-310.pyc",
+    "mine_model/scripts/__pycache__/build_initialization_figures.cpython-310.pyc",
+    "wheel_legged_isaaclab/scripts/__pycache__/test_mine_leg_stops.cpython-310.pyc",
+    "wheel_legged_isaaclab/sim2sim/__pycache__/test_mine_stops.cpython-310.pyc",
+    "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/__pycache__/mine_jump_env_cfg.cpython-311.pyc",
+    "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/__pycache__/mine_jump_env.cpython-311.pyc"
+  ]
+}

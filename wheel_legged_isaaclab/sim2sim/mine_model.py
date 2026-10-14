@@ -14,7 +14,7 @@ import xml.etree.ElementTree as ET
 import mujoco
 import numpy as np
 from scipy.spatial.transform import Rotation
-from pxr import Gf, Usd, UsdGeom, UsdPhysics
+from pxr import Usd, UsdGeom, UsdPhysics
 
 
 def values(array):
@@ -235,11 +235,12 @@ def build_mine_model(cfg, output_path):
     motor_order = ('LB_joint', 'LL_joint', 'LW_joint', 'RB_joint', 'RL_joint', 'RW_joint')
     for name in motor_order:
         wheel = name in cfg['wheel_joint_names']
-        kp = 0. if wheel else cfg['leg_joint_stiffness']
-        kd = cfg['wheel_damping'] if wheel else cfg['leg_joint_damping']
+        position = not wheel and cfg['leg_control_mode'] == 'implicit_joint_position'
+        kp = cfg['leg_joint_stiffness'] if position else 0.
+        kd = cfg['wheel_damping'] if wheel else cfg['leg_joint_damping'] if position else 0.
         limit = cfg['wheel_effort_limit'] if wheel else cfg['leg_effort_limit']
         ET.SubElement(actuator, 'general', name=name + '_drive', joint=name, dyntype='none', gaintype='fixed',
-                      biastype='affine', gainprm=values([kd if wheel else kp]),
+                      biastype='affine', gainprm=values([kd if wheel else kp if position else 1.]),
                       biasprm=values([0, -kp, -kd]), forcelimited='true', forcerange=values([-limit, limit]))
     ET.SubElement(root, 'statistic', center='0 0 .3', extent='1.2')
     ET.indent(root)

@@ -1,0 +1,22 @@
+#usda 1.0
+(
+    defaultPrim = "mine_robot"
+    subLayers = [@mine_closed_chain_training_protected_stops_v2.usd@]
+)
+
+# Owner-confirmed wheel + hub-motor masses, 2026-10-14: 0.665 kg per side.
+# Left inertia is an estimate: original CAD inertia * (0.665 / CAD mass).
+# COM, principal axes, geometry, joints and right inertia inherit the CAD asset.
+over "mine_robot"
+{
+    over "LW_link"
+    {
+        float physics:mass = 0.665
+        float3 physics:diagonalInertia = (0.0005078428974450721, 0.0005001346045856644, 0.0007530715947665536)
+    }
+
+    over "RW_link"
+    {
+        float physics:mass = 0.665
+    }
+}

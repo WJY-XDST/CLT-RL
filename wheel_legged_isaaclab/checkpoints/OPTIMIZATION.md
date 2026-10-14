@@ -1,53 +1,15 @@
-# 持续训练与验收
+# 当前训练与验收入口
 
-`scripts/rsl_rl/optimize_training.py` 接管一个指定的在训进程，完成后自动执行回放、比较、配置试验和后续训练。所有仿真均为 headless，训练环境数为 12288，不启动窗口或录像。
+旧车的固定模型优化器及旧尺寸验收脚本已于 2026-10-12 退役。当前训练结果在 `CLT-RL/IsaacLab/logs/rsl_rl/`；不要继续调用旧优化器或加载已删除的示例车模型。
 
-## 当前门槛
+当前工程使用自己的映射闭链五连杆，保留两种执行契约：直接关节目标角加隐式 PD 和独立重力前馈，以及显式 VMC。相同的 27 维观测、6 维动作尺寸不意味着模型可以跨控制模式复用。
 
-每个随机种子执行 33 个五秒阶段，覆盖 0、±0.2、±0.4、±0.6、±0.8 m/s，以及 0.16、0.18、0.20 m 三种高度。每阶段最后两秒作为稳态窗口。
+主要入口：
 
-- 非零速度：绝对误差均值、95 分位数分别除以目标速度绝对值，两者都必须小于 5%。
-- 高度：绝对误差均值、95 分位数分别除以目标高度，两者都必须小于 5%。
-- 静止：水平合速度的均值和 95 分位数都小于 0.02 m/s，包含横向漂移。
-- 机体 pitch/roll、左右腿摆角差：稳态绝对峰值均小于 3°。**这是暂定绝对阈值；零角度目标的相对误差没有定义，不能称作角度误差已小于 5%。**
-- 切换：方向性高度超调小于目标高度的 5%，机体倾角峰值小于 10°；第一次初始化落地不作为指令切换超调，但全程任何异常终止或超时都不通过。
-- CSV 必须完整、时间连续、数值有限、包含预期的所有指令阶段；任何缺失不能通过。
+- `wheel_legged_isaaclab/scripts/rsl_rl/train.py`：完整策略训练与检查点恢复。
+- `mine_model/scripts/auto_train_mine.py`：选择明确的训练模式。
+- `mine_model/scripts/joint_pd_optimization.py`：当前关节角全策略单变量对照。
+- `wheel_legged_isaaclab/scripts/evaluate_mine_policy.py`：冻结模型的 9 工况、3 种子独立回放。
+- `mine_model/scripts/summarize_mine_trial.py`：按统一 `tracking_acceptance.json` 判定。
 
-开发测试使用 seed 43/44/45。通过后追加 seed 46/47/48，并反转速度阶段和高度顺序。全部通过才记为 `complete`，含义是上述仿真工况下达到暂定标准，不代表所有地面、扰动或真实硬件下都完美。额外种子的失败也会用于决定后续试验，不能将反复使用的种子称为未见测试集。
-
-## 选择与训练决策
-
-保留的 3742 模型会用当前控制器、相同初始状态与相同种子重测，作为起始参照。候选必须无重置，最差指标构成的评分改善超过 10%（或首次全部达标），且每个阶段的其他未达标指标不能恶化超过 10%，才会替换参照。已达标指标允许在门槛内变化。失败候选及数据继续留在日志目录中。
-
-有收益时优先继续学习；没有收益时按薄弱目标尝试单项奖励增大或减小，权重范围受限制；每连续四个未改进候选，尝试一次从零训练，检验旧策略偏好。续训每轮 1000 次、学习率 0.0001、重建优化器；从零每轮 2000 次、学习率 0.0003。参数变更通过明确的 Hydra 覆盖参数实现，不覆写正在运行进程的配置。每轮 `plan.json`、实际 `params/env.yaml`、`params/agent.yaml` 和中文训练记录共同保存修改目的、内容、起点与验收结果。
-
-这是一套限定在现有控制器和奖励权重范围内的自动试验流程，不会自行任意重写环境动力学。持续塌陷的训练会提前停止并尝试下一候选；进程崩溃、配置错误、数据损坏或代码被外部修改时记为 `needs_attention`，不会冒充训练达标。机器重启后该进程不会自动启动，应先检查状态和最近 checkpoint，再恢复。
-
-## 状态、停止与留存
-
-状态文件为启动时 `--state-dir` 下的 `state.json`，含 PID、阶段、训练健康统计、保留模型和候选历史。进程是否存在和状态更新时间需要一起检查。不要只看旧 JSON 判断仍在训练。
-
-创建该目录下的 `STOP` 文件，会停止循环及其当前任务；已有 checkpoint 不删除。对该优化器 PID 发送 SIGTERM 也会清理它负责的任务。不要用全局 `pkill python`。
-
-首次启动示例（PID、路径必须使用实际值）：
-
-```bash
-python3 wheel_legged_isaaclab/scripts/rsl_rl/optimize_training.py \
-  --attach-pid TRAIN_PYTHON_PID --attach-run EXACT_RUN_NAME \
-  --attach-log /absolute/train.log \
-  --attach-checkpoint /absolute/run/model_1999.pt \
-  --state-dir /absolute/new_state_directory --publish
-```
-
-同一状态目录通过文件锁拒绝并发接管。再次启动必须先核实旧进程已退出，使用新目录；不可同时运行两个训练循环。
-
-明确提升的模型复制到 `checkpoints/optimized/`，同时留存实际配置、模型 SHA-256、代码哈希与完整分工况结果。`--publish` 只在用户已授权时使用；本任务用户已授权。Git 提交使用中文，只提交选中模型的记录和训练笔记；推送失败会明确记录，本地模型继续保留。后续改善时会再次推送。
-
-离线验收命令：
-
-```bash
-python3 wheel_legged_isaaclab/scripts/rsl_rl/assess_tracking.py \
-  /absolute/seed43.csv /absolute/seed44.csv /absolute/seed45.csv \
-  --output /absolute/assessment.json
-python3 -m unittest discover -s wheel_legged_isaaclab/tests -p test_tracking_acceptance.py -v
-```
+详情见 [工程说明](../../mine_model/README.md)、[训练修改记录](../../mine_model/docs/训练修改记录_latest.md) 和 [完整代码框架](../learning/工程代码框架全解析_20261012.md)。历史模型和记录不会因本次代码清理而删除；各实验状态需要结合实际进程和更新时间判断，不只看旧 JSON。

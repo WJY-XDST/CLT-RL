@@ -27,6 +27,30 @@ class TestOptimizationJournal(unittest.TestCase):
             sync_journal(output, root=root)
             self.assertEqual(report.read_bytes(), initial)
 
+    def test_removed_output_is_not_recreated(self):
+        with tempfile.TemporaryDirectory() as d:
+            output = Path(d) / 'removed_ik_run'
+            with self.assertRaises(FileNotFoundError):
+                sync_journal(output, root=Path(d))
+            self.assertFalse(output.exists())
+
+    def test_retired_mode_is_rejected_before_report_creation(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d); output, _ = self.fixture(root)
+            (output / 'status.json').write_text(json.dumps({
+                'overrides': {'leg_control_mode': 'implicit_joint_reference'}}))
+            with self.assertRaisesRegex(ValueError, 'Retired'):
+                sync_journal(output, root=root)
+            self.assertFalse((output / '持续优化报告.md').exists())
+            self.assertFalse((output / 'optimization_journal').exists())
+
+    def test_direct_joint_position_report_remains_supported(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d); output, _ = self.fixture(root)
+            (output / 'status.json').write_text(json.dumps({
+                'overrides': {'leg_control_mode': 'implicit_joint_position'}}))
+            self.assertTrue(sync_journal(output, root=root).is_file())
+
     def test_source_change_appends_and_keeps_real_before_after_diff(self):
         with tempfile.TemporaryDirectory() as d:
             root = Path(d); output, source = self.fixture(root)
@@ -79,6 +103,19 @@ class TestOptimizationJournal(unittest.TestCase):
             self.assertIn('|stand|43|yaw_mae_rad_s|0.05|0.025|2.000|', report.read_text())
             content = report.read_bytes(); sync_journal(output, root=root)
             self.assertEqual(report.read_bytes(), content)
+
+    def test_explicit_branch_launches_are_read_from_local_service_log(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d); output,_=self.fixture(root)
+            (output/'service.log').write_text(json.dumps({
+                'purpose':'explicit VMC launch',
+                'child_log':str(output/'round_000_pilot/training.log'),
+                'child_command':['/project/scripts/rsl_rl/train.py','--num_envs','8192',
+                                 'env.leg_control_mode="explicit_vmc"','--target_iteration','200']}))
+            report=sync_journal(output,root=root)
+            self.assertIn('round_000_pilot：参数调整/启动配置',report.read_text())
+            self.assertIn('explicit_vmc',report.read_text())
+            self.assertIn('8192',report.read_text())
 
 
 if __name__ == '__main__':

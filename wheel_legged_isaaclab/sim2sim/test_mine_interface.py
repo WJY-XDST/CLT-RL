@@ -11,20 +11,16 @@ import torch
 from scipy.optimize import least_squares
 
 from core import PROJECT, Simulation, load_actor, load_config
-from test_interface import reference_class, namespace
+from test_interface import reference_class, namespace, vehicle_fixture
 
 
 class MineInterfaceTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         torch.set_num_threads(1)
-        root = PROJECT.parent
-        checkpoint = os.environ.get('MINE_SIM2SIM_CHECKPOINT')
-        if not checkpoint:
-            checkpoint = json.loads((root / 'mine_model/results/latest_live_replay.json').read_text())['checkpoint']
-        cls.checkpoint = Path(checkpoint)
-        cls.cfg = load_config(cls.checkpoint.parent / 'params/env.yaml')
-        cls.model_path = Path(os.environ.get('MINE_SIM2SIM_MJCF', root / 'mine_model/exports/mujoco_protected_stops_v2_20261004/scene_protected_contact.xml'))
+        cls.checkpoint, cls.cfg, cls.model_path = vehicle_fixture()
+        if cls.cfg['leg_control_mode'] != 'implicit_joint_position':
+            raise ValueError('This parity suite requires a direct motor-angle checkpoint')
         cls.model = mujoco.MjModel.from_xml_path(str(cls.model_path))
         cls.audit = json.loads(cls.model_path.with_suffix('.json').read_text())
         if Path(cls.audit['source_usd']) != Path(cls.cfg['robot']['spawn']['usd_path']).resolve():
@@ -58,10 +54,14 @@ class MineInterfaceTests(unittest.TestCase):
         data = Simulation(self.cfg, model).data
         gaps = [np.linalg.norm(data.site_xpos[model.eq_obj1id[i]] - data.site_xpos[model.eq_obj2id[i]]) for i in range(model.neq)]
         self.assertLess(max(gaps), 1e-6)
-        np.testing.assert_allclose(model.actuator_forcerange, [[-10, 10]] * 6)
-        np.testing.assert_allclose(model.actuator_gainprm[:, 0], [300, 300, 2, 300, 300, 2])
-        np.testing.assert_allclose(model.actuator_biasprm[:, :3], [[0, -300, -3], [0, -300, -3], [0, 0, -2],
-                                                                 [0, -300, -3], [0, -300, -3], [0, 0, -2]])
+        c = self.cfg
+        caps = [c['leg_effort_limit'], c['leg_effort_limit'], c['wheel_effort_limit'],
+                c['leg_effort_limit'], c['leg_effort_limit'], c['wheel_effort_limit']]
+        np.testing.assert_allclose(model.actuator_forcerange, [[-cap, cap] for cap in caps])
+        kp, kd, wd = c['leg_joint_stiffness'], c['leg_joint_damping'], c['wheel_damping']
+        np.testing.assert_allclose(model.actuator_gainprm[:, 0], [kp, kp, wd, kp, kp, wd])
+        np.testing.assert_allclose(model.actuator_biasprm[:, :3], [[0, -kp, -kd], [0, -kp, -kd], [0, 0, -wd],
+                                                                 [0, -kp, -kd], [0, -kp, -kd], [0, 0, -wd]])
 
     def test_observation_applied_action_and_drive_targets_match_isaaclab(self):
         rng = np.random.default_rng(42)
@@ -89,9 +89,13 @@ class MineInterfaceTests(unittest.TestCase):
             ref._commands_scale = torch.tensor([scales['lin_vel'], scales['ang_vel'], scales['height_measurements']])
             ref._target_lin_vel_x = ref._commands[:, 0].clone()
             ref._last_actions = torch.zeros(1, 6, 2)
-            ref._torque_limits = torch.full((1, 6), 10.)
+            ref._torque_limits = torch.tensor([[self.cfg['leg_effort_limit'], self.cfg['leg_effort_limit'],
+                self.cfg['wheel_effort_limit'], self.cfg['leg_effort_limit'], self.cfg['leg_effort_limit'],
+                self.cfg['wheel_effort_limit']]])
+            ref._leg_gravity_effort_applied = torch.zeros(1, 4)
             ref._update_commands = lambda: None
-            for name in ('_theta1', '_theta2', '_L0', '_theta0', '_L0_dot', '_theta0_dot'):
+            ref._tracking_diagnostics = False
+            for name in ('_L0', '_theta0', '_L0_dot', '_theta0_dot'):
                 setattr(ref, name, torch.zeros(1, 2))
             ref._five_bar_jacobian = torch.zeros(1, 2, 2, 2)
             ref._five_bar_valid = torch.ones(1, 2, dtype=torch.bool)
@@ -101,11 +105,13 @@ class MineInterfaceTests(unittest.TestCase):
             data = SimpleNamespace(
                 joint_pos=torch.tensor(sim.data.qpos[sim.qids][None], dtype=torch.float32),
                 joint_vel=torch.tensor(sim.data.qvel[sim.vids][None], dtype=torch.float32),
+                joint_pos_limits=torch.zeros(1, 6, 2),
                 root_pos_w=torch.tensor(sim.data.qpos[:3][None], dtype=torch.float32),
                 root_quat_w=torch.tensor(sim.data.qpos[3:7][None], dtype=torch.float32),
                 root_ang_vel_b=torch.tensor(angular[None], dtype=torch.float32),
                 projected_gravity_b=torch.tensor(gravity[None], dtype=torch.float32),
                 root_lin_vel_w=torch.tensor(com_velocity[None], dtype=torch.float32))
+            data.joint_pos_limits[:, [0, 1, 3, 4]] = sim.joint_limits
             ref._robot = SimpleNamespace(data=data,
                 set_joint_effort_target=lambda value, joint_ids: setattr(ref, 'effort', value),
                 set_joint_position_target=lambda value, joint_ids: setattr(ref, 'position_ref', value),
@@ -113,10 +119,21 @@ class MineInterfaceTests(unittest.TestCase):
             ref._apply_action()
             np.testing.assert_allclose(sim.joint_ref, ref.position_ref.numpy()[0], atol=2e-6)
             np.testing.assert_allclose(sim.data.ctrl[[2, 5]], ref.velocity_ref.numpy()[0], atol=2e-6)
-            np.testing.assert_allclose(ref.effort.numpy(), 0, atol=0)
+            np.testing.assert_allclose(sim.model.actuator_biasprm[[0, 1, 3, 4], 0],
+                                       ref.effort.numpy()[0, [0, 1, 3, 4]], atol=3e-6, rtol=2e-6)
+            np.testing.assert_allclose(ref.effort.numpy()[0, [2, 5]], 0, atol=0)
             np.testing.assert_allclose(sim.actions.numpy(), ref._actions.numpy(), atol=2e-6)
             # Isaac computes quaternion/frame math in float32; MuJoCo uses float64.
             np.testing.assert_allclose(sim.observation().numpy(), ref._get_observations()['policy'].numpy(), atol=2e-6, rtol=2e-6)
+
+    def test_total_pd_and_gravity_effort_is_limited_together(self):
+        sim = Simulation(self.cfg, self.model)
+        sim.set_action(torch.tensor([[1., -1., 1., -1., 1., -1.]]))
+        sim.apply_control()
+        mujoco.mj_forward(sim.model, sim.data)
+        limits = sim.model.actuator_forcerange[:, 1]
+        self.assertTrue(np.all(np.abs(sim.data.actuator_force) <= limits + 1e-10))
+        self.assertTrue(np.any(np.abs(sim.model.actuator_biasprm[[0, 1, 3, 4], 0]) > 0))
 
     def test_physical_closed_chain_matches_five_bar_forward_kinematics(self):
         sim = Simulation(self.cfg, self.model)

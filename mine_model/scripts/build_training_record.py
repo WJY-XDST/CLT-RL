@@ -11,69 +11,51 @@ import subprocess
 
 ROOT = Path(__file__).resolve().parents[2]
 MINE = ROOT / 'mine_model'
-STAGES = [
-    ('开链机械模型改为闭链',
-     '确认 link_002 为 RB；补充 RL3–RS、RL2–RB 及左侧镜像四个 revolute 闭合铰链，保留原始输入，另存 USD 和树形 URDF。',
-     'URDF 的关节树不能独立表达闭环，需要物理约束与完整 CAD 孔位和轴线。',
-     '先核对孔轴与左右镜像，再确认默认装配闭合；悬空驱动通过只证明机构与驱动，不证明自由站立。',
-     ['config/closures.json', 'docs/implementation_details.md', 'results/bench_drive/report.json']),
-    ('坐标、joint 与五连杆运动学适配',
-     '工程轴系统一为 X 前、Y 左、Z 上；四个髋关节统一校验以 base_link 为父刚体。主动顺序 LB/LL/LW/RB/RL/RW；FK、Jacobian、逆解采用新几何。',
-     '旧串联腿角度定义、杆长与传动映射不能直接套到闭链，即使观测和动作维度相同。',
-     '以实际轮轴位置、数值差分和虚功验证映射；父节点原本已连接 base_link 的部分属于核验，不虚构为重新挂接。',
-     ['docs/implementation_details.md', 'results/parameter_audit', 'scripts/audit_model_parameters.py']),
-    ('原策略直接迁移与控制诊断',
-     '复用原 7738 策略做新旧模型对照，随后保存增益、求解器、步长、承重与导轨诊断。',
-     '初期自由基座无法站稳，需要区分关节映射错误、驱动承重不足和策略不适配。',
-     '固定权重、隔离一个变量比较；不能把导轨承重或无重力驱动当成平衡验收。失败尝试作为后续选择的依据。',
-     ['results/policy_7738_20261003/summary.json', 'results/support_rail_confirm_20261004/report.json',
-      'results/solver_audit_20261004/report.json', 'results/timestep_audit_20261004/report.json']),
-    ('隐式关节驱动与新模型训练',
-     '虚拟腿角和长度经五连杆逆解成为真实电机角目标，使用 implicit_joint_reference；初始 Drive 为 Kp300/Kd3，腿轮限幅 10 Nm。',
-     '显式 VMC 在原限幅下的承重与稳定性未通过，新闭链由 PhysX Drive 与约束联合求解。',
-     '保留 27 维观测和 6 维动作契约，采用新机构物理参数；新网络训练及后续初始化、续训阶段分别标记。',
-     ['results/implicit_pid_base_20261004/report.json', 'results/implicit_free_base_20261004/report.json',
-      'results/auto_training_implicit_20pct_20261004/README.md']),
-    ('奖励信号与失败判定修正',
-     '扩大高度、速度、偏航、姿态和动作变化惩罚裁剪范围；增加低根高度终止，调整终止成本。',
-     '原单项惩罚过早饱和，无法区分轻微误差和蹲塌；终止代价过低时，立即倒地可能比持续纠错更便宜。',
-     '依据实测饱和率和误差扩大有效信号，保留正常课程；只有真实生存失败才回退平衡或恢复探索。',
-     ['results/auto_training_implicit_20pct_20261004/reward_saturation_audit_20261004.json',
-      'results/auto_training_implicit_20pct_20261004/代码检查与提前回放.md']),
-    ('速度初始化、轮抖动与精度训练',
-     '记录速度/腿角初始化，训练轮探索、熵系数和 action_rate 调整；后续冻结腿输出及 actor 特征，仅训练轮输出和 critic。',
-     '站立策略不能自然推出正确行驶，轮动作出现高频变化，已有站稳能力需要保留。',
-     '用同权重实测选初始化和单项对照；记录失败增益试验。初始化不是从零 RL，也不是验收成功。',
-     ['results/speed_response_initialization_2199_20261004/initialization.json',
-      'results/auto_training_implicit_20pct_20261004/wheel_flutter_audit_20261004.json',
-      'results/wheel_head_precision_5399_5600_20261004/trial.json']),
-    ('轮胎碰撞及保护限位',
-     '轮胎碰撞由 18 边细化至 96 边；base 使用盒体，普通连杆可简化，确认的限位块及小腿接触面保留 CAD 约束。',
-     '接触多边形影响轮速和机身波动；大量碰撞形状导致内存压力，但机械腿长限位不可被简化掉。',
-     '先用固定权重比较接触，再做保护块/小腿 CAD 非相交检查。若腿部简化增加误差则回退，不能仅凭吞吐选择。',
-     ['docs/碰撞简化与机械限位说明_20261004.md',
-      'results/collision_simplification_20261004/collision_comparison.json',
-      'results/collision_simplification_20261004/protected_stops_v2_live_cad/cad_nonpenetration.json']),
-    ('环境数与内存调整',
-     '早期 256 环境；12288 请求发生 OOM 后选择成功规模，后续用户指定 10240，再因内存压力改为 8192。',
-     '新闭链刚体、碰撞与克隆负载不同于旧模型，CUDA 计算仍需要主机内存。',
-     '以成功运行和实测内存选择规模；用户要求停止容量测试后不再重测，规模切换保留来源权重和优化器。',
-     ['results/auto_training_implicit_20pct_20261004/env_scale_report_20261004.json',
-      'results/collision_simplification_20261004/environment_capacity_report.json',
-      'results/auto_training_implicit_20pct_20261004/before_env8192_after_round38.json']),
-    ('MuJoCo sim2sim 验证',
-     '从完整训练 USD 转为 MuJoCo，保留刚体惯量、joint 与闭链约束，匹配观测/动作、镜像、COM 速度和实际隐式执行器。',
-     '相同策略在不同接触求解器中可能表现不同；较粗内部积分曾失稳，基础运动稳定也不能代表所有误差通过。',
-     '用接口测试、相同指令与种子及误差曲线验证；保留偏航超标和机械限位差异，不将两个仿真器视为相同动力学。',
-     ['docs/新闭链模型_MuJoCo_sim2sim验证_20261004.md',
-      'results/sim2sim_mujoco_6700_20261004/comparison.json', 'results/latest_sim2sim_preview.json']),
-    ('10% 精度目标、记录留存和自动完成',
-     '目标从 20% 收紧到 10%，同步减半绝对容差及姿态门限；保留最新旧模型及默认验证依赖，删除其余旧训练记录。',
-     '仅改百分比不能收紧零目标工况；最终记录需要覆盖历史失败、真实修改原因与完整交付。',
-     '逐轮按实际应用参数和评估阈值记录，旧标准结果不能替代新标准；复验、文档、打包与刷盘全部完成后才关机。',
-     ['config/tracking_acceptance.json',
-      'results/auto_training_implicit_20pct_20261004/acceptance_target_change_20261004.json']),
-]
+STAGES = [('开链机械模型改为闭链',
+  '确认 link_002 为 RB；补充 RL3–RS、RL2–RB 及左侧镜像四个 revolute 闭合铰链，保留原始输入，另存 USD 和树形 URDF。',
+  'URDF 的关节树不能独立表达闭环，需要物理约束与完整 CAD 孔位和轴线。',
+  '先核对孔轴与左右镜像，再确认默认装配闭合；悬空驱动通过只证明机构与驱动，不证明自由站立。',
+  ['config/closures.json', 'docs/implementation_details.md', 'results/bench_drive/report.json']),
+ ('坐标、joint 与五连杆运动学适配',
+  '工程轴系统一为 X 前、Y 左、Z 上；四个髋关节统一校验以 base_link 为父刚体。主动顺序 LB/LL/LW/RB/RL/RW；FK、Jacobian、力矩映射采用新几何。',
+  '旧串联腿角度定义、杆长与传动映射不能直接套到闭链，即使观测和动作维度相同。',
+  '以实际轮轴位置、数值差分和虚功验证映射；父节点原本已连接 base_link 的部分属于核验，不虚构为重新挂接。',
+  ['docs/implementation_details.md', 'results/parameter_audit', 'scripts/audit_model_parameters.py']),
+ ('原策略直接迁移与控制诊断',
+  '复用原 7738 策略做新旧模型对照，随后保存增益、求解器、步长、承重与导轨诊断。',
+  '初期自由基座无法站稳，需要区分关节映射错误、驱动承重不足和策略不适配。',
+  '固定权重、隔离一个变量比较；不能把导轨承重或无重力驱动当成平衡验收。失败尝试作为后续选择的依据。',
+  ['results/policy_7738_20261003/summary.json',
+   'results/support_rail_confirm_20261004/report.json',
+   'results/solver_audit_20261004/report.json',
+   'results/timestep_audit_20261004/report.json']),
+ ('轮胎碰撞及保护限位',
+  '轮胎碰撞由 18 边细化至 96 边；base 使用盒体，普通连杆可简化，确认的限位块及小腿接触面保留 CAD 约束。',
+  '接触多边形影响轮速和机身波动；大量碰撞形状导致内存压力，但机械腿长限位不可被简化掉。',
+  '先用固定权重比较接触，再做保护块/小腿 CAD 非相交检查。若腿部简化增加误差则回退，不能仅凭吞吐选择。',
+  ['docs/碰撞简化与机械限位说明_20261004.md',
+   'results/collision_simplification_20261004/collision_comparison.json',
+   'results/collision_simplification_20261004/protected_stops_v2_live_cad/cad_nonpenetration.json']),
+ ('下位机参数与显式VMC支撑修复',
+  '腿/轮限幅和重力前馈按下位机资料对齐；保留五连杆正解、Jacobian和J^T力矩映射。',
+  '闭链支撑失败不能靠无限训练解决，需要先验证动力学执行。',
+  '先隔离控制链与TGS外部力矩迭代，再用无导轨固定策略验证；不把IK结果当VMC结果。',
+  ['docs/下位机硬件参数对齐与VMC站立诊断_20261010.md']),
+ ('主动关节目标角与关节隐式PD',
+  '策略直接输出四个主动髋关节目标角，轮速不变；保留单独的MCU重力前馈。',
+  '直接关节位置的动作和观测语义不同于虚拟腿，维度相同也不能复用旧策略。',
+  '使用新任务和独立日志目录从零训练，关节PD加前馈的总力矩仍受硬件限幅。',
+  ['docs/主动关节目标角和隐式PD改造说明_20261011.md']),
+ ('关节PD奖励基线与分项验收',
+  '区分站立生存、机身任务跟踪和轮/腿参考跟踪；保留完整策略与全部动作头训练。',
+  '复杂历史奖励与运动课程会掩盖问题；轮参考残差不能直接当作机身漂移。',
+  '按完成的检查点独立种子冻结回放，不修改验收门槛或因一次可视化改训练样本。',
+  ['docs/关节角PD奖励基线诊断与验证_20261011.md']),
+ ('移除IK控制及其训练记录',
+  '仅保留显式VMC和主动关节目标角两条执行链，按保存配置清理IK训练、评估和导出目录。',
+  '防止同维度旧权重误加载，也避免默认入口指向废弃流程。',
+  '只删除已核实的IK记录，VMC、关节角PD与CAD碰撞证据保留；数据移入回收站并保存清单。',
+  ['docs/IK清理说明_20261011.md', 'docs/ik_record_cleanup_20261011.json'])]
 
 
 def sha(path):
@@ -96,8 +78,7 @@ def command_option(command, name):
 def supervisor_history(branch, sources):
     """Preserve event order and report paths; round numbers alone are ambiguous."""
     log_names={'auto_training_20261003':'auto_training_service.log',
-               'auto_training_20pct_20261004':'auto_training_20pct_service.log',
-               'auto_training_implicit_20pct_20261004':'auto_training_implicit_20pct_service.log'}
+               'auto_training_20pct_20261004':'auto_training_20pct_service.log'}
     path=MINE/'build/logs'/log_names.get(branch, branch+'_service.log')
     history={'plans':[], 'launches':[]}
     if not path.exists():return history
@@ -338,9 +319,26 @@ def render_markdown(markdown):
     return '\n'.join(output)
 
 
+def render_existing_record(markdown, output):
+    """Refresh the HTML view without replacing the curated training history."""
+    content = render_markdown(Path(markdown).read_text())
+    Path(output).write_text('<!doctype html><html lang="zh-CN"><meta charset="utf-8">'
+        '<title>新闭链模型训练修改记录</title><style>'
+        'body{max-width:1200px;margin:32px auto;padding:0 24px;background:#f8fafc;color:#172033;font:15px/1.8 system-ui,sans-serif}'
+        'h2{margin-top:48px;border-bottom:1px solid #ccd5df}h3{margin-top:32px}'
+        'pre,code{overflow-wrap:anywhere;white-space:pre-wrap}details{border:1px solid #ccd5df;border-radius:8px;padding:12px;background:white}'
+        'table{border-collapse:collapse;width:100%;font-size:13px}td{padding:8px;border:1px solid #dce2e9;vertical-align:top;overflow-wrap:anywhere}'
+        'tr:first-child{background:#e8edf4;font-weight:600}.table{overflow-x:auto}p{overflow-wrap:anywhere}'
+        '</style>' + content + '</html>')
+
+
 def build_record(state_path, destination, final=False):
     state_path=Path(state_path).resolve();destination=Path(destination).resolve()
     state=read_json(state_path)
+    mode = state.get('overrides', {}).get('leg_control_mode')
+    if mode is not None:
+        from wheel_legged_gym_isaaclab.leg_control import require_leg_control_mode
+        require_leg_control_mode(mode)
     if final and state.get('state')!='accepted':
         raise ValueError('Final training record requires accepted weights')
     destination.mkdir(parents=True,exist_ok=True)
@@ -394,7 +392,7 @@ def build_record(state_path, destination, final=False):
     source_files=[MINE/'scripts'/name for name in ('auto_train_mine.py','summarize_mine_trial.py',
                  'complete_mine_training.py','build_training_record.py','optimization_journal.py')]
     source_files += [ROOT/'wheel_legged_isaaclab/wheel_legged_gym_isaaclab'/name
-                     for name in ('five_bar_vmc.py','precision_finetune.py','config_overrides.py')]
+                     for name in ('five_bar_vmc.py','leg_control.py','config_overrides.py')]
     snapshot=destination/'code_current';snapshot.mkdir(exist_ok=True)
     for path in source_files:
         if path.exists():
@@ -482,7 +480,7 @@ def build_record(state_path, destination, final=False):
 def verify_record(destination,require_final=False):
     destination=Path(destination);manifest=read_json(destination/'record_manifest.json')
     if require_final and not manifest['final']:raise ValueError('Training record is not final')
-    if manifest['stage_count']<10 or not manifest['round_count']:
+    if manifest['stage_count']<len(STAGES) or not manifest['round_count']:
         raise ValueError('Training record lacks chronological stages or round history')
     for relative,expected in manifest['sha256'].items():
         path=destination/relative
@@ -506,9 +504,17 @@ def verify_record(destination,require_final=False):
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--state',type=Path,required=True)
+    source = parser.add_mutually_exclusive_group(required=True)
+    source.add_argument('--state',type=Path)
+    source.add_argument('--render-markdown',type=Path)
     parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--final',action='store_true')
     args=parser.parse_args()
-    folder=build_record(args.state,args.output,args.final)
-    print(json.dumps(verify_record(folder,args.final),ensure_ascii=False,indent=2))
+    if args.render_markdown:
+        if args.final:
+            parser.error('--final requires --state and a fully accepted policy')
+        render_existing_record(args.render_markdown, args.output)
+        print(args.output)
+    else:
+        folder=build_record(args.state,args.output,args.final)
+        print(json.dumps(verify_record(folder,args.final),ensure_ascii=False,indent=2))

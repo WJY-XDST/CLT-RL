@@ -1,13 +1,12 @@
 # Copyright (c) 2026, Wheel-Legged-Gym Isaac Lab Migration
 # SPDX-License-Identifier: BSD-3-Clause
-#
-# Environment configuration for the wheel-legged robot (VMC control) on flat terrain.
-# Migrated from Wheel-Legged-Gym (Isaac Gym Preview 4) to Isaac Lab 2.3.x / Isaac Sim 5.1.
+
+"""用户新车的唯一平地环境配置；直接从此文件阅读和修改训练参数。"""
 
 from __future__ import annotations
 
-import isaaclab.sim as sim_utils
 from isaaclab.actuators import ImplicitActuatorCfg
+import isaaclab.sim as sim_utils
 from isaaclab.assets import ArticulationCfg
 from isaaclab.envs import DirectRLEnvCfg, ViewerCfg
 from isaaclab.scene import InteractiveSceneCfg
@@ -16,7 +15,12 @@ from isaaclab.sim import SimulationCfg
 from isaaclab.terrains import TerrainImporterCfg
 from isaaclab.utils import configclass
 
-from wheel_legged_gym_isaaclab import WHEEL_LEGGED_GYM_ISAACLAB_ROOT_DIR
+from wheel_legged_gym_isaaclab.robot_model import ASSETS, MANIFEST, MODEL, MAPPED_FIVE_BAR
+from wheel_legged_gym_isaaclab.height_commands import SAFE_BASE_HEIGHT_RANGE_M
+from wheel_legged_gym_isaaclab.mcu_hardware import (
+    HARDWARE_PROFILE, LEG_EFFORT_LIMIT, WHEEL_EFFORT_LIMIT, WHEEL_RADIUS,
+    GRAVITY_FORCE, GRAVITY_FORCE_LIMIT, GRAVITY_ANGLE_BIAS,
+)
 
 
 @configclass
@@ -27,9 +31,7 @@ class ObsScalesCfg:
     ang_vel = 0.25
     dof_pos = 1.0
     dof_vel = 0.05
-    dof_acc = 0.0025
     height_measurements = 5.0
-    torque = 0.05
     l0 = 5.0
     l0_dot = 0.25
 
@@ -57,11 +59,10 @@ class ObsClipCfg:
 class CommandsCfg:
     """Command configuration (mirrors `commands` in the original project)."""
 
-    num_commands = 3
     resampling_time = 5.0  # [s]
     linear_acceleration_limit = 0.8  # [m/s^2], ramps abrupt speed changes
-    # Hold the initial world-frame heading throughout each episode.
-    heading_command = True
+    # 训练转向指令默认不用航向保持；固定航向回放可开启。
+    heading_command = False
     heading_kp = 1.5  # [1/s], heading error -> target yaw rate
     heading_rate_limit = 0.5  # [rad/s], maximum corrective yaw rate
     ranges_lin_vel_x = (0.2, 0.8)  # [m/s], forward training commands
@@ -70,101 +71,107 @@ class CommandsCfg:
     height_boundary_fraction = 0.4  # half at each height endpoint; remaining samples uniform
     # Bridge the gap between standing and the positive/negative main ranges.
     ranges_transition_lin_vel_x = (-0.2, 0.2)  # [m/s]
-    ranges_ang_vel_yaw = (0.0, 0.0)  # [rad/s]
-    # Opt in through the yaw-training run configuration; keep old straight replay compatible.
-    yaw_env_fraction = 0.5  # sampled independently for standing and moving populations
+    ranges_ang_vel_yaw = (-0.3, 0.3)
     yaw_min_abs_rate = 0.15  # [rad/s], before curriculum scaling
     yaw_boundary_fraction = 0.2
-    yaw_start_steps = 0
-    yaw_ramp_steps = 9_600
-    grouped_training = False  # six equal groups: stand, spin, forward/reverse straight and turning
+    yaw_start_steps = 48000
+    yaw_ramp_steps = 48000
+    grouped_training = True
+    # 固定保留前 25% 环境练习零速站立，其他环境轮换运动任务。
+    fixed_standing_groups = True
     grouped_low_speed_fraction = 1.0 / 3.0  # within each moving group, remaining samples cover main range
-    # Introduce height control around the nominal 0.18 m stance.  The sampler
-    # expands progressively from the midpoint to this complete interval using
-    # the same curriculum progress as the velocity commands.
-    ranges_height = (0.16, 0.20)  # [m]
-    # Learn to balance for 200 PPO iterations before ramping motion and height
-    # for another 500 iterations (48 control steps per iteration).
-    standing_only_steps = 9_600
-    motion_ramp_steps = 24_000
+    # CAD 限位块腿长 0.19～0.34 m，含至少 10 mm 余量；机体直立时换算。
+    ranges_height: tuple[float, float] = SAFE_BASE_HEIGHT_RANGE_M
+    height_expansion_from: tuple[float, float] | None = None
+    height_expansion_start_steps = 0
+    height_expansion_ramp_steps = 48000
+    standing_only_steps = 48000
+    motion_ramp_steps = 48000
     # Explicit zero-speed population retained after motion is introduced.
     standing_env_fraction = 0.25
-    # At full curriculum progress, this fraction receives commands from the
-    # bidirectional low-speed transition range. Main-range samples are split
-    # between forward and reverse as the reverse curriculum progresses.
-    transition_env_fraction = 0.25
-    # Introduce forward and reverse motion together after the balance phase.
-    reverse_env_fraction = 0.25
-    reverse_ramp_start_steps = 9_600
-    reverse_ramp_steps = 24_000
+    # 前进与后退同时引入；后退幅度按自己的课程时钟增长。
+    reverse_ramp_start_steps = 48000
+    reverse_ramp_steps = 48000
 
 
 @configclass
 class RewardsCfg:
     """Reward scales for flat-terrain velocity, height, posture, and standing control."""
 
-    tracking_lin_vel = 1.0
-    tracking_lin_vel_enhance = 1.0
-    # A narrower tracking kernel and an explicit squared-error term preserve
-    # useful gradients both near and far from the commanded forward speed.
-    tracking_lin_vel_precise = 1.0
-    lin_vel_error_sq = -30.0
-    standing_velocity = -50.0  # penalize both horizontal drift axes at a zero-speed command
-    base_height_error_sq = -1000.0  # 1 cm error costs 0.1 reward/s before term clipping
+    profile = 'joint_pd_balance_v1'
+    tracking_lin_vel = 2.0
+    tracking_lin_vel_enhance = 0.0
+    # 窄核项目前关闭；速度误差以线速度跟踪和平方误差为主。
+    tracking_lin_vel_precise = 0.0
+    lin_vel_error_sq = -2.0
+    lin_vel_error_lateral_multiplier = 1.0
+    standing_velocity = 0.0
+    base_height_error_sq = 0.0
     tracking_ang_vel = 1.0
-    yaw_rate_error_sq = -5.0
-    spin_center_velocity = 0.0  # wheel common-mode speed penalty; only active on stationary turns
-    base_height = 1.0
-    nominal_state = -60.0
+    yaw_rate_error_sq = -1.0
+    spin_center_velocity = 0.0
+    base_height = 2.0
+    nominal_state = 0.0
     standing_leg_angle = 0.0
-    standing_wheel_tracking = 0.0  # opt-in penalty on unexecuted wheel references while stationary
-    lin_vel_z = -2.0
-    ang_vel_xy = -0.05
-    orientation = -150.0
-    dof_vel = -5e-5
-    dof_acc = -2.5e-7
-    torques = -0.0001
-    action_rate = -0.01
-    action_smooth = -0.01
-    # Softly discourage virtual-leg length commands from remaining close to
-    # their normalized action limits. This still permits unequal leg lengths.
-    leg_length_action_saturation = -5.0
-    leg_length_action_difference = -2.0
-    leg_length_target_underreach = -200.0
+    standing_wheel_tracking = 0.0
+    lin_vel_z = 0.0
+    ang_vel_xy = 0.0
+    orientation = -20.0
+    dof_vel = 0.0
+    dof_acc = 0.0
+    torques = 0.0
+    action_rate = -0.02
+    action_smooth = 0.0
+    # VMC 长度动作软饱和；当前直接关节模式不使用这三项。
+    leg_length_action_saturation = 0.0
+    leg_length_action_difference = 0.0
+    leg_length_target_underreach = 0.0
+    joint_position_action_saturation = -0.5
+    # Opt-in diagnosed feedback for discarded wheel outputs; legacy reward is unchanged at zero.
+    wheel_action_saturation = 0.0
+    # Opt-in pointwise feedback for the worst error relative to the existing gate.
+    tracking_goal_violation = 0.0
+    tracking_goal_penalty_clip = 40.0
     collision = -1.0
     dof_pos_limits = -1.0
     # One-time cost for unsafe termination, not a per-second reward scale.
-    # Timeouts alone do not receive this cost; it bypasses per-step clipping.
-    termination = -10.0
+    termination = -20.0
 
-    # parameters
-    clip_single_reward = 1.0
+    clip_single_reward = 5.0
     nominal_state_penalty_clip = 3.0  # keep the 6-9 degree asymmetry penalty below its cap
-    orientation_penalty_clip = 3.0  # retain a gradient at the observed 5-6 degree pitch
-    base_height_penalty_clip = 1.0
+    orientation_penalty_clip = 30.0
+    base_height_penalty_clip = 30.0
     standing_leg_angle_penalty_clip = 3.0
-    lin_vel_penalty_clip = 1.0
-    yaw_rate_penalty_clip = 1.0
+    lin_vel_penalty_clip = 8.0
+    yaw_rate_penalty_clip = 4.0
     standing_wheel_penalty_clip = 1.0
     action_rate_penalty_clip = 1.0
+    action_smooth_penalty_clip = 3.0
+    wheel_action_saturation_penalty_clip = 40.0
+    action_smooth_wheel_multiplier = 5.0
     tracking_sigma = 0.25
     tracking_sigma_ang = 0.25  # separate yaw width so turning can be trained without changing linear tracking
     tracking_sigma_enhance = 0.025
     tracking_sigma_precise = 0.01
-    # Projected-gravity y is dominated by body roll; weight it more strongly
-    # without constraining the two virtual-leg lengths to be identical.
-    orientation_roll_multiplier = 4.0
-    base_height_target = 0.18
+    # 小角度时投影重力 y 主要反映 roll，乘数单独调整通用姿态代价。
+    orientation_roll_multiplier = 2.0
+    base_height_target: float = 0.30
     base_height_sigma = 0.0004  # [m^2], experimental height-tracking width
-    max_contact_force = 100.0
+    # 0 保持历史 reward；诊断后的续训显式使用 .05，容差区小于最终 10% 验收界限。
+    base_height_relative_deadband = 0.0
     leg_length_action_soft_limit = 0.85
-    leg_length_target_height_offset = 0.04  # [m], minimum reference above commanded root height
-    leg_length_target_cap = 0.23  # [m], avoid demanding an unstable high-speed stance
+    joint_position_action_soft_limit = 0.85
+    leg_length_target_height_offset: float = MODEL['hip_z'] - MODEL['wheel_radius']
+    leg_length_target_cap: float = 0.32
 
 
 @configclass
 class WheelLeggedVMCFlatEnvCfg(DirectRLEnvCfg):
-    """Configuration for the wheel-legged robot VMC task on flat terrain."""
+    """唯一环境配置：新车数据、执行器、观测、奖励、命令与物理设置。
+
+    默认直接关节目标角加隐式 PD；explicit_vmc 模式保留在同一环境中。
+    不继承旧车配置，不在 mine_env_cfg 或 reward profile 中二次覆写。
+    """
 
     # -- env --
     episode_length_s = 20.0
@@ -172,15 +179,15 @@ class WheelLeggedVMCFlatEnvCfg(DirectRLEnvCfg):
     action_space = 6
     observation_space = 27
     state_space = 0
-    leg_model = "legacy_serial"
-    leg_joint_names = ["lf0_Joint", "lf1_Joint", "rf0_Joint", "rf1_Joint"]
-    wheel_joint_names = ["l_wheel_Joint", "r_wheel_Joint"]
-    leg_body_names = ["lf0_Link", "lf1_Link", "rf0_Link", "rf1_Link"]
-    penalised_body_pattern = "(lf|rf|base).*"
-    leg_effort_limit = 30.0
-    wheel_effort_limit = 5.0
+    leg_model: str = 'mine_five_bar'
+    leg_joint_names: list[str] = MODEL['leg_joint_names']
+    wheel_joint_names: list[str] = MODEL['wheel_joint_names']
+    leg_body_names: list[str] = [s + n + '_link' for s in ('L', 'R') for n in ('B', 'S', 'L', 'L1', 'L2', 'L3')]
+    penalised_body_pattern: str = '(base_link|[LR](B|S|L[123]?)_link)'
+    five_bar_geometry: dict = MAPPED_FIVE_BAR
+    leg_effort_limit: float = LEG_EFFORT_LIMIT
+    wheel_effort_limit: float = WHEEL_EFFORT_LIMIT
     # Root linear [m/s] and angular [rad/s] velocity perturbations at reset.
-    # Ramp with the motion curriculum; fixed-command replay uses the final range.
     reset_velocity_initial = 0.05
     reset_velocity_final = 0.5
     # A nearly inverted body retains the original delayed failure condition.
@@ -188,7 +195,7 @@ class WheelLeggedVMCFlatEnvCfg(DirectRLEnvCfg):
     # Base-link contact is unsafe even when the robot is not fully inverted.
     base_contact_terminal_time_s = 0.15  # [s]
     base_contact_force_threshold = 10.0  # [N]
-    min_root_height = 0.0  # disabled for the legacy robot
+    min_root_height: float = 0.22
     low_height_terminal_time_s = 0.15
     # Sustained non-wheel leg-link contact is treated as a failure.
     leg_contact_terminal_time_s = 0.2
@@ -196,109 +203,86 @@ class WheelLeggedVMCFlatEnvCfg(DirectRLEnvCfg):
     collision_force_threshold = 1.0  # [N]
     max_body_pitch = 0.5235987756  # [rad], 30 degrees
     body_pitch_terminal_time_s = 0.25
-    # Unequal leg lengths remain allowed for uneven terrain. Terminate only
-    # when their resulting body roll stays unsafe for a meaningful duration.
+    # 不要求左右腿等长；只对持续过大的机身横滚角终止。
     max_body_roll = 0.3490658504  # [rad], 20 degrees
     body_roll_terminal_time_s = 0.2
 
     # Keep the interactive Isaac Sim viewport centered on env_0's robot.
-    # Without this, the generic world camera is far from this small robot and
-    # a successful replay can look like an empty scene.
     viewer = ViewerCfg(
-        eye=(2.0, 2.0, 1.2),
-        lookat=(0.0, 0.0, 0.18),
-        origin_type="asset_root",
-        env_index=0,
-        asset_name="robot",
+        eye=(2.0, 2.0, 1.2), lookat=(0.0, 0.0, -0.08),
+        origin_type="asset_root", env_index=0, asset_name="robot",
     )
 
-    # -- VMC control gains (from `wheel_legged_vmc_config.py`) --
+    # -- virtual-coordinate controller --
     action_scale_theta = 0.2  # [rad] per action unit
     theta0_ref_min = -0.2  # [rad], hard VMC target bound
     theta0_ref_max = 0.2  # [rad], hard VMC target bound
-    # Map the complete normalized interval [-1, 1] onto [0.12, 0.26] m.
-    # The extra upper travel improves high-stance reach without the roll
-    # increase observed when testing a 0.27 m reference ceiling.
-    action_scale_l0 = 0.07  # [m] per action unit
-    l0_offset = 0.19  # [m], midpoint of the virtual-leg target range
-    l0_ref_min = 0.12  # [m], hard lower bound for the VMC reference
-    l0_ref_max = 0.26  # [m], hard upper bound for the VMC reference
+    action_scale_l0: float = 0.09
+    l0_offset: float = 0.27
+    l0_ref_min: float = 0.18
+    l0_ref_max: float = 0.36
+    leg_length_height_offset: float = MODEL['hip_z'] - MODEL['wheel_radius']
     forward_support_speed_threshold = 0.6  # [m/s]
-    forward_support_min_leg_length = 0.255  # [m], upper bound of the height-dependent support floor
-    forward_support_height_margin = 0.055  # [m], let low height commands lower the support floor
-    height_feedback_gain = 1.0  # [m/m], outer body-height correction to VMC leg targets
-    height_feedback_max_adjustment = 0.03  # [m], limit abrupt reference changes
-    height_reference_blend = 0.75  # blend nominal height-based leg targets with policy targets
-    leg_length_height_offset = 0.055  # [m], nominal virtual-leg target above body-height command
-    # A 0.0675 m wheel needs 11.85 rad/s for the maximum 0.8 m/s command.
-    # Keep some control margin instead of making the fastest command
-    # unreachable at action=1.
-    wheel_radius = 0.0675  # [m]
-    wheel_track_width = 0.341  # [m], wheel-center separation from the URDF
-    action_scale_vel = 15.0  # [rad/s] per action unit
-    # Approximate per-leg support force for the 12.28 kg assembly. Start at
-    # 50 N because the wheel masses are supported directly at ground contact;
-    # refine this value with the zero-action static diagnostic.
-    feedforward_force = 50.0  # [N]
-    kp_theta = 50.0  # [N*m/rad]
-    kd_theta = 3.0  # [N*m*s/rad]
-    vmc_legacy_angular_mapping = False  # compatibility switch for pre-fix checkpoints only
-    kp_l0 = 900.0  # [N/m]
-    kd_l0 = 90.0  # [N*s/m], reduced height-step oscillation in the model-3742 replay sweep
-    wheel_damping = 0.5  # [N*m*s/rad]
-    wheel_control_mode = "explicit_velocity"
-    leg_control_mode = "explicit_vmc"
-    leg_joint_stiffness = 300.0  # used only by implicit_joint_reference
-    leg_joint_damping = 3.0
-
-    # leg kinematic parameters (from `wheel_legged_config.py`)
-    l1 = 0.15  # [m]
-    l2 = 0.25  # [m]
-    offset = 0.054  # [m]
+    forward_support_min_leg_length: float = 0.3
+    forward_support_height_margin: float = leg_length_height_offset
+    height_feedback_gain: float = 1.0
+    height_feedback_max_adjustment: float = 0.03
+    height_reference_blend: float = 0.75
+    wheel_radius: float = WHEEL_RADIUS
+    wheel_track_width: float = MODEL['wheel_track_width']
+    action_scale_vel: float = 15.0
+    feedforward_force: float = GRAVITY_FORCE
+    hardware_profile: str | None = HARDWARE_PROFILE
+    feedforward_mode = 'mcu_pitch_compensated'
+    feedforward_angle_bias = GRAVITY_ANGLE_BIAS
+    feedforward_force_limit = GRAVITY_FORCE_LIMIT
+    kp_theta: float = 50.0
+    kd_theta: float = 3.0
+    kp_l0: float = 900.0
+    kd_l0: float = 90.0
+    wheel_damping: float = 0.5
+    wheel_control_mode: str = 'implicit_velocity'
+    leg_control_mode: str = 'implicit_joint_position'
+    leg_joint_stiffness: float = 300.0
+    leg_joint_damping: float = 3.0
+    # Direct-joint mode: normalized columns 0/1/3/4 map to LB/LL/RB/RL.
+    leg_joint_position_offset: tuple[float, float, float, float] = (-0.0707452938, -0.0336936327, 0.0707452938, 0.0336936327)
+    leg_joint_position_scale: tuple[float, float, float, float] = (0.3, 0.3, 0.3, 0.3)
+    leg_joint_target_limit_margin = 0.01  # [rad] inside articulation hard stops
+    # Direct motor-position mode: optional J^T [gravity force, 0] only.
+    leg_joint_gravity_feedforward = True
 
     # -- robot --
     robot: ArticulationCfg = ArticulationCfg(
         prim_path="/World/envs/env_.*/Robot",
-        spawn=sim_utils.UrdfFileCfg(
-            asset_path=f"{WHEEL_LEGGED_GYM_ISAACLAB_ROOT_DIR}/assets/robots/wl/urdf/wl.urdf",
-            usd_dir=f"{WHEEL_LEGGED_GYM_ISAACLAB_ROOT_DIR}/assets/robots/wl/usd",
-            usd_file_name="wl.usd",
-            make_instanceable=True,
-            fix_base=False,
+        spawn=sim_utils.UsdFileCfg(
+            # 实物确认左右轮（含轮毂电机）均为 0.665 kg；独立质量层保留闭链与限位。
+            # 左轮惯量按原 CAD 形状同比缩放，尚非实测；旧权重回放使用其配套资产。
+            usd_path=str(ASSETS / MANIFEST.get("training_usd", MANIFEST["usd"].replace(
+                'mine_closed_chain.usd', 'mine_closed_chain_training_protected_stops_v2.usd'))),
             activate_contact_sensors=True,
-            # VMC supplies effort targets in the environment, so no importer
-            # position drive may apply a competing torque.
-            joint_drive=sim_utils.UrdfConverterCfg.JointDriveCfg(
-                gains=sim_utils.UrdfConverterCfg.JointDriveCfg.PDGainsCfg(
-                    stiffness=0.0, damping=0.0
-                )
+            articulation_props=sim_utils.ArticulationRootPropertiesCfg(
+                enabled_self_collisions=True,
+                solver_position_iteration_count=128,
+                solver_velocity_iteration_count=8,
             ),
         ),
         init_state=ArticulationCfg.InitialStateCfg(
-            pos=(0.0, 0.0, 0.18),
-            joint_pos={
-                "lf0_Joint": 0.5,
-                "lf1_Joint": 0.35,
-                "l_wheel_Joint": 0.0,
-                "rf0_Joint": -0.5,
-                "rf1_Joint": -0.35,
-                "r_wheel_Joint": 0.0,
-            },
+            pos=(0., 0., MODEL["nominal_root_height"]),
+            joint_pos={".*": 0.}, joint_vel={".*": 0.},
         ),
         actuators={
-            # All joint torques are computed by the VMC controller in the env,
-            # so the implicit PD gains are set to zero.
             "legs": ImplicitActuatorCfg(
-                joint_names_expr=["lf0_Joint", "lf1_Joint", "rf0_Joint", "rf1_Joint"],
-                stiffness=0.0,
-                damping=0.0,
-                effort_limit_sim=30.0,
+                joint_names_expr=MODEL["leg_joint_names"],
+                stiffness=leg_joint_stiffness, damping=leg_joint_damping, effort_limit_sim=LEG_EFFORT_LIMIT,
             ),
             "wheels": ImplicitActuatorCfg(
-                joint_names_expr=["l_wheel_Joint", "r_wheel_Joint"],
-                stiffness=0.0,
-                damping=0.0,
-                effort_limit_sim=5.0,
+                joint_names_expr=MODEL["wheel_joint_names"],
+                stiffness=0., damping=wheel_damping, effort_limit_sim=WHEEL_EFFORT_LIMIT,
+            ),
+            "passive": ImplicitActuatorCfg(
+                joint_names_expr=["[LR]L[123]_joint", "[LR]L3_[LR]S_closure"],
+                stiffness=0., damping=0., effort_limit_sim=0.,
             ),
         },
     )
@@ -313,10 +297,11 @@ class WheelLeggedVMCFlatEnvCfg(DirectRLEnvCfg):
 
     # -- scene --
     scene: InteractiveSceneCfg = InteractiveSceneCfg(
-        num_envs=12288, env_spacing=4.0, replicate_physics=True
+        num_envs=8192, env_spacing=4.0, replicate_physics=True, clone_in_fabric=False,
     )
 
     # -- simulation --
+    enable_external_forces_every_iteration: bool = True
     sim: SimulationCfg = SimulationCfg(
         dt=1 / 200,
         render_interval=decimation,
@@ -349,3 +334,8 @@ class WheelLeggedVMCFlatEnvCfg(DirectRLEnvCfg):
     obs_clip: ObsClipCfg = ObsClipCfg()
     commands: CommandsCfg = CommandsCfg()
     rewards: RewardsCfg = RewardsCfg()
+
+    def __post_init__(self):
+        super().__post_init__()
+        # 只增大详细闭链碰撞的 GPU 缓冲容量，不改变接触力或物理参数。
+        self.sim.physx.gpu_max_rigid_patch_count = 2**20

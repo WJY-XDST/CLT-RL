@@ -6,7 +6,10 @@ import json
 import math
 from pathlib import Path
 
-from assess_tracking import percentile
+def percentile(values, fraction=0.95):
+    """Nearest-rank quantile used by the trace analysis, independent of vehicle."""
+    values = sorted(values)
+    return values[max(0, math.ceil(len(values) * fraction) - 1)]
 
 
 def settling_time(errors, band, dt=0.02, hold_seconds=0.5):

@@ -1,0 +1,9 @@
+# Preserve binary artifacts and avoid interpreting them as text diffs.
+*.pdf binary
+*.docx binary
+*.pt binary
+*.stl binary
+*.STL binary
+*.usd binary
+*.a binary
+*.lib binary

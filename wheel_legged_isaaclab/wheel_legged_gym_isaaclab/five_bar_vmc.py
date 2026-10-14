@@ -45,22 +45,3 @@ def five_bar_torques(jacobian, force, torque):
     """Virtual work in raw motor coordinates, including each side's axis sign."""
     effort=jacobian.transpose(-1,-2)@torch.stack((force,torque),dim=-1)[...,None]
     return effort[...,0,0],effort[...,1,0]
-
-
-def five_bar_inverse(length, angle, *, upper, lower, offsets, scale, branch):
-    """CAD assembly branch motor references for concentric five-bar hips.
-
-    This inverse is for the exported branch=1 with opposite elbow branches.
-    Inputs and outputs use leg order [left, right], relative to base_link.
-    """
-    if branch != 1:
-        raise ValueError('Inverse currently supports only the CAD assembly branch')
-    radius=length/scale
-    phi=torch.atan2(-angle.sin(),-angle.cos())
-    cos_b=(upper[0]**2+radius.square()-lower[0]**2)/(2*upper[0]*radius.clamp_min(1e-7))
-    cos_l=(upper[1]**2+radius.square()-lower[1]**2)/(2*upper[1]*radius.clamp_min(1e-7))
-    valid=(radius>1e-7)&(cos_b.abs()<1)&(cos_l.abs()<1)
-    b=phi+cos_b.clamp(-1,1).acos()-offsets[0]
-    l=phi-cos_l.clamp(-1,1).acos()-offsets[1]
-    sign=length.new_tensor([1.,-1.])
-    return sign*torch.atan2(b.sin(),b.cos()),sign*torch.atan2(l.sin(),l.cos()),valid

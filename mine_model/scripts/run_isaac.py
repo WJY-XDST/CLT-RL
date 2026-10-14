@@ -114,7 +114,7 @@ def main():
         import omni.kit.commands
         import omni.usd
         from isaacsim.core.utils.extensions import enable_extension
-        from pxr import Gf, Sdf, Usd, UsdGeom, UsdPhysics, PhysxSchema, UsdLux
+        from pxr import Gf, UsdGeom, UsdPhysics, PhysxSchema, UsdLux
 
         enable_extension("isaacsim.asset.importer.urdf")
         app.update()

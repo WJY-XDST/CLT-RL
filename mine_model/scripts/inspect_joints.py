@@ -27,7 +27,7 @@ try:
     import omni.timeline
     from omni.physx.bindings._physx import SETTING_DISPLAY_JOINTS
     from omni.kit.viewport.utility import get_active_viewport, capture_viewport_to_file
-    from pxr import Gf, UsdGeom, UsdPhysics, Sdf
+    from pxr import Gf, UsdGeom, UsdPhysics
 
     from run_isaac import load_model, physics_body_transforms
     model = load_model()

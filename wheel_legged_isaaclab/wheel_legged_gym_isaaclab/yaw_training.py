@@ -6,13 +6,49 @@ import torch
 TASK_NAMES = ("standing", "spin", "forward", "reverse", "forward_turn", "reverse_turn")
 
 
-def sample_grouped_motion(env_ids, config, progress, reverse_progress, yaw_progress, phase=0):
-    """Assign equal task groups by global env ID and rotate roles each command phase.
+def curriculum_replay_cases(height, config, progress):
+    """Diagnostic targets, not a change to the training sample distribution.
 
-    Groups are interleaved in the scene. Each group has 2048 members with 12288
-    environments. All groups still share one policy and the height curriculum.
+    Main speeds start at +/-0.2 m/s while their enabled population ramps.
+    Height and yaw amplitudes, unlike main minimum speed, do ramp from zero.
+    Canonical slot names are retained; the manifest records exact targets.
     """
-    groups = (env_ids + phase) % len(TASK_NAMES)
+    if not 0. <= progress <= 1.:
+        raise ValueError('Curriculum replay progress must be in [0, 1]')
+    start_forward = config.ranges_lin_vel_x[0]
+    start_reverse = config.ranges_reverse_lin_vel_x[1]
+    forward = [start_forward + (target - start_forward) * progress for target in (.3, .6)]
+    reverse = [start_reverse + (target - start_reverse) * progress for target in (-.3, -.6)]
+    height_low, height_high = config.ranges_height
+    return [('stand', 0., 0., height),
+            ('forward_0p3', forward[0], 0., height), ('forward_0p6', forward[1], 0., height),
+            ('reverse_0p3', reverse[0], 0., height), ('reverse_0p6', reverse[1], 0., height),
+            ('spin_left', 0., .3 * progress, height), ('spin_right', 0., -.3 * progress, height),
+            ('height_low', 0., 0., height + (height_low - height) * progress),
+            ('height_high', 0., 0., height + (height_high - height) * progress)]
+
+
+def grouped_task_ids(env_ids, phase=0, dedicated_standing_count=None):
+    """Keep dedicated global IDs standing and rotate only the remaining motion roles.
+
+    None preserves the historical six-role rotation. A nonnegative count reserves
+    IDs [0, count) for standing; the other IDs rotate through five motion roles.
+    Passing global rather than batch-relative IDs also preserves partial resets.
+    """
+    if dedicated_standing_count is None:
+        return (env_ids + phase) % len(TASK_NAMES)
+    if (isinstance(dedicated_standing_count, bool)
+            or not isinstance(dedicated_standing_count, int)
+            or dedicated_standing_count < 0):
+        raise ValueError("Dedicated standing count must be a nonnegative integer")
+    motion_groups = 1 + (env_ids - dedicated_standing_count + phase) % (len(TASK_NAMES) - 1)
+    return torch.where(env_ids < dedicated_standing_count, 0, motion_groups)
+
+
+def sample_grouped_motion(env_ids, config, progress, reverse_progress, yaw_progress, phase=0,
+                          *, dedicated_standing_count=None):
+    """Sample assigned task roles using one shared policy and height curriculum."""
+    groups = grouped_task_ids(env_ids, phase, dedicated_standing_count)
     count, device = env_ids.numel(), env_ids.device
     progress = min(max(float(progress), 0.), 1.)
     reverse_progress = min(max(float(reverse_progress), 0.), 1.)

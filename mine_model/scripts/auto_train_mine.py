@@ -2,7 +2,6 @@
 import argparse
 from datetime import datetime
 import fcntl
-import hashlib
 import json
 import os
 from pathlib import Path
@@ -12,6 +11,8 @@ import sys
 import time
 
 from summarize_mine_trial import acceptance_criteria, assess, plot
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'wheel_legged_isaaclab'))
+from wheel_legged_gym_isaaclab.leg_control import resolve_training_leg_mode
 
 ROOT=Path(__file__).resolve().parents[2]
 LOG_ROOT=ROOT/'IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat'
@@ -46,6 +47,30 @@ def write_json(path,value):
     temp=path.with_suffix(path.suffix+'.tmp')
     temp.write_text(json.dumps(value,indent=2,ensure_ascii=False)+'\n')
     temp.replace(path)
+
+
+def request_checkpoint_stop(output):
+    """ExecStop requests a scoped cooperative stop and waits for its owner."""
+    output = Path(output).resolve()
+    if (output.parent != ROOT/'mine_model/results'
+            or not output.name.startswith('joint_pd_optimization_')
+            or not (output/'.controller.lock').is_file()):
+        raise ValueError('Stop target is not an owned direct-joint optimization')
+    status=output/'status.json'
+    if status.is_file() and json.loads(status.read_text()).get('state')=='completed_model_saved':
+        return  # Poweroff stops services too; do not relabel completed work as cancelled.
+    if not (output/'STOP').exists():
+        write_json(output/'STOP', dict(reason='service_stop_requested', checkpoint_before_exit=True))
+    deadline = time.monotonic() + 125
+    while time.monotonic() < deadline:
+        with (output/'.controller.lock').open('a') as lock:
+            try:
+                fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                return
+            except BlockingIOError:
+                pass
+        time.sleep(1)
+    raise TimeoutError('Controller did not finish its cooperative stop')
 
 def quality(report):
     stand=report['conditions'][0]
@@ -97,9 +122,6 @@ def plan_after(report,overrides,iteration):
              'height_mae_m':('rewards.base_height_error_sq',-1000.,3000.),'body_p95_deg':('rewards.orientation',-150.,450.),
              'leg_angle_mae_rad':('kp_theta',10.,50.),'leg_length_mae_m':('kp_l0',900.,1800.),
              'wheel_speed_mae_rad_s':('wheel_damping',.5,2.)}
-    if changed.get('leg_control_mode')=='implicit_joint_reference':
-        mapping['leg_angle_mae_rad']=('leg_joint_stiffness',300.,1000.)
-        mapping['leg_length_mae_m']=('leg_joint_stiffness',300.,1000.)
     def adjust(conditions,standing_phase=False):
         worst=(1.,None)
         for condition in conditions:
@@ -160,15 +182,45 @@ def main():
     init=p.add_mutually_exclusive_group(required=True)
     init.add_argument('--checkpoint',type=Path)
     init.add_argument('--fresh',action='store_true',help='Train from fresh network weights; recover only this output directory on restart')
+    init.add_argument('--stop-output',type=Path,help='Request a saved checkpoint stop for one owned controller')
     p.add_argument('--initial-overrides',type=Path)
-    p.add_argument('--output',type=Path,required=True)
+    p.add_argument('--cumulative-learning', action='store_true',
+                   help='Direct PD: continue the latest policy cumulatively with per-block replay and diagnosis, without a round limit')
+    p.add_argument('--height-envelope-evidence', type=Path,
+                   help='Validated CAD stop-range evidence and paired guide assessment for a scoped height expansion')
+    p.add_argument('--wheel-mass-calibration', type=Path,
+                   help='Cumulative direct PD only: use the owner-confirmed wheel-mass USD as an explicit physics transition')
+    p.add_argument('--output',type=Path)
     p.add_argument('--trial_target',type=int,default=1000)
     p.add_argument('--round_iterations',type=int,default=1000)
+    p.add_argument('--min_wheel_exploration_std', type=float, default=None,
+                   help='Direct-PD cumulative learning only: retain leg noise, weights and Adam; bound wheel std from below')
     p.add_argument('--num_envs',type=int,default=None,help='Parallel training environments; preserve the saved count on restart')
     p.add_argument('--max_rounds',type=int,default=0,help='0: keep optimizing until acceptance')
+    p.add_argument('--leg-control-mode', choices=('explicit_vmc', 'implicit_joint_position'), default=None,
+                   help='Pin the execution chain; changing an existing experiment requires a new output directory')
     p.add_argument('--shutdown-after-success',action='store_true',help='Finalize verified results and documents, then power off')
-    p.add_argument('--wheel-head-only-finetune',action='store_true',help='Persist controlled wheel-head precision training mode')
+    p.add_argument('--full-policy-training',action='store_true',
+                   help='Compatibility flag: all supported training always updates the complete actor and critic')
     args=p.parse_args()
+    if args.wheel_mass_calibration is not None and not (
+            args.cumulative_learning and args.leg_control_mode == 'implicit_joint_position'):
+        p.error('Wheel mass calibration requires cumulative direct joint-position PD')
+    if args.min_wheel_exploration_std is not None and not (
+            args.cumulative_learning and args.leg_control_mode == 'implicit_joint_position'):
+        p.error('A wheel exploration floor requires cumulative direct joint-position PD')
+    if args.stop_output is not None:
+        return request_checkpoint_stop(args.stop_output)
+    if args.output is None:
+        p.error('--output is required for training')
+    if args.leg_control_mode == 'implicit_joint_position':
+        if args.cumulative_learning:
+            from joint_pd_continuation import run
+            return run(args)
+        from joint_pd_optimization import run
+        return run(args)
+    if args.cumulative_learning or args.height_envelope_evidence:
+        p.error('Cumulative height expansion requires direct joint-angle PD')
     if args.num_envs is not None and args.num_envs<=0:
         raise ValueError('num_envs must be positive')
     output=args.output.resolve();output.mkdir(parents=True,exist_ok=True)
@@ -183,8 +235,12 @@ def main():
            'initialization':'fresh' if args.fresh else 'resume',
            'objective':'tracking and genuine upright running policy for new-model sim2sim',
            'num_envs':args.num_envs or 256,'trial_target':args.trial_target,'round_iterations':args.round_iterations}
+    saved_mode = None
     if state_path.exists():
         old=json.loads(state_path.read_text())
+        saved_mode = old.get('overrides',{}).get('leg_control_mode')
+        if args.leg_control_mode is not None and saved_mode is not None and args.leg_control_mode != saved_mode:
+            raise ValueError('Changing the leg execution chain requires a new --output directory')
         if old.get('state')=='accepted':
             command=[sys.executable,str(ROOT/'mine_model/scripts/complete_mine_training.py'),'--state',str(state_path)]
             if args.shutdown_after_success:command+=['--shutdown']
@@ -195,19 +251,22 @@ def main():
     if args.num_envs is not None:state['num_envs']=args.num_envs
     state['round_iterations']=args.round_iterations
     state['trial_target']=args.trial_target
-    state['wheel_head_only_finetune']=bool(args.wheel_head_only_finetune or state.get('wheel_head_only_finetune',False))
+    # Never resurrect a retired partial-head mode from an old supervisor file.
+    state.pop('wheel_head_only_finetune', None)
+    state['full_policy_training'] = True
     criteria=acceptance_criteria()
     if state.get('acceptance_criteria')!=criteria:
         state['passed']=False
     state['acceptance_criteria']=criteria
     state['objective']=f"{100*criteria['relative_error']:g} percent tracking and genuine upright running policy for new-model sim2sim"
-    if state['wheel_head_only_finetune'] and not state.get('checkpoint'):
-        raise ValueError('Wheel-head precision mode requires a pretrained checkpoint')
     initial_overrides=json.loads(args.initial_overrides.read_text()) if args.initial_overrides else {}
     overrides=state.get('overrides',initial_overrides or {'commands.standing_only_steps':48000,'commands.motion_ramp_steps':48000,
                     'commands.reverse_ramp_start_steps':48000,'commands.reverse_ramp_steps':48000,
                     'commands.yaw_start_steps':48000,'commands.yaw_ramp_steps':48000,
                     'commands.ranges_ang_vel_yaw':[-.3,.3],'commands.heading_command':False,'commands.grouped_training':True})
+    overrides = resolve_training_leg_mode(overrides, args.leg_control_mode, saved_mode)
+    if overrides['leg_control_mode'] != 'explicit_vmc':
+        raise ValueError('This supervisor tunes virtual-coordinate VMC; direct-joint training uses watch_joint_pd_scratch.py')
     agent_overrides=state.get('agent_overrides',{})
     if any(not re.fullmatch(r'[a-zA-Z0-9_.]+',key) for key in agent_overrides):
         raise ValueError('Invalid PPO override key')
@@ -244,28 +303,23 @@ def main():
             target,run_name=round_contract(state,args.trial_target,args.round_iterations,round_id,output.name)
             existing=checkpoints_for(run_name)
             recovered=max(existing,key=lambda x:(checkpoint_iteration(x),x.stat().st_mtime_ns)) if existing else None
-            if recovered and (checkpoint is None or checkpoint_iteration(recovered)>checkpoint_iteration(checkpoint)):checkpoint=recovered
+            use_recovered=(recovered is not None and
+                           (checkpoint is None or checkpoint_iteration(recovered)>=checkpoint_iteration(checkpoint)))
+            # The first update may save at the same iteration as the source.
+            # Prefer this branch's weights/optimizer over the old source tie.
+            if use_recovered:checkpoint=recovered
             command=[str(ROOT/'run_python.sh'),str(ROOT/'wheel_legged_isaaclab/scripts/rsl_rl/train.py'),
                      '--task','WheelLeggedVMC-Flat-v0','--headless','--num_envs',str(state['num_envs']),'--seed','43',
                      '--run_name',run_name,'--target_iteration',str(target)]
+            command += ['--require_leg_control_mode', overrides['leg_control_mode']]
             if checkpoint is not None:command+=['--checkpoint_path',str(checkpoint)]
-            if state['wheel_head_only_finetune']:command+=['--wheel_head_only_finetune']
+            reset_full_policy=bool(state.get('full_policy_reset_optimizer_pending'))
+            if reset_full_policy and not use_recovered and checkpoint is not None:
+                command+=['--reset_optimizer']
             balance_failed=bool(best_report and best_report['conditions'][0]['survivors'] < len(best_report['conditions'][0]['trials']))
-            rollback=(checkpoint is not None and state.get('candidate_checkpoint')
-                      and checkpoint_iteration(checkpoint)<checkpoint_iteration(Path(state['candidate_checkpoint'])))
-            wheel_transition=((recovered is None and state.get('motion_exploration_round',round_id)==round_id)
-                              or 'motion_exploration_round' not in state
-                              or (rollback and state.get('motion_exploration_round')!=round_id))
-            if recovered is None and (round_id==0 or balance_failed) and not state['wheel_head_only_finetune']:
-                command+=['--reset_optimizer','--reset_exploration_std','0.3']
-            elif (wheel_transition and checkpoint is not None
-                  and not state['wheel_head_only_finetune']
-                  and overrides.get('leg_control_mode')=='implicit_joint_reference'
-                  and overrides['commands.standing_only_steps']<=(checkpoint_iteration(checkpoint)+1)*48):
-                # Motion needs wheel exploration beyond the stationary drive's
-                # small response range; keep the already stable leg distribution.
-                command+=['--wheel_exploration_std','0.08']
-                save(motion_exploration_round=round_id)
+            if recovered is None and (round_id==0 or balance_failed):
+                if '--reset_optimizer' not in command:command+=['--reset_optimizer']
+                command+=['--reset_exploration_std','0.3']
             for key,value in overrides.items():command.append('env.'+key+'='+json.dumps(value))
             for key,value in agent_overrides.items():command.append('agent.'+key+'='+json.dumps(value))
             save(state='training_'+phase,round=round_id,target_iteration=target,overrides=overrides,agent_overrides=agent_overrides,checkpoint=str(checkpoint) if checkpoint else None)
@@ -276,6 +330,7 @@ def main():
             latest=max(checkpoints,key=lambda x:(checkpoint_iteration(x),x.stat().st_mtime_ns))
             run=latest.parent
             if checkpoint_iteration(latest)<target-1:raise RuntimeError('Training exited before target checkpoint')
+            if reset_full_policy:save(full_policy_reset_optimizer_pending=False)
             save(state='evaluating',training_run=str(run),candidate_checkpoint=str(latest))
             eval_dir=folder/'replay'
             base=[str(ROOT/'run_python.sh'),str(ROOT/'wheel_legged_isaaclab/scripts/evaluate_mine_policy.py'),

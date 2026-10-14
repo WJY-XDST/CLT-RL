@@ -7,6 +7,10 @@
         {
             "name": "Isaac Lab v2.3.1",
             "path": "IsaacLab"
+        },
+        {
+            "name": "Sim2Real Host",
+            "path": "sim2real"
         }
     ],
     "settings": {

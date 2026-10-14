@@ -1,0 +1,142 @@
+{
+  "date": "2026-10-11",
+  "scope": "Behavior-preserving environment simplification; retired tools removed; current training not restarted.",
+  "baseline": {
+    "lines": 1569,
+    "sha256": "8d3156305f34623cce19ec7f422845ddb5b04e192fcef1087a965c6603a299cb"
+  },
+  "source_parts": [
+    {
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py",
+      "lines": 388,
+      "sha256": "7649be80f53d721cac85fa7efa9146f841a0a507546c972e82fbb7ae70107135"
+    },
+    {
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/env_control.py",
+      "lines": 209,
+      "sha256": "43e219f3226ce5098be22748063b3a3fd6a626c39b0ce49ebf6ab28a57bbc47d"
+    },
+    {
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/env_observations.py",
+      "lines": 332,
+      "sha256": "75a649130978821e0bbe5ef00e004e6746733a411e6b4ff5b82c2613719131cb"
+    },
+    {
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/env_rewards.py",
+      "lines": 271,
+      "sha256": "4c7830dd24f7d4bb372da312975537fcef36b02c5a81cc860f67ec4ca9acfc4b"
+    },
+    {
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/env_safety.py",
+      "lines": 269,
+      "sha256": "5a2c04325a51c1948bde4d324224dadb7e51b5a32cc4e1c6720506fe6b9ac052"
+    }
+  ],
+  "guide": {
+    "mode": "guide",
+    "passed": true,
+    "seconds": 8,
+    "resets": 0,
+    "minimum_height_m": 0.2853861153125763,
+    "max_final_joint_error_rad": 0.010281592607498169,
+    "explicit_leg_effort_peak_nm": 8.937203407287598,
+    "combined_pd_feedforward_limit_enabled": true,
+    "observation_shape": [
+      1,
+      27
+    ],
+    "policy_output_shape": [
+      1,
+      6
+    ],
+    "limitations": "Fixed-root/vertical-guide tests only; not trained free balancing or sim2real acceptance"
+  },
+  "reward_parity": {
+    "cases": 96,
+    "dtypes": [
+      "float32",
+      "float64"
+    ],
+    "coverage": [
+      "direct_joint_position",
+      "explicit_vmc",
+      "balanced_and_legacy_reward_profiles",
+      "positive_and_negative_height_and_nominal_state",
+      "weighted_terms",
+      "term_order",
+      "clipping",
+      "termination",
+      "episode_sums",
+      "tracking_diagnostics"
+    ],
+    "comparison": "rtol=0, atol=0"
+  },
+  "termination_parity": {
+    "steps": 240,
+    "dtypes": [
+      "float32",
+      "float64"
+    ],
+    "timer_duration_seconds": [
+      0,
+      0.02,
+      0.15,
+      0.2
+    ],
+    "comparison": "bool flags, reason ordering and counters identical",
+    "coverage": [
+      "independent_timers",
+      "unsafe_threshold_boundaries",
+      "safe_step_reset",
+      "low_height_minimum_one_step",
+      "nonfinite_state",
+      "kinematic_singularity",
+      "episode_timeout"
+    ]
+  },
+  "unchanged_method_ast": [
+    "_setup_scene",
+    "_pre_physics_step",
+    "_get_wheel_vel_forward_positive",
+    "_get_heading_frame_horizontal_velocity",
+    "_sanitize_observation",
+    "_get_leg_observation",
+    "_get_gravity_feedforward",
+    "_update_forward_kinematics",
+    "_vmc",
+    "_get_observations",
+    "_update_commands",
+    "_reset_idx",
+    "_resample_commands_for",
+    "_modify_leg_references",
+    "_get_leg_force_bias"
+  ],
+  "tests": {
+    "project": {
+      "passed": 320,
+      "subtests_passed": 72
+    },
+    "mujoco": {
+      "passed": 20,
+      "skipped": 1,
+      "reason": "native GUI not enabled"
+    },
+    "offline_deployment": {
+      "passed": 24,
+      "hardware_connected": false
+    }
+  },
+  "checkpoint": {
+    "path": "IsaacLab/logs/rsl_rl/mine_wheel_legged_joint_pd_flat/2026-10-11_18-14-19_joint_pd_scratch_1k_20261011_181337/model_400.pt",
+    "sha256": "a558a32d5e039cfabf7ccd7ce3b809b39cd72a7de5ff2cc54b664bff27663059",
+    "modified": false
+  },
+  "training": {
+    "unit": "clt-joint-pd-scratch-20261011_181337.service",
+    "main_pid": 181735,
+    "watcher": "clt-joint-pd-watch-20261011_181337.service",
+    "restarted_for_refactor": false,
+    "parameters_changed": false
+  },
+  "obsolete_tool_manifest": "obsolete_tool_cleanup_20261011.json"
+}

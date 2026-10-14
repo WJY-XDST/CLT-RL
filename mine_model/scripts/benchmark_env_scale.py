@@ -2,7 +2,6 @@
 import argparse
 import hashlib
 import json
-import os
 from pathlib import Path
 import re
 import subprocess
@@ -39,7 +38,7 @@ def main():
         train = [str(ROOT/'run_python.sh'), 'wheel_legged_isaaclab/scripts/rsl_rl/train.py',
                  '--task', 'WheelLeggedVMC-Flat-v0', '--headless', '--num_envs', str(count),
                  '--seed', '43', '--run_name', run_name, '--checkpoint_path', str(checkpoint),
-                 '--target_iteration', str(iteration+args.iterations), '--wheel_head_only_finetune',
+                 '--target_iteration', str(iteration+args.iterations),
                  'agent.algorithm.entropy_coef=0.001']
         train += ['env.'+k+'='+json.dumps(v) for k,v in overrides.items()]
         command = ['systemd-run', '--user', '--wait', '--pipe', '--quiet', '--collect',

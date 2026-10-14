@@ -31,6 +31,10 @@ def decision(service, state, marker, *, paused=False):
     if state.get('all_errors_under_10_percent') or phase in (
             'simulation_accepted_pending_sim2sim_and_randomization', 'completed_model_saved'):
         return 'verify_delivery'
+    if (phase=='agent_diagnosis_required'
+            and state.get('reason')=='three_independent_tracking_milestones_stagnant'
+            and not reason):
+        return 'diagnose_stagnation_and_continue'
     if phase in ('agent_diagnosis_required', 'diagnosis_required', 'error') or reason.startswith('agent_diagnosis'):
         return 'diagnosis_required'
     if reason and reason != 'host_shutdown':
@@ -38,6 +42,23 @@ def decision(service, state, marker, *, paused=False):
     if phase in RECOVERABLE or (phase == 'paused_user_request' and reason == 'host_shutdown'):
         return 'recover_verified_checkpoint'
     return 'inspect_unknown_state'
+
+
+def stagnation_plan(state, assessment, coefficient):
+    """A measured plateau does not revoke permission to learn or reset Adam."""
+    if (assessment.get('survivors')!=assessment.get('total_trials')
+            or assessment.get('resets') or assessment.get('passed')):
+        raise ValueError('Stagnation continuation requires a complete surviving failed replay')
+    stalled=state.get('stagnant_metrics',[])
+    if not stalled:
+        raise ValueError('Missing measured plateau metrics')
+    next_coefficient=coefficient
+    if 'height_mae_m' in stalled and coefficient and coefficient<.25:
+        next_coefficient=min(.25,coefficient*1.5)
+    return dict(stalled_metrics=stalled,height_coefficient_before=coefficient,
+                height_coefficient_after=next_coefficient,weights_reset=False,optimizer_reset=False,
+                control_or_actuator_values_changed=False,acceptance_unchanged=True,
+                reason='Measured finite replay plateau; retain actual progress and continue diagnosed learning')
 
 
 def write_state(value):
@@ -63,12 +84,23 @@ def once():
     action = decision(service, state, marker, paused=(WATCH/'PAUSE').exists())
     result = dict(state=action, directory=str(output), unit=unit, service=service,
                   checkpoint=state.get('checkpoint'), latest_update=state.get('latest_update'))
-    if action == 'recover_verified_checkpoint':
+    if action in ('recover_verified_checkpoint','diagnose_stagnation_and_continue'):
         for name, digest in state.get('source_files',{}).items():
             if hashlib.sha256(Path(name).read_bytes()).hexdigest() != digest:
                 raise ValueError('Source or physics changed since the qualified run: '+name)
+        coefficient=record.get('height_feedback_coefficient')
+        if action=='diagnose_stagnation_and_continue':
+            from diagnose_policy_feedback import diagnose_joint_pd
+            from wheel_legged_gym_isaaclab.joint_height_feedback import resolve_coefficient
+            assessment_path=Path(state['last_result']['assessment'])
+            assessment=json.loads(assessment_path.read_text())
+            diagnose_joint_pd(assessment_path.parent,output/'stagnation_policy_feedback.json')
+            plan=stagnation_plan(state,assessment,resolve_coefficient(state['checkpoint']))
+            (output/'stagnation_continuation_plan.json').write_text(json.dumps(plan,indent=2)+'\n')
+            coefficient=plan['height_coefficient_after']
+            result['diagnosed_learning_plan']=plan
         next_run = launch(output, reward_overrides=record.get('reward_overrides_path'),
-                          height_feedback_coefficient=record.get('height_feedback_coefficient'))
+                          height_feedback_coefficient=coefficient)
         result.update(state='recovered_verified_checkpoint', new_directory=next_run['directory'],
                       new_checkpoint=next_run['source_checkpoint'], optimizer_step=next_run['optimizer_step_before'])
     write_state(result)

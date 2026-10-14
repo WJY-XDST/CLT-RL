@@ -7,6 +7,7 @@ import types
 from pathlib import Path
 
 import torch
+import pytest
 
 from test_joint_mean_guard import make_policy,fill_storage
 from wheel_legged_gym_isaaclab.joint_mean_guard import JointMeanGuardPPO
@@ -39,7 +40,8 @@ def test_zero_height_variant_is_bitwise_equal_to_production_guard():
             torch.testing.assert_close(value,candidate.optimizer.state_dict()['state'][key][name],rtol=0.,atol=0.)
 
 
-def test_positive_height_changes_leg_means_without_changing_action_distribution_before_update():
+@pytest.mark.parametrize('coefficient',[.1,.15,.225,.25])
+def test_positive_height_changes_leg_means_without_changing_action_distribution_before_update(coefficient):
     policy,obs=make_policy([0.,0.,0.,0.,0.,0.])
     obs['policy'][:,0:6]=0.
     obs['policy'][:,5]=-1.
@@ -47,7 +49,7 @@ def test_positive_height_changes_leg_means_without_changing_action_distribution_
     kwargs=dict(joint_mean_guard_coef=10.,num_learning_epochs=1,num_mini_batches=1,schedule='fixed',
                 value_loss_coef=0.,entropy_coef=0.,learning_rate=1.e-4)
     original=JointMeanGuardPPO(copy.deepcopy(policy),**kwargs)
-    candidate=JointMeanGuardPPO(copy.deepcopy(policy),joint_height_feedback_coef=.1,
+    candidate=JointMeanGuardPPO(copy.deepcopy(policy),joint_height_feedback_coef=coefficient,
                                joint_height_feedback_model=height_model(),**kwargs)
     fill_storage(original,obs);fill_storage(candidate,obs)
     original.storage.advantages.zero_();candidate.storage.advantages.zero_()

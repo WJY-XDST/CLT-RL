@@ -1,7 +1,7 @@
 """Regression evidence: distinguish process loss, diagnosis and explicit pause."""
 import pytest
 
-from watch_joint_pd_continuation_service import decision
+from watch_joint_pd_continuation_service import decision,stagnation_plan
 from stop_joint_pd_continuation_service import stop_reason
 
 
@@ -53,3 +53,25 @@ def test_only_confirmed_global_shutdown_creates_recoverable_stop():
     assert stop_reason('stopping\n') == 'host_shutdown'
     for state in ('running', 'degraded', 'offline', 'unknown', ''):
         assert stop_reason(state) == 'service_stop_requested'
+
+
+def test_measured_plateau_has_diagnosed_continuation_instead_of_a_round_limit():
+    state=dict(state='agent_diagnosis_required',reason='three_independent_tracking_milestones_stagnant')
+    assert decision({},state,{})=='diagnose_stagnation_and_continue'
+    assert decision({},state,{},paused=True)=='explicit_user_pause'
+
+
+def test_only_stalled_height_adapts_its_bounded_training_coefficient():
+    report=dict(survivors=27,total_trials=27,resets=0,passed=False)
+    plan=stagnation_plan(dict(stagnant_metrics=['height_mae_m']),report,.1)
+    assert plan['height_coefficient_after']==pytest.approx(.15)
+    assert not plan['weights_reset'] and not plan['optimizer_reset']
+    assert not plan['control_or_actuator_values_changed']
+    assert stagnation_plan(dict(stagnant_metrics=['height_mae_m']),report,.225)['height_coefficient_after']==.25
+    assert stagnation_plan(dict(stagnant_metrics=['wheel_speed_mae_rad_s']),report,.1)['height_coefficient_after']==.1
+
+
+def test_failed_survival_is_not_reclassified_as_an_ordinary_plateau():
+    with pytest.raises(ValueError):
+        stagnation_plan(dict(stagnant_metrics=['height_mae_m']),
+                        dict(survivors=26,total_trials=27,resets=1,passed=False),.1)

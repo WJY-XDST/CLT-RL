@@ -30,7 +30,16 @@ Adam67740→68900、17个状态完整。正式源码回归447项、62个子测�
 [最新来源核验](../results/joint_pd_optimization_20261014_185755_joint_mean_guard_cumulative/handoff_source_verification.json)
 [当前续训参数](../results/joint_pd_optimization_20261014_185755_joint_mean_guard_cumulative/launch.json)。
 原 `tracking_acceptance.json` 哈希仍为 `08fbf1aa50cc450bd7170ec310dba9acba3f8bd7ceded330ccffe9e6015cb91d`。
-**正在对比第4413次基线及新增更新的独立回放；尚未验证达标，未启用实机或关机。**
+19:17补充：第4425次完整独立回放完成27000条记录，27/27存活、零重置，原验收仍 False。
+这是新增13次实际更新，Adam68900→69160，17个状态和全部输出行、共享层、critic核验完整。
+与第4413次同种子基线相比，最差高度误差约22.40%→22.17%，
+前进0.3/0.6m/s平均速度MAE减少约0.00411/0.00261m/s，部分其他指标略有改善；
+但高速前后姿态P95平均约增加0.10/0.11°，最差约9.70°，两工况右小腿均值仍持续裁剪。
+辅助损失的实际改善尚未确立，不能凭这13次更新认定已解决饱和问题。
+[首次完整主更新核验](../results/joint_pd_optimization_20261014_185755_joint_mean_guard_cumulative/first_saved_update_verification.json)
+[同种子独立对比](../results/joint_pd_optimization_20261014_185755_joint_mean_guard_cumulative/early_4425_comparison.json)
+[原完整验收](../results/joint_pd_optimization_20261014_185755_joint_mean_guard_cumulative/early_4425_replay/assessment.json)。
+**主训练继续运行并按完整训练块复验；尚未验证达标，未启用实机或关机。**
 
 ## 最新追加 2026-10-14 17:43 保留第4158次模型，平衡反馈并修复完整停滞监测
 

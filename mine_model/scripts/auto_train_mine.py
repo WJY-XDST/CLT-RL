@@ -195,6 +195,7 @@ def main():
     p.add_argument('--round_iterations',type=int,default=1000)
     p.add_argument('--min_wheel_exploration_std', type=float, default=None,
                    help='Direct-PD cumulative learning only: retain leg noise, weights and Adam; bound wheel std from below')
+    p.add_argument('--joint_height_feedback_coef',type=float,default=None,help='Cumulative direct PD: optional forward-height PPO training loss')
     p.add_argument('--joint_mean_guard_coef', type=float, default=None,
                    help='Cumulative direct PD: optional PPO loss for leg means outside executed action bounds')
     p.add_argument('--num_envs',type=int,default=None,help='Parallel training environments; preserve the saved count on restart')
@@ -211,6 +212,8 @@ def main():
     if args.min_wheel_exploration_std is not None and not (
             args.cumulative_learning and args.leg_control_mode == 'implicit_joint_position'):
         p.error('A wheel exploration floor requires cumulative direct joint-position PD')
+    if args.joint_height_feedback_coef is not None and not (args.cumulative_learning and args.leg_control_mode=='implicit_joint_position'):
+        p.error('Height feedback requires cumulative direct joint-position PD')
     if args.joint_mean_guard_coef is not None and not (
             args.cumulative_learning and args.leg_control_mode == 'implicit_joint_position'):
         p.error('The joint mean guard requires cumulative direct joint-position PD')

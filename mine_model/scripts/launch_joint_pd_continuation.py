@@ -51,7 +51,8 @@ def newest_owned_checkpoint(directory):
     return Path(max(valid)[2]), rejected
 
 
-def launch(previous_directory, *, checkpoint=None, reward_overrides=None, block_updates=100):
+def launch(previous_directory, *, checkpoint=None, reward_overrides=None, block_updates=100,
+           height_feedback_coefficient=None):
     if subprocess.run(['pgrep', '-f', '^[^ ]*python.*scripts/rsl_rl/train[.]py'],
                       stdout=subprocess.DEVNULL).returncode == 0:
         raise RuntimeError('Training already active; do not launch a duplicate')
@@ -76,6 +77,10 @@ def launch(previous_directory, *, checkpoint=None, reward_overrides=None, block_
         '--wheel-mass-calibration', str(profile)]
     if reward_overrides:
         command.extend(['--initial-overrides', str(Path(reward_overrides).resolve())])
+    if height_feedback_coefficient is not None:
+        from wheel_legged_gym_isaaclab.joint_height_feedback import validate_coefficient
+        height_feedback_coefficient=validate_coefficient(height_feedback_coefficient)
+        command.extend(['--joint_height_feedback_coef',str(height_feedback_coefficient)])
     stop_command = [str(ROOT/'run_python.sh'), str(ROOT/'mine_model/scripts/stop_joint_pd_continuation_service.py'),
                     '--output', str(output)]
     request = ['systemd-run', '--user', '--unit', unit,
@@ -95,7 +100,8 @@ def launch(previous_directory, *, checkpoint=None, reward_overrides=None, block_
         acceptance_unchanged=True, shutdown_after_success=False,
         created_at=datetime.now(ZoneInfo('Asia/Shanghai')).isoformat(),
         launcher_stderr=completed.stderr, rewards_changed=bool(reward_overrides),
-        reward_overrides_path=str(Path(reward_overrides).resolve()) if reward_overrides else None)
+        reward_overrides_path=str(Path(reward_overrides).resolve()) if reward_overrides else None,
+        height_feedback_coefficient=height_feedback_coefficient)
     (output/'launch_record.json').write_text(json.dumps(record, ensure_ascii=False, indent=2)+'\n')
     for pointer in (ROOT/'mine_model/results/joint_pd_active_resume.json', Path('/tmp/clt_joint_pd_active_resume.json')):
         temporary = pointer.with_suffix('.new')

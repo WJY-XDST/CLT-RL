@@ -67,7 +67,8 @@ def once():
         for name, digest in state.get('source_files',{}).items():
             if hashlib.sha256(Path(name).read_bytes()).hexdigest() != digest:
                 raise ValueError('Source or physics changed since the qualified run: '+name)
-        next_run = launch(output, reward_overrides=record.get('reward_overrides_path'))
+        next_run = launch(output, reward_overrides=record.get('reward_overrides_path'),
+                          height_feedback_coefficient=record.get('height_feedback_coefficient'))
         result.update(state='recovered_verified_checkpoint', new_directory=next_run['directory'],
                       new_checkpoint=next_run['source_checkpoint'], optimizer_step=next_run['optimizer_step_before'])
     write_state(result)

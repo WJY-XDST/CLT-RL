@@ -59,18 +59,28 @@ def resolve_coefficient(checkpoint=None, requested=None):
     return value
 
 
-def configured_runner_dict(config, coefficient):
+def configured_runner_dict(config, coefficient, height_coefficient=0., height_model=None):
     result = copy.deepcopy(config)
     coefficient = validate_coefficient(coefficient)
+    from wheel_legged_gym_isaaclab.joint_height_feedback import validate_coefficient as validate_height
+    height_coefficient=validate_height(height_coefficient)
     algorithm = result['algorithm']
     if algorithm.get('class_name', 'PPO') not in ('PPO', 'JointMeanGuardPPO'):
         raise ValueError('Joint mean guard supports the original PPO runner only.')
-    if coefficient == 0.:
+    if coefficient == 0. and height_coefficient == 0.:
         algorithm['class_name'] = 'PPO'
         algorithm.pop('joint_mean_guard_coef', None)
     else:
         algorithm['class_name'] = 'JointMeanGuardPPO'
         algorithm['joint_mean_guard_coef'] = coefficient
+    if height_coefficient:
+        if height_model is None:
+            raise ValueError('Positive height feedback needs the current forward geometry model')
+        algorithm['joint_height_feedback_coef']=height_coefficient
+        algorithm['joint_height_feedback_model']=copy.deepcopy(height_model)
+    else:
+        algorithm.pop('joint_height_feedback_coef',None)
+        algorithm.pop('joint_height_feedback_model',None)
     return result
 
 
@@ -82,9 +92,14 @@ def register_runner_algorithm():
 
 
 class JointMeanGuardPPO(PPO):
-    def __init__(self, policy, *, joint_mean_guard_coef=0., **kwargs):
+    def __init__(self, policy, *, joint_mean_guard_coef=0., joint_height_feedback_coef=0., joint_height_feedback_model=None, **kwargs):
         self.joint_mean_guard_coef = validate_coefficient(joint_mean_guard_coef)
-        if self.joint_mean_guard_coef:
+        from wheel_legged_gym_isaaclab.joint_height_feedback import validate_coefficient as validate_height
+        self.joint_height_feedback_coef=validate_height(joint_height_feedback_coef)
+        self.joint_height_feedback_model=copy.deepcopy(joint_height_feedback_model)
+        if self.joint_height_feedback_coef and self.joint_height_feedback_model is None:
+            raise ValueError('Height feedback requires an explicit forward geometry model')
+        if self.joint_mean_guard_coef or self.joint_height_feedback_coef:
             if hashlib.sha256(inspect.getsource(PPO.update).encode()).hexdigest() != UPSTREAM_UPDATE_SHA256:
                 raise RuntimeError('Installed PPO update changed; requalify the joint mean guard before training.')
             if policy.actor[-1].out_features != 6:
@@ -92,8 +107,9 @@ class JointMeanGuardPPO(PPO):
         super().__init__(policy, **kwargs)
 
     def update(self):  # noqa: C901
-        if self.joint_mean_guard_coef == 0.:
+        if self.joint_mean_guard_coef == 0. and self.joint_height_feedback_coef == 0.:
             return super().update()
+        mean_joint_height_feedback_loss = 0.
         mean_joint_mean_guard_loss = 0.
         mean_value_loss = 0
         mean_surrogate_loss = 0
@@ -234,6 +250,12 @@ class JointMeanGuardPPO(PPO):
             loss = surrogate_loss + self.value_loss_coef * value_loss - self.entropy_coef * entropy_batch.mean()
             joint_mean_guard_loss = joint_mean_overshoot_loss(mu_batch)
             loss = loss + self.joint_mean_guard_coef * joint_mean_guard_loss
+            if self.joint_height_feedback_coef:
+                from wheel_legged_gym_isaaclab.joint_height_feedback import height_proxy_loss
+                joint_height_feedback_loss=height_proxy_loss(mu_batch,obs_batch['policy'][:original_batch_size],
+                                                            self.joint_height_feedback_model)
+                loss=loss+self.joint_height_feedback_coef*joint_height_feedback_loss
+                mean_joint_height_feedback_loss+=joint_height_feedback_loss.item()
 
             # Symmetry loss
             if self.symmetry:
@@ -342,4 +364,6 @@ class JointMeanGuardPPO(PPO):
             loss_dict["symmetry"] = mean_symmetry_loss
 
         loss_dict["joint_mean_guard"] = mean_joint_mean_guard_loss / num_updates
+        if self.joint_height_feedback_coef:
+            loss_dict['joint_height_feedback']=mean_joint_height_feedback_loss/num_updates
         return loss_dict

@@ -40,6 +40,7 @@ parser.add_argument("--min_exploration_std", type=float, default=1.e-4,
                     help="Positive floor for all learned exploration std entries, enforced after optimizer steps.")
 parser.add_argument('--min_wheel_exploration_std', type=float, default=None,
                     help='Optional persistent floor for wheel entries 2/5 in direct joint PD; retain leg noise and Adam.')
+parser.add_argument('--joint_height_feedback_coef', type=float, default=None, help='Optional forward-height PPO training loss; no action override')
 parser.add_argument('--joint_mean_guard_coef', type=float, default=None,
                     help='Optional PPO loss for raw leg means outside [-1, 1]; inherit saved coefficient on resume.')
 parser.add_argument('--require_leg_control_mode', choices=('explicit_vmc','implicit_joint_position'), default=None,
@@ -229,11 +230,15 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     joint_mean_guard_coef = resolve_coefficient(
         resume_path if agent_cfg.resume else None, args_cli.joint_mean_guard_coef,
     )
-    if joint_mean_guard_coef and env_cfg.leg_control_mode != 'implicit_joint_position':
+    from wheel_legged_gym_isaaclab.joint_height_feedback import resolve_coefficient as resolve_height, model_from_config
+    joint_height_feedback_coef=resolve_height(resume_path if agent_cfg.resume else None,args_cli.joint_height_feedback_coef)
+    height_model=(model_from_config(env_cfg.to_dict(),env.unwrapped._robot.data.joint_pos_limits[0,env.unwrapped._leg_joint_ids].cpu().tolist())
+                  if joint_height_feedback_coef else None)
+    if (joint_mean_guard_coef or joint_height_feedback_coef) and env_cfg.leg_control_mode != 'implicit_joint_position':
         raise ValueError('The joint mean guard is only defined for direct joint-position PD.')
-    if joint_mean_guard_coef:
+    if joint_mean_guard_coef or joint_height_feedback_coef:
         register_runner_algorithm()
-    runner_config = configured_runner_dict(agent_cfg.to_dict(), joint_mean_guard_coef)
+    runner_config = configured_runner_dict(agent_cfg.to_dict(), joint_mean_guard_coef,joint_height_feedback_coef,height_model)
     if agent_cfg.class_name == "OnPolicyRunner":
         runner = OnPolicyRunner(env, runner_config, log_dir=log_dir, device=agent_cfg.device)
     else:
@@ -314,7 +319,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         print(f"[INFO]: Target total iteration {args_cli.target_iteration}; training {remaining} remaining iterations.")
     dump_yaml(os.path.join(log_dir, "params", "env.yaml"), env_cfg)
     dump_yaml(os.path.join(log_dir, "params", "agent.yaml"),
-              configured_runner_dict(agent_cfg.to_dict(), joint_mean_guard_coef))
+              configured_runner_dict(agent_cfg.to_dict(), joint_mean_guard_coef,joint_height_feedback_coef,height_model))
     from wheel_legged_gym_isaaclab.mcu_hardware import MCU_LIMIT_EVIDENCE
     dump_yaml(os.path.join(log_dir, 'params', 'control_contract.yaml'), {
         'hardware_profile': env_cfg.hardware_profile,

@@ -1,5 +1,39 @@
 # 新闭链模型从建模到训练的修改记录
 
+## 最新追加 2026-10-14 15:51 修复并发误差的反馈缺口并保留 Adam 续训
+
+独立 model3760 的逐时刻归一化诊断发现：低高度工况的轮速误差始终是七项中的最大项，
+高度误差约 24.50% 却完全不进入既有最大项反馈；这是一处实际的学习信号缺口，
+不证明它是全部误差的唯一来源。原高斯高度奖励在这些端点也接近零。
+[七项误差及最大项占比](../results/joint_pd_optimization_20261014_144006_joint_saturation_cumulative/tracking_goal_signal_diagnosis_3760.json)。
+
+增加默认关闭的 `tracking_goal_component_violation`：对七项原容差内误差贡献零，
+对每项超差分别计算非负 Huber 代价后求和。既有最大项反馈仍保持 -0.5，
+并发失败不会相互遮住，已达标项也不能抵消未达标项。正式启用的单项系数为 -0.25，
+关节饱和 -8、轮原始超调 -2、动作映射、PD、质量、机械范围、频率和原验收均保留。
+`tracking_goal_component_penalty_clip=200` 是训练奖励的数值上限，不是验收门槛。
+
+临时副本与正式源码回归均 421 项、62 个子测试通过，3 项 USD 检查跳过。
+冻结 model3760 的两组真实回放各 27000 条有限记录、零重置；
+物理轨迹、精确 actor 输入／均值、全部原奖励及最大项反馈逐值相同。
+新增奖励与独立 NumPy 计算最大差 1.52e-8，总奖励差值最大差 1.84e-8；
+诊断回放被原验收入口拒绝，没有把公式正确当成策略达标。
+[真实奖励隔离验证](../results/joint_pd_optimization_20261014_144006_joint_saturation_cumulative/component_feedback_native_check/native_verification.json)。
+
+model3859 又完成 100 次实际更新，Adam 达 57680，原独立验收仍 27/27 存活、零重置、False。
+前进 0.3/0.6 m/s 的速度误差约 10.31%/9.79%，后退约 13.02%/7.01%；
+低／高高度误差约 24.50%/23.16%，高速前后姿态 P95 平均 8.554°/9.176°。
+右转轮速 MAE 增至 1.166801 rad/s，多个其他指标仍超差，不能宣称整体达标。
+[完整验收](../results/joint_pd_optimization_20261014_144006_joint_saturation_cumulative/block_0001/replay/assessment.json)。
+
+在保存边界切换代码，额外 3 次更新保存在 model3861_interrupted；Adam 57680→57740，
+17 个状态完整，六个 actor 行与 critic 均更新、张量有限。
+[最新来源核验](../results/joint_pd_optimization_20261014_144006_joint_saturation_cumulative/component_feedback_handoff_source_verification.json)。
+从该真正最新保存点启动 `clt-joint-pd-component-feedback-20261014_155008.service`，8192 环境、全部策略参数继续学习，
+保留全部权重和 Adam，继续每 100 次更新做全工况独立回放并主动诊断。
+[本次续训参数](../results/joint_pd_optimization_20261014_155008_component_feedback_cumulative/launch.json)。
+**新分项反馈的训练改善还需后续独立回放验证；模型尚未通过全工况或持续复验，未启用实机或关机。**
+
 ## 最新追加 2026-10-14 15:21 第 3760 次迭代独立验收与累计续训
 
 加强关节饱和反馈后实际更新 100 次，model3760 的 Adam 从 53680 增至 55680；

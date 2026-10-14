@@ -31,6 +31,8 @@ from wheel_legged_gym_isaaclab.reward_signals import (
 )
 from wheel_legged_gym_isaaclab.tracking_goal_feedback import (
     load_tracking_goal_criteria, tracking_goal_violation_penalty,
+    tracking_goal_component_violation_penalty,
+    validate_tracking_goal_reward_config,
 )
 from wheel_legged_gym_isaaclab.yaw_training import (
     TASK_NAMES, grouped_task_ids,
@@ -212,10 +214,13 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
         }
         self._tracking_goal_criteria = None
         self._tracking_goal_evidence = None
-        if self.cfg.rewards.tracking_goal_violation != 0.:
+        if (self.cfg.rewards.tracking_goal_violation != 0.
+                or self.cfg.rewards.tracking_goal_component_violation != 0.):
             self._tracking_goal_criteria, self._tracking_goal_evidence = load_tracking_goal_criteria()
-            self._episode_sums['tracking_goal_violation'] = torch.zeros(
-                self.num_envs, dtype=torch.float, device=self.device)
+            for key in ('tracking_goal_violation', 'tracking_goal_component_violation'):
+                if getattr(self.cfg.rewards, key) != 0.:
+                    self._episode_sums[key] = torch.zeros(
+                        self.num_envs, dtype=torch.float, device=self.device)
         self._last_reward_terms: dict[str, torch.Tensor] = {}
         self._tracking_diagnostics: dict[str, float] = {}
         self._command_resample_step = torch.zeros(self.num_envs, dtype=torch.long, device=self.device)
@@ -872,6 +877,19 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
                                     nan=0., posinf=0., neginf=0.)
             rewards['tracking_goal_violation'] = term
             reward = reward + term
+        if getattr(self.cfg.rewards, 'tracking_goal_component_violation', 0.) != 0.:
+            cost = tracking_goal_component_violation_penalty(
+                self._commands[:, :3], heading_velocity[:, 0], root_ang_vel_b[:, 2],
+                self._robot.data.root_pos_w[:, 2], proj_gravity,
+                self._L0, self._l0_ref_applied, self._theta0, self._theta0_ref_applied,
+                wheel_velocity, wheel_reference, self._tracking_goal_criteria,
+            )
+            term = cost * self.cfg.rewards.tracking_goal_component_violation * self.step_dt
+            term = torch.nan_to_num(term.clamp(
+                min=-self.cfg.rewards.tracking_goal_component_penalty_clip * self.step_dt),
+                nan=0., posinf=0., neginf=0.)
+            rewards['tracking_goal_component_violation'] = term
+            reward = reward + term
         self._last_reward_terms = {
             key: value.detach() for key, value in rewards.items()
         }
@@ -975,14 +993,7 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
             raise ValueError('Wheel action saturation reward must be finite and nonpositive')
         if not math.isfinite(wheel_cap) or wheel_cap <= 0 or wheel_cap < 17.*abs(wheel_scale):
             raise ValueError('Wheel action saturation cap must retain feedback throughout the bounded raw-action range')
-        goal_scale = getattr(self.cfg.rewards, 'tracking_goal_violation', 0.)
-        goal_cap = getattr(self.cfg.rewards, 'tracking_goal_penalty_clip', 40.)
-        if not math.isfinite(goal_scale) or not -2. <= goal_scale <= 0.:
-            raise ValueError('Tracking-goal feedback must be finite, nonpositive and bounded by minus two')
-        if goal_scale and self.cfg.leg_control_mode != DIRECT_JOINT_POSITION_MODE:
-            raise ValueError('Tracking-goal feedback requires direct joint-position PD')
-        if not math.isfinite(goal_cap) or goal_cap <= 0 or goal_cap < 24.5 * abs(goal_scale):
-            raise ValueError('Tracking-goal cap must retain feedback up to 26 times the original tolerances')
+        validate_tracking_goal_reward_config(self.cfg.rewards, self.cfg.leg_control_mode)
         if not math.isfinite(self.cfg.rewards.action_smooth_wheel_multiplier) or self.cfg.rewards.action_smooth_wheel_multiplier < 0:
             raise ValueError("Wheel smoothness multiplier must be finite and nonnegative.")
         if not math.isfinite(self.cfg.rewards.action_smooth_penalty_clip) or self.cfg.rewards.action_smooth_penalty_clip <= 0:

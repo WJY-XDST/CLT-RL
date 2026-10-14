@@ -29,15 +29,10 @@ def load_tracking_goal_criteria(path=None):
                           criteria=criteria)
 
 
-def tracking_goal_violation_penalty(commands, speed, yaw, height, gravity,
+def _tracking_goal_error_ratios(commands, speed, yaw, height, gravity,
                                     length, length_reference, angle, angle_reference,
                                     wheels, wheel_reference, criteria):
-    """Huber cost of the largest instantaneous normalized excess over one.
-
-    A good height cannot compensate a failed speed, posture or wheel reference.
-    Outer errors retain linear feedback. Reference tolerances use instantaneous
-    references here; the original evaluator uses window means and is unchanged.
-    """
+    """Shared pointwise tolerances; the independent window gate is unchanged."""
     count = commands.shape[0]
     if (commands.shape != (count, 3) or gravity.shape != (count, 3)
             or any(value.shape != (count,) for value in (speed, yaw, height))
@@ -62,6 +57,54 @@ def tracking_goal_violation_penalty(commands, speed, yaw, height, gravity,
         (wheels - wheel_reference).abs().amax(-1) / wheel_limit,
         body / criteria['body_p95_deg'],
     ), dim=-1)
+    return ratios
+
+
+def tracking_goal_violation_penalty(commands, speed, yaw, height, gravity,
+                                    length, length_reference, angle, angle_reference,
+                                    wheels, wheel_reference, criteria):
+    """Keep the original Huber cost of the largest instantaneous excess."""
+    ratios = _tracking_goal_error_ratios(
+        commands, speed, yaw, height, gravity, length, length_reference,
+        angle, angle_reference, wheels, wheel_reference, criteria)
     excess = (ratios.amax(-1) - 1.).clamp_min(0.)
     near = excess.clamp(max=1.)
     return .5 * near.square() + (excess - 1.).clamp_min(0.)
+
+
+def tracking_goal_component_violation_penalty(commands, speed, yaw, height, gravity,
+                                              length, length_reference, angle, angle_reference,
+                                              wheels, wheel_reference, criteria):
+    """Sum nonnegative Huber excesses so concurrent failures retain feedback.
+
+    Passing components contribute zero and cannot cancel a failed component.
+    This opt-in term supplements the worst-error feedback; neither term proves
+    the independent MAE/P95 window acceptance or sustained verification.
+    """
+    ratios = _tracking_goal_error_ratios(
+        commands, speed, yaw, height, gravity, length, length_reference,
+        angle, angle_reference, wheels, wheel_reference, criteria)
+    excess = (ratios - 1.).clamp_min(0.)
+    near = excess.clamp(max=1.)
+    return (.5 * near.square() + (excess - 1.).clamp_min(0.)).sum(-1)
+
+
+def validate_tracking_goal_reward_config(rewards, leg_control_mode):
+    """Validate opt-in bounds without coupling disabled legacy rewards to PD."""
+    goal_scale = getattr(rewards, 'tracking_goal_violation', 0.)
+    goal_cap = getattr(rewards, 'tracking_goal_penalty_clip', 40.)
+    if not math.isfinite(goal_scale) or not -2. <= goal_scale <= 0.:
+        raise ValueError('Tracking-goal feedback must be finite, nonpositive and bounded by minus two')
+    if goal_scale and leg_control_mode != 'implicit_joint_position':
+        raise ValueError('Tracking-goal feedback requires direct joint-position PD')
+    if not math.isfinite(goal_cap) or goal_cap <= 0 or goal_cap < 24.5 * abs(goal_scale):
+        raise ValueError('Tracking-goal cap must retain feedback up to 26 times the original tolerances')
+    component_scale = getattr(rewards, 'tracking_goal_component_violation', 0.)
+    component_cap = getattr(rewards, 'tracking_goal_component_penalty_clip', 200.)
+    if not math.isfinite(component_scale) or not -1. <= component_scale <= 0.:
+        raise ValueError('Component tracking feedback must be finite and in [-1,0]')
+    if component_scale and leg_control_mode != 'implicit_joint_position':
+        raise ValueError('Component tracking feedback requires direct joint-position PD')
+    if (not math.isfinite(component_cap) or component_cap <= 0
+            or component_cap < 7. * 24.5 * abs(component_scale)):
+        raise ValueError('Component cap must retain all seven concurrent errors up to 26 times tolerance')

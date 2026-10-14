@@ -132,6 +132,9 @@ class RewardsCfg:
     # Opt-in pointwise feedback for the worst error relative to the existing gate.
     tracking_goal_violation = 0.0
     tracking_goal_penalty_clip = 40.0
+    # Restore feedback on simultaneous failures hidden by the worst-error term.
+    tracking_goal_component_violation = 0.0
+    tracking_goal_component_penalty_clip = 200.0
     collision = -1.0
     dof_pos_limits = -1.0
     # One-time cost for unsafe termination, not a per-second reward scale.

@@ -38,6 +38,8 @@ parser.add_argument('--tracking-goal-reward-probe', type=float, default=None,
                     help='Frozen direct-PD reward diagnosis only; cannot count as acceptance or export')
 parser.add_argument('--joint-saturation-reward-probe', type=float, default=None,
                     help='Frozen direct-PD reward diagnosis only: coefficient in [-8,0], never acceptance or export')
+parser.add_argument('--tracking-goal-component-reward-probe', type=float, default=None,
+                    help='Frozen direct-PD component feedback diagnosis only: coefficient in [-1,0], never acceptance or export')
 parser.add_argument('--command-probe-json', type=Path, default=None,
                     help='Diagnostic only: commands within training ranges; cannot count as canonical acceptance')
 parser.add_argument('--reset-velocity-amplitude', type=float, default=.05,
@@ -132,6 +134,21 @@ def main():
                 or not -2. <= args.tracking_goal_reward_probe <= 0.):
             raise ValueError('Tracking-goal reward probe requires frozen direct-PD diagnosis and a coefficient in [-2,0]')
         cfg.rewards.tracking_goal_violation = args.tracking_goal_reward_probe
+    if args.tracking_goal_component_reward_probe is not None:
+        import math
+        if (saved_config['leg_control_mode'] != 'implicit_joint_position'
+                or args.export_dir or args.overrides_json or args.bias_probe_json or args.wheel_probe
+                or args.sample_policy_actions or args.heading_hold or args.command_probe_json
+                or args.physics_hz is not None or args.control_hz is not None
+                or args.curriculum_progress is not None or args.command_scale != 1.
+                or args.wheel_action_saturation_reward_probe is not None
+                or args.tracking_goal_reward_probe is not None
+                or args.joint_saturation_reward_probe is not None
+                or args.wheel_reference_limit_probe is not None
+                or not math.isfinite(args.tracking_goal_component_reward_probe)
+                or not -1. <= args.tracking_goal_component_reward_probe <= 0.):
+            raise ValueError('Component tracking reward probe requires frozen direct-PD diagnosis and a coefficient in [-1,0]')
+        cfg.rewards.tracking_goal_component_violation = args.tracking_goal_component_reward_probe
     if args.joint_saturation_reward_probe is not None:
         import math
         if (saved_config['leg_control_mode'] != 'implicit_joint_position'
@@ -355,7 +372,10 @@ def main():
                         'active_joint_tracking_max_abs_rad'])
     env=EvaluationEnv(cfg)
     obs,_=env.reset()
-    record_rewards = args.record_reward_terms or case_biases is not None or args.tracking_goal_reward_probe is not None or args.joint_saturation_reward_probe is not None
+    record_rewards = (args.record_reward_terms or case_biases is not None
+                      or args.tracking_goal_reward_probe is not None
+                      or args.joint_saturation_reward_probe is not None
+                      or args.tracking_goal_component_reward_probe is not None)
     diagnostic_reward_names = list(env._episode_sums) if record_rewards else []
     if record_rewards:
         columns.extend(['reward_total'] + ['reward_' + key for key in diagnostic_reward_names])
@@ -451,8 +471,9 @@ def main():
                    else "constant requested yaw rate; no added heading feedback"),
         "telemetry":"post-physics, BEFORE automatic reset; errors are actual minus applied reference",
         "weights_updated":False,"policy_input_remapping":False,"leg_control_mode":cfg.leg_control_mode,
-        "wheel_probe":args.wheel_probe,"policy_acceptance_test":not (args.wheel_probe or args.bias_probe_json or args.command_probe_json or args.tracking_goal_reward_probe is not None or args.joint_saturation_reward_probe is not None),
+        "wheel_probe":args.wheel_probe,"policy_acceptance_test":not (args.wheel_probe or args.bias_probe_json or args.command_probe_json or args.tracking_goal_reward_probe is not None or args.joint_saturation_reward_probe is not None or args.tracking_goal_component_reward_probe is not None),
         "joint_saturation_reward_probe":args.joint_saturation_reward_probe,
+        "tracking_goal_component_reward_probe":args.tracking_goal_component_reward_probe,
         "tracking_goal_reward_probe":args.tracking_goal_reward_probe,
         "tracking_goal_feedback_criteria":env._tracking_goal_evidence,
         "command_probe":bool(args.command_probe_json),

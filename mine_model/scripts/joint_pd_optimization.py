@@ -21,12 +21,13 @@ from watch_joint_pd_scratch import RUNS, evaluate, validate_contract
 from wheel_legged_gym_isaaclab.config_overrides import strip_retired_config_fields
 
 ROOT = runtime.ROOT
-FIELDS = ('yaw_rate_error_sq', 'orientation', 'lin_vel_error_sq', 'base_height_sigma', 'base_height_relative_deadband', 'wheel_action_saturation', 'tracking_goal_violation', 'joint_position_action_saturation')
+FIELDS = ('yaw_rate_error_sq', 'orientation', 'lin_vel_error_sq', 'base_height_sigma', 'base_height_relative_deadband', 'wheel_action_saturation', 'tracking_goal_violation', 'joint_position_action_saturation', 'tracking_goal_component_violation')
 
 
 def reward_value(cfg, key):
     # Old checkpoints predate the opt-in reward band; their equation is unchanged.
-    if key in ('base_height_relative_deadband', 'wheel_action_saturation', 'tracking_goal_violation'):
+    if key in ('base_height_relative_deadband', 'wheel_action_saturation', 'tracking_goal_violation',
+               'tracking_goal_component_violation'):
         return cfg['rewards'].get(key, 0.)
     return cfg['rewards'][key]
 
@@ -38,7 +39,8 @@ def prepared_reward_trial(path):
     change = json.loads(Path(path).read_text())
     if (not isinstance(change, dict) or len(change) != 1
             or any(key not in ('rewards.base_height_relative_deadband', 'rewards.wheel_action_saturation',
-                              'rewards.tracking_goal_violation', 'rewards.joint_position_action_saturation') for key in change)):
+                              'rewards.tracking_goal_violation', 'rewards.joint_position_action_saturation',
+                              'rewards.tracking_goal_component_violation') for key in change)):
         raise ValueError('Prepared trial supports one diagnosed height, wheel, tracking-goal or joint saturation reward')
     key,value = next(iter(change.items()))
     if type(value) not in (int, float) or not math.isfinite(value):
@@ -51,6 +53,8 @@ def prepared_reward_trial(path):
         raise ValueError('Prepared tracking-goal reward must be negative and no smaller than minus two')
     if key == 'rewards.joint_position_action_saturation' and not -8. <= value < 0.:
         raise ValueError('Prepared joint saturation reward must be negative and no smaller than minus eight')
+    if key == 'rewards.tracking_goal_component_violation' and not -1. <= value < 0.:
+        raise ValueError('Prepared component tracking reward must be negative and no smaller than minus one')
     return change
 
 
@@ -201,7 +205,8 @@ def validate_changes(source_cfg, runtime_cfg, overrides):
             expected.update({name.split('.', 1)[1]: v for name, v in overrides.items()})
             for name,default in (('base_height_relative_deadband',0.),('wheel_action_saturation',0.),
                                  ('wheel_action_saturation_penalty_clip',40.),('tracking_goal_violation',0.),
-                                 ('tracking_goal_penalty_clip',40.)):
+                                 ('tracking_goal_penalty_clip',40.),('tracking_goal_component_violation',0.),
+                                 ('tracking_goal_component_penalty_clip',200.)):
                 if name in runtime_cfg[key]:
                     expected.setdefault(name,default)
             if runtime_cfg[key] != expected:

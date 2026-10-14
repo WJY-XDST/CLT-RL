@@ -120,7 +120,8 @@ def validate_continuation_config(previous, current, commands, reward_overrides=N
     expected['commands'] = dict(HEIGHT_DEFAULTS, **commands)
     for name,default in (('base_height_relative_deadband',0.),('wheel_action_saturation',0.),
                          ('wheel_action_saturation_penalty_clip',40.),('tracking_goal_violation',0.),
-                         ('tracking_goal_penalty_clip',40.)):
+                         ('tracking_goal_penalty_clip',40.),('tracking_goal_component_violation',0.),
+                         ('tracking_goal_component_penalty_clip',200.)):
         if name in current['rewards']:
             expected['rewards'].setdefault(name,default)
     expected['rewards'].update({key.split('.',1)[1]:value for key,value in (reward_overrides or {}).items()})

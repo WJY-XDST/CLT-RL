@@ -12,6 +12,7 @@ from wheel_legged_gym_isaaclab.leg_control import (
     DIRECT_JOINT_POSITION_MODE, LEG_CONTROL_MODES, validate_joint_position_map,
 )
 from wheel_legged_gym_isaaclab.config_overrides import RETIRED_CONFIG_FIELDS, RETIRED_SAMPLING_FIELDS
+from wheel_legged_gym_isaaclab.tracking_goal_feedback import validate_tracking_goal_reward_config
 
 ROOT = Path(__file__).resolve().parents[2]
 CFG = ENV_DIRECTORY / 'wheel_legged_vmc_flat_env_cfg.py'
@@ -92,7 +93,8 @@ def validation_fixture():
     method = next(n for n in ast.walk(environment_tree())
                   if isinstance(n, ast.FunctionDef) and n.name == '_validate_configuration')
     scope = dict(math=math, DIRECT_JOINT_POSITION_MODE=DIRECT_JOINT_POSITION_MODE,
-                 LEG_CONTROL_MODES=LEG_CONTROL_MODES, validate_joint_position_map=validate_joint_position_map)
+                 LEG_CONTROL_MODES=LEG_CONTROL_MODES, validate_joint_position_map=validate_joint_position_map,
+                 validate_tracking_goal_reward_config=validate_tracking_goal_reward_config)
     exec(compile(ast.Module(body=[method], type_ignores=[]), '<actual_validator>', 'exec'), scope)
     return SimpleNamespace(cfg=SimpleNamespace(**cfg), _action_dim=6), scope['_validate_configuration']
 

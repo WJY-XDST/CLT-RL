@@ -25,6 +25,7 @@ __pycache__/
 
 # 本地重复工程与下位机重复备份，保留在磁盘上
 /wheel_legged_isaaclab (1)/
+/wheel_legged_isaaclab (1).zip
 /sim2real/series_balance_rtos (2)/series_balance_rtos/series_balance_rtos/series_balance_rtos/
 
 # 下位机编译输出；Drivers 中的预编译依赖库仍保留
@@ -39,3 +40,6 @@ __pycache__/
 /sim2real/series_balance_rtos (2)/**/*.dep
 /sim2real/series_balance_rtos (2)/**/*.lst
 /sim2real/series_balance_rtos (2)/**/*.lnp
+/sim2real/series_balance_rtos (2)/**/JLinkSettings.ini
+/sim2real/series_balance_rtos (2)/**/*.uvguix.*
+/sim2real/series_balance_rtos (2)/**/*.log

@@ -13,17 +13,20 @@ import math
 import os
 from pathlib import Path
 import subprocess
+from types import SimpleNamespace
 
 import torch
+import yaml
 
 import resume_after_solver_check_20261011 as runtime
 from auto_train_mine import write_json
 from diagnose_policy_feedback import diagnose_joint_pd
-from joint_pd_optimization import ratios, quality, stop_outcome, prepared_reward_trial
+from joint_pd_optimization import (ratios, quality, stop_outcome, prepared_reward_trial,
+                                   TASK_GOAL_METRICS, REFERENCE_TRACKING_METRICS)
 from summarize_mine_trial import acceptance_criteria, assess, assess_stability
 from watch_joint_pd_scratch import RUNS, evaluate, validate_contract
 from wheel_legged_gym_isaaclab.config_overrides import strip_retired_config_fields
-from wheel_legged_gym_isaaclab.height_commands import SAFE_BASE_HEIGHT_RANGE_M
+from wheel_legged_gym_isaaclab.height_commands import SAFE_BASE_HEIGHT_RANGE_M, training_height_bounds
 from wheel_legged_gym_isaaclab.robot_model import validate_checkpoint_robot
 from wheel_legged_gym_isaaclab.asset_integrity import verify_asset_chain
 
@@ -137,6 +140,38 @@ def stagnant(history):
     return (len(recent)==3 and min(recent)>1. and min(recent)>=.95*recent[0])
 
 
+def tracking_monitoring_scope(report, cfg, iteration, rollout_steps):
+    """Monitor every gate metric and include endpoints once training reaches them."""
+    if type(iteration) is not int or iteration < 0 or type(rollout_steps) is not int or rollout_steps <= 0:
+        raise ValueError('Monitoring requires the saved iteration and positive rollout length')
+    commands = SimpleNamespace(**cfg['commands'])
+    step = iteration * rollout_steps  # Same curriculum restoration clock as train.py.
+    progress = min(max((step - commands.standing_only_steps) / max(commands.motion_ramp_steps, 1), 0.), 1.)
+    bounds = training_height_bounds(commands, cfg['rewards']['base_height_target'], step, progress)
+    expanded = all(math.isclose(a, b, rel_tol=0., abs_tol=1.e-10)
+                   for a, b in zip(bounds, commands.ranges_height))
+    scoped = dict(report)
+    scoped['conditions'] = [c for c in report['conditions']
+                            if expanded or c['name'] not in ('height_low', 'height_high')]
+    metric_ratios = ratios(scoped, (*TASK_GOAL_METRICS, *REFERENCE_TRACKING_METRICS))
+    return dict(scope='all_conditions' if expanded else 'central_until_height_expanded',
+                conditions=[c['name'] for c in scoped['conditions']],
+                excluded_conditions=[c['name'] for c in report['conditions'] if c not in scoped['conditions']],
+                height_course_complete=expanded, training_height_bounds=list(bounds),
+                restored_curriculum_control_steps=step, metric_ratios=metric_ratios,
+                worst_ratio=max(metric_ratios.values()), acceptance_unchanged=True)
+
+
+def stagnant_monitoring_metrics(history):
+    """A passing/improving axis must not conceal another persistently failed one."""
+    recent = history[-3:]
+    if len(recent) != 3 or any((v['scope'], v['conditions']) !=
+                              (recent[0]['scope'], recent[0]['conditions']) for v in recent):
+        return []
+    return [key for key in recent[0]['metric_ratios']
+            if stagnant([v['metric_ratios'][key] for v in recent])]
+
+
 def run(args):
     if (args.fresh or not args.checkpoint
             or args.max_rounds or args.shutdown_after_success
@@ -226,7 +261,8 @@ def run(args):
             return report
         try:
             cycle=0
-            center_scores=[]
+            monitoring_history=[]
+            rollout_steps=int(yaml.safe_load((source.parent/'params/agent.yaml').read_text())['num_steps_per_env'])
             best=None
             while True:
                 if (output/'STOP').exists():
@@ -268,9 +304,10 @@ def run(args):
                            checkpoint_sha256=sha(checkpoint)))
                 save('checkpoint_evaluation',checkpoint=str(checkpoint),child_pid=None)
                 measured=replay(checkpoint,block/'replay')
+                monitoring=tracking_monitoring_scope(measured,current,int(after['iter']),rollout_steps)
                 entry=dict(checkpoint=str(checkpoint),assessment=str(block/'replay/assessment.json'),
                            ratios=ratios(measured),survivors=measured['survivors'],resets=measured['resets'],
-                           passed=measured['passed'])
+                           passed=measured['passed'],monitoring=monitoring)
                 state['history'].append(entry)
                 source,cfg=checkpoint,current  # Always accumulate actual updates, not a new branch from 2400.
                 save('block_evaluated',checkpoint=str(source),last_result=entry,child_pid=None)
@@ -293,15 +330,12 @@ def run(args):
                             from complete_mine_training import finish_joint_pd
                             finish_joint_pd(output/'status.json',shutdown=False)
                             return
-                # Height endpoints may still be outside the growing training
-                # envelope. Diagnose unchanged central motion/posture learning
-                # independently of these newly requested extreme heights.
-                central=copy.deepcopy(measured)
-                central['conditions']=[c for c in central['conditions'] if c['name'] not in ('height_low','height_high')]
-                center_scores.append(max(ratios(central).values()))
-                if stagnant(center_scores):
-                    save('agent_diagnosis_required',reason='three_independent_central_tracking_milestones_stagnant',
-                         user_pause_requested=False,goal_remains_active=True,checkpoint=str(source),child_pid=None)
+                monitoring_history.append(monitoring)
+                stalled=stagnant_monitoring_metrics(monitoring_history)
+                if stalled:
+                    save('agent_diagnosis_required',reason='three_independent_tracking_milestones_stagnant',
+                         stagnant_metrics=stalled,monitoring=monitoring,user_pause_requested=False,
+                         goal_remains_active=True,checkpoint=str(source),child_pid=None)
                     return
                 cycle+=1
         except BaseException as error:

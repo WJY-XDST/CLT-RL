@@ -1,5 +1,42 @@
 # 新闭链模型从建模到训练的修改记录
 
+## 最新追加 2026-10-14 17:43 保留第4158次模型，平衡反馈并修复完整停滞监测
+
+分项反馈 -0.25 已累计 300 次实际更新，model4158 的 Adam 达 63740，17 个状态完整。
+原九工况、三个种子独立回放仍 27/27 存活、零重置、完整验收 False。
+前进 0.3/0.6 m/s 的平均速度误差约 9.41%/6.59%，后退约 3.06%/3.00%；
+高／低高度 MAE 0.060064/0.053656 m（约 16.00%/23.81%），
+高速前后姿态 P95 平均 8.835°/9.269°，前进0.6的零 yaw MAE 0.043717 rad/s；
+左转漂移 0.059119 m/s、轮速 MAE 0.895130 rad/s，站立轮速误差也未通过。
+这些是部分指标改善，不能替代全指标或持续复验。
+[完整验收](../results/joint_pd_optimization_20261014_155008_component_feedback_cumulative/block_0002/replay/assessment.json)。
+
+冻结3960的奖励函数偏导诊断显示，当其他状态和参考固定，旧最大项反馈在低高度没有高度导数，
+高高度却有该项；在现有 -0.25 分项系数下，低／高端的高度奖励导数平均约 -13.73/+20.00 每米。
+这是奖励函数的局部偏导，不是策略、关节或真实动力学雅可比，也不能证明改善。
+候选只把分项反馈加强为 -0.75；同一诊断状态下变为约 -35.92/+33.32 每米，
+并加强其他同时失败项，保持最大项 -0.5、关节软饱和 -8 及全部物理、命令参数。
+[偏导依据](../results/joint_pd_optimization_20261014_155008_component_feedback_cumulative/height_feedback_balance_diagnosis_3960.json)。
+
+冻结4059的两组真实回放分别用 -0.25/-0.75，每组27000条有限记录、零重置；
+轨迹、精确 actor 输入／均值、全部其他奖励与原最大项逐值一致。
+候选分项独立公式最大差 5.31e-8，总奖励差值公式最大差 5.09e-8；诊断被原验收拒绝。
+[真实强度隔离验证](../results/joint_pd_optimization_20261014_155008_component_feedback_cumulative/component_weight_balance_native_check/native_verification.json)。
+
+修复持续训练控制器的停滞监测：高度课程未完成时明确记录端点不在当前学习范围；
+课程完成后纳入原全部工况，每次都监测四个任务指标及三个参考跟踪指标。
+连续三次可比独立回放中，任何持续失败且改善不足5%的指标都进入诊断，
+速度改善不能掩盖高度或轮速停滞；原验收始终保留全部工况和全部原门槛。
+临时与正式源码回归均430项、62个子测试通过，3项USD检查跳过。
+[监测代码核验](../results/joint_pd_optimization_20261014_155008_component_feedback_cumulative/full_scope_monitor_code_transition.json)。
+
+旧控制器在完整回放后因姿态等中心指标停滞退出，已完成针对性诊断后续训，未丢失更新。
+从 model4158、Adam63740、17个状态完整恢复 `clt-joint-pd-balanced-feedback-20261014_174142.service`；
+只改上述已核验分项系数，并接入完整监测，8192环境、全部策略参数继续学习。
+[最新来源核验](../results/joint_pd_optimization_20261014_155008_component_feedback_cumulative/balanced_feedback_handoff_source_verification.json)
+[当前续训参数](../results/joint_pd_optimization_20261014_174142_balanced_feedback_cumulative/launch.json)。
+**新强度的实际训练改善尚待后续独立回放；未通过全工况或持续复验，未启用实机或关机。**
+
 ## 最新追加 2026-10-14 15:51 修复并发误差的反馈缺口并保留 Adam 续训
 
 独立 model3760 的逐时刻归一化诊断发现：低高度工况的轮速误差始终是七项中的最大项，

@@ -28,6 +28,23 @@ class CalibrationIntegrityTests(unittest.TestCase):
         self.assertIn(str((asset.parent / profile['source']).resolve()), hashes)
         self.assertGreaterEqual(len(manifests), 5)
 
+    def test_measured_vehicle_and_leg_totals_match_native_evidence(self):
+        asset = ASSETS / MANIFEST['training_usd']
+        profile = json.loads(asset.with_suffix('.json').read_text())
+        measured = profile['assembly_mass_measurements']
+        self.assertEqual(measured['vehicle_kg'], 12.34)
+        self.assertTrue(measured['leg_weight_excludes_hip_motors'])
+        self.assertFalse(profile['individual_link_masses_measured'])
+        smoke = profile['validation']['physx_loading_smoke']
+        self.assertAlmostEqual(smoke['total_mass_kg'], 12.34, places=5)
+        self.assertTrue(smoke['all_body_inertias_match_composed_usd'])
+        self.assertEqual(smoke['asset_sha256'], profile['sha256'][profile['overlay']])
+        for side in ('L', 'R'):
+            total = sum(smoke['body_masses_kg'][side + n + '_link']
+                        for n in ('B', 'S', 'L', 'L1', 'L2', 'L3', 'W'))
+            self.assertAlmostEqual(total, 1.935, places=6)
+        self.assertAlmostEqual(smoke['body_masses_kg']['base_link'], 8.47, places=6)
+
 
 @unittest.skipUnless(Usd is not None, 'USD composition checks need usd-core or Isaac Sim startup')
 class CalibrationCompositionTests(unittest.TestCase):
@@ -76,14 +93,20 @@ class CalibrationCompositionTests(unittest.TestCase):
         np.testing.assert_allclose(tensors[0], reflection @ tensors[1] @ reflection, atol=1.e-9)
         self.assertAlmostEqual(tensors[0][1, 1], tensors[1][1, 1], places=10)
 
-    def test_nonwheel_dynamics_and_all_joint_frames_are_unchanged(self):
+    def test_declared_leg_mass_properties_and_all_joint_frames(self):
         for prim in self.original.Traverse():
             other = self.calibrated.GetPrimAtPath(prim.GetPath())
             self.assertTrue(other.IsValid())
             if prim.HasAPI(UsdPhysics.RigidBodyAPI) and prim.GetName() not in ('LW_link', 'RW_link'):
-                for key in ('mass', 'centerOfMass', 'diagonalInertia', 'principalAxes'):
-                    self.assertEqual(prim.GetAttribute('physics:' + key).Get(),
-                                     other.GetAttribute('physics:' + key).Get())
+                props = self.profile['body_mass_properties'][prim.GetName()]
+                api = UsdPhysics.MassAPI(other)
+                self.assertAlmostEqual(api.GetMassAttr().Get(), props['mass_kg'], places=7)
+                np.testing.assert_allclose(api.GetCenterOfMassAttr().Get(), props['com_local'], atol=1.e-9)
+                np.testing.assert_allclose(api.GetDiagonalInertiaAttr().Get(), props['principal_inertia_kg_m2'], atol=1.e-10)
+                if prim.GetName() == 'base_link':
+                    for key in ('centerOfMass', 'diagonalInertia', 'principalAxes'):
+                        self.assertEqual(prim.GetAttribute('physics:' + key).Get(),
+                                         other.GetAttribute('physics:' + key).Get())
             if prim.IsA(UsdPhysics.RevoluteJoint):
                 for attr in prim.GetAttributes():
                     self.assertEqual(attr.Get(), other.GetAttribute(attr.GetName()).Get())

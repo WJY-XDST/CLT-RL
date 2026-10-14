@@ -42,8 +42,9 @@ VMC_CONTROL_HZ = 500
 # control/torque.c M1 and F0_control, control/WBR.c pitch_com, control/vmc.c.
 # Owner-confirmed definition: M1=6.17 kg is HALF the nominal WHOLE vehicle
 # mass, including its wheels. Each leg's base feedforward is m_vehicle*g/2.
+# The owner confirmed 12.34 kg is an actual assembled-vehicle weighing.
 # This parameter does not come from CAD supported_mass_kg or exclude wheels.
-# Keep the nominal firmware load separate from the CAD rigid-body mass sum.
+# The measured-volume USD now matches that total; historical CAD remains intact.
 GRAVITY = 9.81
 NOMINAL_VEHICLE_MASS_KG = 12.34
 GRAVITY_COMPENSATION_MASS_PER_LEG = NOMINAL_VEHICLE_MASS_KG / 2.0

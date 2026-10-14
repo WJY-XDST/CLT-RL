@@ -1,0 +1,112 @@
+#usda 1.0
+(
+    defaultPrim = "mine_robot"
+    subLayers = [
+        @mine_closed_chain_training_matched_wheels_20261014.usda@
+    ]
+)
+
+over "mine_robot"
+{
+    over "base_link"
+    {
+        float physics:mass = 8.47
+    }
+
+    over "LB_link"
+    {
+        point3f physics:centerOfMass = (-0.027248751, -0.07216387, -0.029872004)
+        float3 physics:diagonalInertia = (0.00018001444, 0.002406688, 0.0025322372)
+        float physics:mass = 0.3945385
+        quatf physics:principalAxes = (-0.5630741, 0.018155076, 0.036780953, 0.82538784)
+    }
+
+    over "LS_link"
+    {
+        point3f physics:centerOfMass = (-0.06786628, 0.07021746, -0.0063343784)
+        float3 physics:diagonalInertia = (0.00009788691, 0.0033505494, 0.0034140118)
+        float physics:mass = 0.3823128
+        quatf physics:principalAxes = (0.92357665, 0.0067776325, 0.0062897387, -0.3833023)
+    }
+
+    over "LL_link"
+    {
+        point3f physics:centerOfMass = (-0.0014554621, 0.0025594272, 0.024410607)
+        float3 physics:diagonalInertia = (0.00019689075, 0.00028555363, 0.00028664153)
+        float physics:mass = 0.4061263
+        quatf physics:principalAxes = (0.6694742, -0.5279468, 0.47213826, -0.22396865)
+    }
+
+    over "LL1_link"
+    {
+        point3f physics:centerOfMass = (-0.03489026, -0.044121787, -0.00012403296)
+        float3 physics:diagonalInertia = (0.0000010057346, 0.00003286995, 0.000033527704)
+        float physics:mass = 0.021450503
+        quatf physics:principalAxes = (-0.43573427, -6.7155588e-9, -1.062625e-8, 0.9000754)
+    }
+
+    over "LL2_link"
+    {
+        point3f physics:centerOfMass = (0.06420389, -0.0613662, -0.0050000004)
+        float3 physics:diagonalInertia = (0.000005412839, 0.00012471304, 0.00012942679)
+        float physics:mass = 0.04194539
+        quatf physics:principalAxes = (0.9361868, 1.2542508e-8, 4.709245e-9, -0.35150293)
+    }
+
+    over "LL3_link"
+    {
+        point3f physics:centerOfMass = (-0.023148242, -0.052907657, -0.0011373912)
+        float3 physics:diagonalInertia = (0.0000010608663, 0.00003676994, 0.0000374465)
+        float physics:mass = 0.023626504
+        quatf physics:principalAxes = (-0.5473411, -3.927949e-9, -1.6646077e-8, 0.83690965)
+    }
+
+    over "RB_link"
+    {
+        point3f physics:centerOfMass = (-0.027249524, 0.07216564, 0.044578005)
+        float3 physics:diagonalInertia = (0.00018001441, 0.0024065713, 0.0025321206)
+        float physics:mass = 0.3945385
+        quatf physics:principalAxes = (0.82538766, 0.036781605, 0.018155819, -0.56307435)
+    }
+
+    over "RS_link"
+    {
+        point3f physics:centerOfMass = (-0.067861974, -0.07022179, -0.0063343723)
+        float3 physics:diagonalInertia = (0.00009788692, 0.0033505394, 0.0034140025)
+        float physics:mass = 0.38231277
+        quatf physics:principalAxes = (-0.38331953, 0.0062262686, 0.0069304816, 0.9235688)
+    }
+
+    over "RL_link"
+    {
+        point3f physics:centerOfMass = (-0.0014547904, -0.0025605576, 0.032510612)
+        float3 physics:diagonalInertia = (0.00019689299, 0.00028554993, 0.00028664)
+        float physics:mass = 0.40612635
+        quatf physics:principalAxes = (0.6706325, 0.5264927, 0.47162986, 0.22499503)
+    }
+
+    over "RL1_link"
+    {
+        point3f physics:centerOfMass = (-0.034890257, 0.044121798, -0.006875955)
+        float3 physics:diagonalInertia = (0.0000010057346, 0.00003286995, 0.000033527704)
+        float physics:mass = 0.021450503
+        quatf physics:principalAxes = (0.9000754, -1.3493017e-8, -4.9589564e-9, -0.43573424)
+    }
+
+    over "RL2_link"
+    {
+        point3f physics:centerOfMass = (0.06420388, 0.06136621, 0.0070000067)
+        float3 physics:diagonalInertia = (0.000005412839, 0.00012471304, 0.00012942679)
+        float physics:mass = 0.04194539
+        quatf physics:principalAxes = (0.9361868, -1.2542612e-8, 4.709233e-9, 0.35150295)
+    }
+
+    over "RL3_link"
+    {
+        point3f physics:centerOfMass = (-0.023148252, 0.052907668, -0.002612608)
+        float3 physics:diagonalInertia = (0.0000010608663, 0.00003676994, 0.0000374465)
+        float physics:mass = 0.023626504
+        quatf physics:principalAxes = (0.83690965, -5.7799454e-9, -1.0737261e-8, -0.54734105)
+    }
+}
+

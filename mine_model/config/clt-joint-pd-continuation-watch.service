@@ -1,0 +1,17 @@
+[Unit]
+Description=Recover owned direct joint PD training services from verified checkpoints
+
+[Service]
+Type=simple
+WorkingDirectory=/home/aaa/studyRL/src/CLT-RL
+Environment=PYTHONPATH=/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab:/home/aaa/studyRL/src/CLT-RL/mine_model/scripts
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=OMP_NUM_THREADS=1
+Environment=MKL_NUM_THREADS=1
+ExecStart=/home/aaa/studyRL/src/CLT-RL/run_python.sh /home/aaa/studyRL/src/CLT-RL/mine_model/scripts/watch_joint_pd_continuation_service.py
+Restart=on-failure
+RestartSec=30
+TimeoutStopSec=10
+
+[Install]
+WantedBy=default.target

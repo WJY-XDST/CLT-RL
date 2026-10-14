@@ -260,7 +260,9 @@ class WheelLeggedVMCFlatEnvCfg(DirectRLEnvCfg):
     robot: ArticulationCfg = ArticulationCfg(
         prim_path="/World/envs/env_.*/Robot",
         spawn=sim_utils.UsdFileCfg(
-            # 实物确认左右轮（含轮毂电机）均为 0.665 kg；独立质量层保留闭链与限位。
+            # 整车实测 12.34 kg；每侧整腿含轮 1.935 kg、不含机身上的髋电机。
+            # 两轮各 0.665 kg；碳纤维腿部质量、质心和惯量按 CAD 体积估计。
+            # 独立质量层保留闭链、几何与限位；各连杆参数尚非单独实测。
             # 两轮主惯量取右轮 CAD 值，并按左右坐标镜像；尚非实测惯量。
             # 旧权重回放使用其保存的配套资产。
             usd_path=str(ASSETS / MANIFEST.get("training_usd", MANIFEST["usd"].replace(

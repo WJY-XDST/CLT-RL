@@ -59,7 +59,7 @@ try:
     centers = robot.root_physx_view.get_coms()[0].cpu().numpy()
     report = dict(asset=str(asset), asset_sha256=expected['sha256'],
                   environments=1, control_steps=10, training_started=False,
-                  policy_acceptance_test=False, wheels={},
+                  policy_acceptance_test=False, wheels={}, body_inertia_relative_errors={},
                   total_mass_kg=float(masses.sum()),
                   wheel_masses_kg={}, finite_observations=finite(observations),
                   finite_rewards=True, resets=0,
@@ -70,7 +70,22 @@ try:
                                nominal_vehicle_mass_kg=2 * 6.17,
                                mass_per_leg_kg=6.17))
     for name, mass in expected['body_masses_kg'].items():
-        np.testing.assert_allclose(masses[robot.body_names.index(name)], mass, rtol=1.e-6)
+        index = robot.body_names.index(name)
+        np.testing.assert_allclose(masses[index], mass, rtol=1.e-6)
+        properties = expected.get('body_mass_properties', {}).get(name)
+        if properties:
+            native_tensor = inertias[index].reshape(3, 3).T
+            expected_tensor = np.asarray(properties['tensor_link_frame'])
+            # Rotating a float32 principal frame introduces cancellation in
+            # small off-diagonal entries. Compare the full tensor norm rather
+            # than dividing by an arbitrarily small individual component.
+            relative_error = float(np.linalg.norm(native_tensor - expected_tensor)
+                                   / np.linalg.norm(expected_tensor))
+            assert relative_error < 2.e-6, (name, relative_error)
+            assert np.linalg.eigvalsh(native_tensor).min() > 0
+            report['body_inertia_relative_errors'][name] = relative_error
+            np.testing.assert_allclose(centers[index, :3], properties['com_local'], rtol=1.e-6, atol=1.e-9)
+    report['body_masses_kg'] = {name: float(masses[i]) for i, name in enumerate(robot.body_names)}
     np.testing.assert_allclose(report['total_mass_kg'], expected['total_mass_kg'], rtol=1.e-6)
     tensors_base = {}
     for name in ('LW_link', 'RW_link'):
@@ -103,11 +118,27 @@ try:
             report['resets'] += int((terminated | truncated).sum())
     assert report['finite_observations'] and report['finite_rewards']
     report.update(native_wheel_tensor_matches_usd=True, same_principal_moments=True,
-                  base_frame_mirror_tensor_verified=True, all_body_masses_unchanged=True,
+                  base_frame_mirror_tensor_verified=True, all_body_masses_match_composed_usd=True,
+                  all_body_masses_unchanged=expected['body_masses_kg'] == composition['before']['body_masses_kg'],
+                  all_body_inertias_match_composed_usd=(set(report['body_inertia_relative_errors'])
+                      == set(expected['body_masses_kg'])),
                   qualification='Native loading and finite zero-action steps only; no policy acceptance claim')
     args.report.parent.mkdir(parents=True, exist_ok=True)
     args.report.write_text(json.dumps(report, indent=2) + '\n')
     print(json.dumps(report, indent=2), flush=True)
+except Exception as error:
+    # Kit shutdown can conceal a Python exception behind exit status 0.
+    # Persist the exception before app.close(); a missing complete report is
+    # always a failed qualification regardless of the process exit code.
+    import traceback
+    args.report.parent.mkdir(parents=True, exist_ok=True)
+    failure = dict(exception_type=type(error).__name__, error=str(error),
+                   traceback=traceback.format_exc(), policy_acceptance_test=False,
+                   asset=str(asset), body_being_verified=locals().get('name'))
+    args.report.with_name('native_physx_failure.json').write_text(
+        json.dumps(failure, indent=2) + '\n')
+    print(json.dumps(failure, indent=2), flush=True)
+    raise
 finally:
     if env is not None:
         env.close()

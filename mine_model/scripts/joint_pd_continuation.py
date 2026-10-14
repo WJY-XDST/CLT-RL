@@ -75,11 +75,33 @@ def qualified_wheel_mass_asset(evidence_path):
             or any(not math.isclose(smoke.get('wheel_masses_kg', {}).get(name, 0.), .665, abs_tol=1.e-6)
                    for name in ('LW_link', 'RW_link'))):
         raise ValueError('Wheel mass calibration lacks matched owner/PhysX evidence')
+    measurements = profile.get('assembly_mass_measurements')
+    if measurements:
+        # Weighed legs include wheels but exclude fixed, body-mounted hip
+        # motors. Require native evidence for that complete measured budget.
+        if (measurements != dict(vehicle_kg=12.34, left_leg_with_wheel_kg=1.935,
+                                 right_leg_with_wheel_kg=1.935, wheel_kg=.665,
+                                 leg_weight_includes_wheel=True,
+                                 leg_weight_excludes_hip_motors=True,
+                                 hip_motors_body_mounted=True)
+                or not smoke.get('all_body_inertias_match_composed_usd')
+                or not math.isclose(smoke.get('total_mass_kg', 0.), 12.34, abs_tol=2.e-6)):
+            raise ValueError('Measured vehicle/leg mass calibration lacks native assembly evidence')
+        masses = smoke.get('body_masses_kg', {})
+        if not math.isclose(masses.get('base_link', 0.), 8.47, abs_tol=1.e-6):
+            raise ValueError('Fixed body must include the body-mounted hip motors')
+        for side in ('L', 'R'):
+            total = sum(masses.get(side + suffix + '_link', 0.)
+                        for suffix in ('B', 'S', 'L', 'L1', 'L2', 'L3', 'W'))
+            if not math.isclose(total, 1.935, abs_tol=1.e-6):
+                raise ValueError('Native leg/wheel mass does not match the owner weighing')
     hashes, _ = verify_asset_chain(asset)
     return str(asset), dict(evidence=str(evidence_path), evidence_sha256=sha(evidence_path),
                            calibration_id=profile['calibration_id'], asset=str(asset),
                            asset_chain_sha256=hashes, wheel_masses_kg=profile['wheel_masses_kg'],
-                           inertia_measured=profile['inertia']['measured'])
+                           inertia_measured=profile['inertia']['measured'],
+                           assembly_mass_measurements=measurements,
+                           individual_link_masses_measured=profile.get('individual_link_masses_measured', False))
 
 
 def continuation_command(source, cfg, label, updates, commands, stop_file, reward_overrides=None,

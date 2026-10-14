@@ -11,7 +11,7 @@ from watch_joint_pd_scratch import validate_contract
 from wheel_legged_gym_isaaclab.robot_model import validate_checkpoint_robot
 
 
-def verify(source, checkpoint):
+def verify(source, checkpoint, reward_overrides=None):
     source,checkpoint=Path(source).resolve(),Path(checkpoint).resolve()
     before=torch.load(source,map_location='cpu',weights_only=True)
     after=torch.load(checkpoint,map_location='cpu',weights_only=True)
@@ -31,7 +31,7 @@ def verify(source, checkpoint):
     validate_contract(checkpoint.parent,fresh_weights=False,source_checkpoint=source)
     previous=validate_checkpoint_robot(source)
     current=validate_checkpoint_robot(checkpoint)
-    validate_continuation_config(previous,current,previous['commands'])
+    validate_continuation_config(previous,current,previous['commands'],reward_overrides=reward_overrides)
     return dict(source=str(source),checkpoint=str(checkpoint),
         source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),
         checkpoint_sha256=hashlib.sha256(checkpoint.read_bytes()).hexdigest(),
@@ -39,7 +39,8 @@ def verify(source, checkpoint):
         optimizer_step_before=optimizer_step(before),optimizer_step_after=optimizer_step(after),
         optimizer_states=17,all_tensors_finite=True,actor_rows_updated=rows,
         shared_actor_updated=shared,critic_updated=critic,control_contract_unchanged=True,
-        environment_config_commands_rewards_and_asset_unchanged=True,
+        environment_config_commands_rewards_and_asset_unchanged=not bool(reward_overrides),
+        declared_reward_changes=reward_overrides or {},only_declared_reward_changes_applied=True,
         weights_reset=False,optimizer_reset=False,policy_accepted=False)
 
 
@@ -48,8 +49,10 @@ if __name__ == '__main__':
     parser.add_argument('--source',type=Path,required=True)
     parser.add_argument('--checkpoint',type=Path,required=True)
     parser.add_argument('--report',type=Path,required=True)
+    parser.add_argument('--reward-overrides',type=Path)
     args=parser.parse_args()
-    result=verify(args.source,args.checkpoint)
+    from joint_pd_optimization import prepared_reward_trial
+    result=verify(args.source,args.checkpoint,prepared_reward_trial(args.reward_overrides))
     args.report.parent.mkdir(parents=True,exist_ok=True)
     args.report.write_text(json.dumps(result,indent=2)+'\n')
     print(json.dumps(result,indent=2))

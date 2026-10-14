@@ -75,6 +75,8 @@ def qualified_wheel_mass_asset(evidence_path):
             or any(not math.isclose(smoke.get('wheel_masses_kg', {}).get(name, 0.), .665, abs_tol=1.e-6)
                    for name in ('LW_link', 'RW_link'))):
         raise ValueError('Wheel mass calibration lacks matched owner/PhysX evidence')
+    if smoke.get('asset_sha256') != sha(asset):
+        raise ValueError('Native mass/inertia evidence does not match the selected USD asset')
     measurements = profile.get('assembly_mass_measurements')
     if measurements:
         # Weighed legs include wheels but exclude fixed, body-mounted hip
@@ -120,7 +122,7 @@ def continuation_command(source, cfg, label, updates, commands, stop_file, rewar
             '--task','WheelLeggedJointPD-Flat-v0','--require_leg_control_mode','implicit_joint_position',
             '--checkpoint_path',str(source),'--target_iteration',str(target),
             '--num_envs','8192','--seed','43','--run_name',label,'--headless','--device','cuda:0',
-            '--min_exploration_std','.01','--stop_file',str(stop_file),'agent.save_interval=25']
+            '--min_exploration_std','.01','--stop_file',str(stop_file),'agent.save_interval=5']
     if minimum_wheel_std is not None:
         argv.extend(['--min_wheel_exploration_std', str(minimum_wheel_std)])
     if guard_coefficient or joint_mean_guard_coef is not None:

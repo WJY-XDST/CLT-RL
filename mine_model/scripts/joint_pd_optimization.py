@@ -49,8 +49,8 @@ def prepared_reward_trial(path):
         raise ValueError('Prepared reward deadband must be positive and at most five percent')
     if key == 'rewards.wheel_action_saturation' and not -2. <= value < 0.:
         raise ValueError('Prepared wheel saturation reward must be negative and no smaller than minus two')
-    if key == 'rewards.tracking_goal_violation' and not -2. <= value < 0.:
-        raise ValueError('Prepared tracking-goal reward must be negative and no smaller than minus two')
+    if key == 'rewards.tracking_goal_violation' and not -2. <= value <= 0.:
+        raise ValueError('Prepared tracking-goal reward must be nonpositive and no smaller than minus two')
     if key == 'rewards.joint_position_action_saturation' and not -8. <= value < 0.:
         raise ValueError('Prepared joint saturation reward must be negative and no smaller than minus eight')
     if key == 'rewards.tracking_goal_component_violation' and not -1. <= value < 0.:

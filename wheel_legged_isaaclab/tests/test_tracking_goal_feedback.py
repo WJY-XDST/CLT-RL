@@ -109,7 +109,7 @@ def test_prepared_reward_keeps_source_weights_optimizer_and_physics(tmp_path):
     assert hashlib.sha256(source.read_bytes()).hexdigest()==digest
 
 
-@pytest.mark.parametrize('value',[0.,.1,-3.,float('nan')])
+@pytest.mark.parametrize('value',[.1,-3.,float('nan')])
 def test_unqualified_reward_changes_are_rejected(tmp_path,value):
     path=tmp_path/'change.json';path.write_text(json.dumps({'rewards.tracking_goal_violation':value}))
     with pytest.raises(ValueError):prepared_reward_trial(path)
@@ -132,3 +132,9 @@ def test_old_checkpoint_accepts_neutral_fields_but_not_an_unrequested_reward(che
             check(before,after,{})
         else:
             check(before,after,before['commands'])
+
+
+def test_explicit_zero_worst_cost_is_an_admitted_single_term_trial(tmp_path):
+    path=tmp_path/"change.json"
+    path.write_text(json.dumps({"rewards.tracking_goal_violation":0.}))
+    assert prepared_reward_trial(path)=={"rewards.tracking_goal_violation":0.}

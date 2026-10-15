@@ -1,8 +1,4 @@
-"""Forward geometry for diagnosing a possible height training loss.
-
-This staged module does not run in production. It never replaces policy
-actions, solves inverse kinematics or computes control efforts.
-"""
+"""Training-only forward geometry; never replace actions or solve IK."""
 import copy
 import math
 from pathlib import Path
@@ -11,7 +7,7 @@ import torch
 import yaml
 
 from wheel_legged_gym_isaaclab.five_bar_vmc import five_bar_state
-from wheel_legged_gym_isaaclab.height_commands import SAFE_LEG_LENGTH_RANGE_M, LEG_STOP_MARGIN_M
+from wheel_legged_gym_isaaclab.height_commands import SAFE_LEG_LENGTH_RANGE_M, SAFE_BASE_HEIGHT_RANGE_M, LEG_STOP_MARGIN_M
 from wheel_legged_gym_isaaclab.leg_control import joint_position_targets
 from wheel_legged_gym_isaaclab.robot_model import MODEL
 from wheel_legged_gym_isaaclab.tracking_goal_feedback import load_tracking_goal_criteria
@@ -47,8 +43,12 @@ def model_from_config(cfg, joint_limits):
         joint_limits=joint_limits, margin=cfg['leg_joint_target_limit_margin'],
         wheel_radius=cfg['wheel_radius'], hip_z=MODEL['hip_z'], wheel_track_width=MODEL['wheel_track_width'],
         height_scale=cfg['obs_scales']['height_measurements'], gyro_scale=cfg['obs_scales']['ang_vel'],
+        velocity_scale=cfg['obs_scales']['lin_vel'],
         relative_tolerance=load_tracking_goal_criteria()[0]['relative_error'], training_fraction=.5,
-        safe_leg_length_range=list(SAFE_LEG_LENGTH_RANGE_M), stop_margin=LEG_STOP_MARGIN_M)
+        safe_leg_length_range=list(SAFE_LEG_LENGTH_RANGE_M), stop_margin=LEG_STOP_MARGIN_M,
+        command_counterfactuals=dict(profile='standing_height_command_v1',max_samples=256,
+            commands_m=[SAFE_BASE_HEIGHT_RANGE_M[0]+LEG_STOP_MARGIN_M,.3,
+                        SAFE_BASE_HEIGHT_RANGE_M[1]-LEG_STOP_MARGIN_M],fraction=.5))
 
 
 def predict_support_heights(means, observations, model):
@@ -79,3 +79,34 @@ def height_proxy_loss(means, observations, model):
     def huber(values):
         return torch.where(values<1.,.5*values.square(),values-.5)
     return (huber(height_excess)*reliable[:,None]*valid+huber(stop_excess)*valid).mean()
+
+
+def height_training_loss(policy, means, observations, model):
+    """Break command/state shortcuts without changing the sampled PPO policy.
+
+    Auxiliary inputs retain the measured state and previous actions. Only the
+    height command changes, inside the original full training range. Interior
+    probe commands add a 10 mm margin for the small measured body tilt; actual
+    training commands and independent acceptance still include both endpoints.
+    act_inference computes differentiable means without replacing the action
+    distribution used by PPO log probabilities, entropy or KL.
+    """
+    actual=height_proxy_loss(means,observations['policy'],model)
+    profile=model.get('command_counterfactuals')
+    if profile is None:
+        return actual
+    value=observations['policy'].detach()
+    eligible=((value[:,5] < -math.cos(math.radians(2.5)))
+              &(torch.linalg.vector_norm(value[:,:3],dim=-1)/model['gyro_scale'] < 1.)
+              &(value[:,6].abs()<.025*model['velocity_scale'])&(value[:,7].abs()<.025*model['gyro_scale'])
+              &(value[:,17].abs()<.025*model['velocity_scale']))
+    indices=eligible.nonzero(as_tuple=False).flatten()[:profile['max_samples']]
+    if indices.numel()==0:
+        return actual
+    # TensorDict repetition and cloning preserve every original rollout input.
+    auxiliary=observations[indices].detach().clone().repeat(len(profile['commands_m']))
+    auxiliary['policy'][:,8]=value.new_tensor(profile['commands_m']).repeat_interleave(len(indices))*model['height_scale']
+    predicted=policy.act_inference(auxiliary)
+    counterfactual=height_proxy_loss(predicted,auxiliary['policy'],model)
+    fraction=profile['fraction']
+    return (1.-fraction)*actual+fraction*counterfactual

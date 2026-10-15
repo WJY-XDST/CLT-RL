@@ -99,6 +99,9 @@ class JointMeanGuardPPO(PPO):
         self.joint_height_feedback_model=copy.deepcopy(joint_height_feedback_model)
         if self.joint_height_feedback_coef and self.joint_height_feedback_model is None:
             raise ValueError('Height feedback requires an explicit forward geometry model')
+        if (self.joint_height_feedback_coef and self.joint_height_feedback_model.get('command_counterfactuals')
+                and (policy.is_recurrent or not isinstance(policy.actor_obs_normalizer,nn.Identity))):
+            raise ValueError('Height command counterfactuals require the unchanged feedforward policy without observation normalization')
         if self.joint_mean_guard_coef or self.joint_height_feedback_coef:
             if hashlib.sha256(inspect.getsource(PPO.update).encode()).hexdigest() != UPSTREAM_UPDATE_SHA256:
                 raise RuntimeError('Installed PPO update changed; requalify the joint mean guard before training.')
@@ -251,9 +254,9 @@ class JointMeanGuardPPO(PPO):
             joint_mean_guard_loss = joint_mean_overshoot_loss(mu_batch)
             loss = loss + self.joint_mean_guard_coef * joint_mean_guard_loss
             if self.joint_height_feedback_coef:
-                from wheel_legged_gym_isaaclab.joint_height_feedback import height_proxy_loss
-                joint_height_feedback_loss=height_proxy_loss(mu_batch,obs_batch['policy'][:original_batch_size],
-                                                            self.joint_height_feedback_model)
+                from wheel_legged_gym_isaaclab.joint_height_feedback import height_training_loss
+                joint_height_feedback_loss=height_training_loss(self.policy,mu_batch,obs_batch[:original_batch_size],
+                                                               self.joint_height_feedback_model)
                 loss=loss+self.joint_height_feedback_coef*joint_height_feedback_loss
                 mean_joint_height_feedback_loss+=joint_height_feedback_loss.item()
 

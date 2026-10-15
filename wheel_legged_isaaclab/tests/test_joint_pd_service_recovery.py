@@ -110,3 +110,22 @@ def test_live_manual_stop_still_saves_and_preserves_pause(tmp_path,monkeypatch):
     assert marker==dict(reason='service_stop_requested',checkpoint_before_exit=True)
     assert calls==[output]
     assert decision({},dict(state='training'),marker)=='explicit_user_pause'
+
+
+@pytest.mark.parametrize('result',['oom-kill','signal','exit-code','timeout','resources'])
+@pytest.mark.parametrize('existing_pause',[False,True])
+def test_failed_child_cannot_relabel_a_live_supervisor_as_manual_pause(tmp_path,monkeypatch,result,existing_pause):
+    monkeypatch.setattr(stop_service,'ROOT',tmp_path)
+    output=tmp_path/'mine_model/results/joint_pd_optimization_test'
+    output.mkdir(parents=True)
+    (output/'.controller.lock').touch()
+    state=dict(state='training',reason='native_child_failed')
+    (output/'status.json').write_text(json.dumps(state))
+    marker=dict(reason='user_pause',checkpoint_before_exit=True)
+    if existing_pause:(output/'STOP').write_text(json.dumps(marker))
+    monkeypatch.setattr(stop_service,'request_checkpoint_stop',lambda _:pytest.fail('Failure must not create a manual pause'))
+    value=stop_owned_controller(output,str(os.getpid()),result)
+    assert value==dict(action='service_failure_preserved',service_result=result,stop_marker_created=False)
+    assert json.loads((output/'status.json').read_text())==state
+    assert (output/'STOP').exists()==existing_pause
+    if existing_pause:assert json.loads((output/'STOP').read_text())==marker

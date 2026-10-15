@@ -30,11 +30,18 @@ def main_process_alive(main_pid):
     return True
 
 
-def stop_owned_controller(output, main_pid):
+def stop_owned_controller(output, main_pid, service_result=None):
     output=Path(output).resolve()
     if (output.parent != ROOT/'mine_model/results' or not output.name.startswith('joint_pd_optimization_')
             or not (output/'.controller.lock').is_file()):
         raise ValueError('Stop only an owned cumulative direct-PD controller')
+    # With OOMPolicy=stop, systemd can stop the still-live supervisor after
+    # killing its native child. MAINPID alone cannot identify a manual stop.
+    # Preserve failure evidence and any existing explicit marker; never turn
+    # a failed service result into a new user pause.
+    if service_result and service_result != 'success':
+        return dict(action='service_failure_preserved',service_result=service_result,
+                    stop_marker_created=False)
     # A successful plateau hand-off or an unexpected process exit must retain
     # its diagnosis/recovery state. Neither is an instruction from the user to
     # pause. The systemd service manual explicitly says MAINPID is unset after
@@ -56,4 +63,5 @@ if __name__ == '__main__':
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output',type=Path,required=True)
     args=parser.parse_args()
-    print(json.dumps(stop_owned_controller(args.output,os.environ.get('MAINPID'))))
+    print(json.dumps(stop_owned_controller(args.output,os.environ.get('MAINPID'),
+                                          os.environ.get('SERVICE_RESULT'))))

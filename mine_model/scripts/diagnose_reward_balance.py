@@ -64,9 +64,20 @@ def audit(directory):
         return worst, components
 
     worst, components = goal_rewards(ratios)
-    discrepancies = dict(base_height=float(np.max(abs(dt*height_reward(data['height_m'])-data['reward_base_height']))),
-        tracking_goal_violation=float(np.max(abs(dt*worst-data['reward_tracking_goal_violation']))),
-        tracking_goal_component_violation=float(np.max(abs(dt*components-data['reward_tracking_goal_component_violation']))))
+    def recorded_reward(name):
+        field='reward_'+name
+        if field in data.dtype.names:
+            return data[field]
+        # The environment omits opt-in terms whose coefficient is zero.
+        # Only a disabled term may be reconstructed as zero; never hide
+        # missing telemetry for an active training signal.
+        if rewards[name] != 0.:
+            raise ValueError('Missing active reward telemetry: '+name)
+        return np.zeros(len(data))
+
+    discrepancies = dict(base_height=float(np.max(abs(dt*height_reward(data['height_m'])-recorded_reward('base_height')))),
+        tracking_goal_violation=float(np.max(abs(dt*worst-recorded_reward('tracking_goal_violation')))),
+        tracking_goal_component_violation=float(np.max(abs(dt*components-recorded_reward('tracking_goal_component_violation')))))
     if max(discrepancies.values()) > 1.e-5:
         raise ValueError('Independent reward formulas disagree with actual environment telemetry: '+str(discrepancies))
 

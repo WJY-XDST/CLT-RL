@@ -39,7 +39,8 @@ def decision(service, state, marker, *, paused=False):
         return 'diagnosis_required'
     if reason and reason != 'host_shutdown':
         return 'explicit_user_pause'
-    if phase in RECOVERABLE or (phase == 'paused_user_request' and reason == 'host_shutdown'):
+    if phase in RECOVERABLE or (phase in ('paused_user_request','saving_checkpoint_before_stop')
+                               and reason == 'host_shutdown'):
         return 'recover_verified_checkpoint'
     return 'inspect_unknown_state'
 
@@ -99,8 +100,11 @@ def once():
             (output/'stagnation_continuation_plan.json').write_text(json.dumps(plan,indent=2)+'\n')
             coefficient=plan['height_coefficient_after']
             result['diagnosed_learning_plan']=plan
+        previous_command=record.get('command',[])
+        block_updates=(int(previous_command[previous_command.index('--round_iterations')+1])
+                       if '--round_iterations' in previous_command else 100)
         next_run = launch(output, reward_overrides=record.get('reward_overrides_path'),
-                          height_feedback_coefficient=coefficient)
+                          height_feedback_coefficient=coefficient,block_updates=block_updates)
         result.update(state='recovered_verified_checkpoint', new_directory=next_run['directory'],
                       new_checkpoint=next_run['source_checkpoint'], optimizer_step=next_run['optimizer_step_before'])
     write_state(result)

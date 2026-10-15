@@ -28,6 +28,15 @@ def test_saved_stop_for_known_host_shutdown_is_recoverable():
     assert decision({}, {'state':'paused_user_request'}, {'reason':'host_shutdown'}) == 'recover_verified_checkpoint'
 
 
+def test_shutdown_during_cooperative_save_recovers_from_actual_files():
+    state=dict(state='saving_checkpoint_before_stop')
+    marker=dict(reason='host_shutdown')
+    assert decision({},state,marker)=='recover_verified_checkpoint'
+    assert decision({},state,marker,paused=True)=='explicit_user_pause'
+    assert decision({},state,dict(reason='service_stop_requested'))=='explicit_user_pause'
+    assert decision({},state,{})=='inspect_unknown_state'
+
+
 def test_generic_service_stop_may_be_manual_and_must_not_be_overridden():
     assert decision({}, {'state':'training'}, {'reason':'service_stop_requested'}) == 'explicit_user_pause'
 

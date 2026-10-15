@@ -46,9 +46,16 @@ def model_from_config(cfg, joint_limits):
         velocity_scale=cfg['obs_scales']['lin_vel'],
         relative_tolerance=load_tracking_goal_criteria()[0]['relative_error'], training_fraction=.5,
         safe_leg_length_range=list(SAFE_LEG_LENGTH_RANGE_M), stop_margin=LEG_STOP_MARGIN_M,
-        command_counterfactuals=dict(profile='standing_height_command_v1',max_samples=256,
+        command_counterfactuals=dict(profile='standing_height_command_v2_scaled',max_samples=256,
             commands_m=[SAFE_BASE_HEIGHT_RANGE_M[0]+LEG_STOP_MARGIN_M,.3,
-                        SAFE_BASE_HEIGHT_RANGE_M[1]-LEG_STOP_MARGIN_M],fraction=.5))
+                        SAFE_BASE_HEIGHT_RANGE_M[1]-LEG_STOP_MARGIN_M],fraction=.5,gradient_scale=8.))
+
+
+def validate_counterfactual_gradient_scale(value):
+    if (isinstance(value,bool) or not isinstance(value,(int,float))
+            or not math.isfinite(value) or not 1.<=value<=64.):
+        raise ValueError('Counterfactual gradient scale must be finite and within [1,64]')
+    return float(value)
 
 
 def predict_support_heights(means, observations, model):
@@ -95,6 +102,7 @@ def height_training_loss(policy, means, observations, model):
     profile=model.get('command_counterfactuals')
     if profile is None:
         return actual
+    gradient_scale=validate_counterfactual_gradient_scale(profile.get('gradient_scale',1.))
     value=observations['policy'].detach()
     eligible=((value[:,5] < -math.cos(math.radians(2.5)))
               &(torch.linalg.vector_norm(value[:,:3],dim=-1)/model['gyro_scale'] < 1.)
@@ -109,4 +117,4 @@ def height_training_loss(policy, means, observations, model):
     predicted=policy.act_inference(auxiliary)
     counterfactual=height_proxy_loss(predicted,auxiliary['policy'],model)
     fraction=profile['fraction']
-    return (1.-fraction)*actual+fraction*counterfactual
+    return (1.-fraction)*actual+fraction*gradient_scale*counterfactual

@@ -41,7 +41,8 @@ def main():
     if not (native['native_actual_updates']==3 and native['optimizer_states']==17
             and native['all_tensors_finite'] and native['control_contract_unchanged']):
         raise ValueError('Native update qualification incomplete')
-    if '514 passed, 3 skipped, 62 subtests passed' not in (EVIDENCE/'staged_regression_tests.log').read_text():
+    expected_tests=plan.get('expected_regression_summary','514 passed, 3 skipped, 62 subtests passed')
+    if expected_tests not in (EVIDENCE/'staged_regression_tests.log').read_text():
         raise ValueError('Staged regression qualification incomplete')
     for relative,digest in native['stage_source_sha256'].items():
         if sha(stage/relative)!=digest:

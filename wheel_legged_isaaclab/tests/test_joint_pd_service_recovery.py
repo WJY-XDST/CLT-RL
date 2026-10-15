@@ -2,7 +2,11 @@
 import pytest
 
 from watch_joint_pd_continuation_service import decision,stagnation_plan
-from stop_joint_pd_continuation_service import stop_reason
+import json
+import os
+
+import stop_joint_pd_continuation_service as stop_service
+from stop_joint_pd_continuation_service import stop_reason, stop_owned_controller
 
 
 @pytest.mark.parametrize('phase', ['training', 'training_initialization', 'checkpoint_evaluation',
@@ -75,3 +79,34 @@ def test_failed_survival_is_not_reclassified_as_an_ordinary_plateau():
     with pytest.raises(ValueError):
         stagnation_plan(dict(stagnant_metrics=['height_mae_m']),
                         dict(survivors=26,total_trials=27,resets=1,passed=False),.1)
+
+
+@pytest.mark.parametrize('phase', ['agent_diagnosis_required','training','checkpoint_evaluation'])
+def test_post_exit_hook_does_not_create_a_false_manual_pause(tmp_path,monkeypatch,phase):
+    monkeypatch.setattr(stop_service,'ROOT',tmp_path)
+    output=tmp_path/'mine_model/results/joint_pd_optimization_test'
+    output.mkdir(parents=True)
+    (output/'.controller.lock').touch()
+    state=dict(state=phase,reason='three_independent_tracking_milestones_stagnant')
+    (output/'status.json').write_text(json.dumps(state))
+    monkeypatch.setattr(stop_service,'request_checkpoint_stop',lambda _:pytest.fail('Post-exit hook must not request a stop'))
+    assert stop_owned_controller(output,None)['action']=='main_process_already_exited'
+    assert not (output/'STOP').exists()
+    assert json.loads((output/'status.json').read_text())==state
+
+
+def test_live_manual_stop_still_saves_and_preserves_pause(tmp_path,monkeypatch):
+    monkeypatch.setattr(stop_service,'ROOT',tmp_path)
+    output=tmp_path/'mine_model/results/joint_pd_optimization_test'
+    output.mkdir(parents=True)
+    (output/'.controller.lock').touch()
+    (output/'status.json').write_text(json.dumps(dict(state='training')))
+    monkeypatch.setattr(stop_service.subprocess,'run',lambda *a,**k:type('Result',(),{'stdout':'running\n'})())
+    calls=[]
+    monkeypatch.setattr(stop_service,'request_checkpoint_stop',lambda path:calls.append(path))
+    result=stop_owned_controller(output,str(os.getpid()))
+    assert result['action']=='cooperative_stop_requested' and result['stop_marker_created']
+    marker=json.loads((output/'STOP').read_text())
+    assert marker==dict(reason='service_stop_requested',checkpoint_before_exit=True)
+    assert calls==[output]
+    assert decision({},dict(state='training'),marker)=='explicit_user_pause'

@@ -70,3 +70,53 @@ def test_disabled_term_handling_does_not_mask_a_corrupt_total(tmp_path):
     write_trace(tmp_path,corrupt_sum=True)
     with pytest.raises(ValueError,match='reward total differs'):
         audit(tmp_path)
+
+
+def disable_feedback(directory):
+    p=directory/'resolved_env.json';cfg=json.loads(p.read_text())
+    cfg['rewards']['tracking_goal_component_violation']=0.
+    p.write_text(json.dumps(cfg))
+    p=directory/'manifest.json';manifest=json.loads(p.read_text())
+    manifest['tracking_goal_feedback_criteria']=None;p.write_text(json.dumps(manifest))
+
+
+def test_plain_ppo_without_composite_reward_audits_original_gate_ratios_without_enabling_feedback(tmp_path):
+    write_trace(tmp_path);disable_feedback(tmp_path)
+    report=audit(tmp_path)
+    assert report['complete_finite_rows']==12
+    assert not report['reward_feedback_criteria_recorded']
+    assert report['diagnostic_ratio_criteria_source']=='original_acceptance_file'
+    assert report['reward_profile']['tracking_goal_component_violation']==0.
+    assert max(report['independent_formulas_max_abs_errors'].values())<1.e-12
+
+
+def test_active_feedback_still_requires_its_manifest_criteria(tmp_path):
+    write_trace(tmp_path)
+    p=tmp_path/'manifest.json';manifest=json.loads(p.read_text())
+    manifest['tracking_goal_feedback_criteria']=None;p.write_text(json.dumps(manifest))
+    with pytest.raises(ValueError,match='Missing criteria for active'):
+        audit(tmp_path)
+
+
+@pytest.mark.parametrize('corrupt',[False,True])
+def test_actual_quadratic_height_cost_is_audited_and_included_in_local_derivative(tmp_path,corrupt):
+    import math
+    write_trace(tmp_path);disable_feedback(tmp_path)
+    p=tmp_path/'resolved_env.json';cfg=json.loads(p.read_text())
+    cfg['rewards'].update(base_height_error_sq=-100.,base_height_penalty_clip=30.)
+    p.write_text(json.dumps(cfg))
+    error=.05;kernel=2.*math.exp(-error**2/.0004)
+    with (tmp_path/'trace.csv').open() as f:rows=list(csv.DictReader(f))
+    for row in rows:
+        row.update(height_m=.35,reward_base_height=.02*kernel,
+            reward_base_height_error_sq=-.02*100.*error**2+(.001 if corrupt else 0.))
+        row['reward_total']=row['reward_base_height']+row['reward_base_height_error_sq']
+    with (tmp_path/'trace.csv').open('w') as f:
+        writer=csv.DictWriter(f,fieldnames=list(rows[0]));writer.writeheader();writer.writerows(rows)
+    if corrupt:
+        with pytest.raises(ValueError,match='Independent reward formulas disagree'):audit(tmp_path)
+    else:
+        report=audit(tmp_path)
+        assert report['independent_formulas_max_abs_errors']['base_height_error_sq']<1.e-12
+        derivative=-2.*error*kernel/.0004-2.*100.*error
+        assert report['conditions'][0]['height_state_derivative_mean_per_m_s']==pytest.approx(derivative,abs=.001)

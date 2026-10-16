@@ -34,7 +34,18 @@ def audit(directory):
     sum_error = float(np.max(np.abs(sum(data[key] for key in fields)-data['reward_total'])))
     if sum_error > 1.e-5:
         raise ValueError('Actual reward total differs from recorded components')
-    criteria = manifest['tracking_goal_feedback_criteria']['criteria']
+    feedback = manifest.get('tracking_goal_feedback_criteria')
+    if feedback is None:
+        if (rewards.get('tracking_goal_violation',0.) or rewards.get('tracking_goal_component_violation',0.)
+                or rewards.get('tracking_task_quality_gate_floor',1.) < 1.):
+            raise ValueError('Missing criteria for active tracking-goal reward feedback')
+        # Ordinary PPO without opt-in feedback has no feedback manifest. Use
+        # the unchanged acceptance file for diagnostic ratios, never enable a
+        # reward just to make its reporting schema available.
+        from summarize_mine_trial import acceptance_criteria
+        criteria = acceptance_criteria()
+    else:
+        criteria = feedback['criteria']
     fraction = criteria['relative_error']
     length_ref = np.stack([data[s+'_length_ref_m'] for s in ('left', 'right')], -1)
     wheel_ref = np.stack([data[s+'_wheel_ref_rad_s'] for s in ('left', 'right')], -1)
@@ -63,6 +74,13 @@ def audit(directory):
                                 -rewards['tracking_goal_component_penalty_clip'])
         return worst, components
 
+    def quadratic_height_reward(height):
+        coefficient = rewards.get('base_height_error_sq',0.)
+        if coefficient == 0.:
+            return np.zeros(len(data))
+        return np.maximum(coefficient*(height-data['height_cmd_m'])**2,
+                          -rewards['base_height_penalty_clip'])
+
     worst, components = goal_rewards(ratios)
     def recorded_reward(name):
         field='reward_'+name
@@ -78,6 +96,9 @@ def audit(directory):
     discrepancies = dict(base_height=float(np.max(abs(dt*height_reward(data['height_m'])-recorded_reward('base_height')))),
         tracking_goal_violation=float(np.max(abs(dt*worst-recorded_reward('tracking_goal_violation')))),
         tracking_goal_component_violation=float(np.max(abs(dt*components-recorded_reward('tracking_goal_component_violation')))))
+    if 'base_height_error_sq' in rewards:
+        discrepancies['base_height_error_sq'] = float(np.max(abs(
+            dt*quadratic_height_reward(data['height_m'])-recorded_reward('base_height_error_sq'))))
     if max(discrepancies.values()) > 1.e-5:
         raise ValueError('Independent reward formulas disagree with actual environment telemetry: '+str(discrepancies))
 
@@ -88,11 +109,14 @@ def audit(directory):
     plus_worst, plus_components = goal_rewards(plus)
     minus_worst, minus_components = goal_rewards(minus)
     derivative = ((height_reward(data['height_m']+epsilon)-height_reward(data['height_m']-epsilon))
+                  + quadratic_height_reward(data['height_m']+epsilon)-quadratic_height_reward(data['height_m']-epsilon)
                   + plus_worst-minus_worst + plus_components-minus_components)/(2.*epsilon)
     report = dict(checkpoint=manifest['checkpoint'], checkpoint_sha256=manifest['checkpoint_sha256'],
         asset_sha256=manifest['asset_sha256'], trace_sha256=hashlib.sha256((directory/'trace.csv').read_bytes()).hexdigest(),
         complete_finite_rows=len(data), sum_of_recorded_terms_max_abs_error=sum_error,
         independent_formulas_max_abs_errors=discrepancies,
+        reward_feedback_criteria_recorded=feedback is not None,
+        diagnostic_ratio_criteria_source='feedback_manifest' if feedback is not None else 'original_acceptance_file',
         reward_profile=rewards, active_reward_terms=[key[7:] for key in fields if np.any(abs(data[key])>1.e-12)],
         pointwise_ratio_metric_order=list(METRICS), conditions=[],
         interpretation='Recorded reward magnitudes and a local height-state partial derivative; '

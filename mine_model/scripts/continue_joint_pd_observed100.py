@@ -12,11 +12,58 @@ import yaml
 from auto_train_mine import write_json
 import continue_joint_pd_stationary_drift100 as drift
 from diagnose_plain_joint_pd_height import require_plain_ppo
+from finish_joint_pd_native_audit import summarize_records as summarize_pair
 from joint_pd_continuation import validate_continuation_config
 
 guard, ROOT = drift.guard, drift.ROOT
 ENTRY = ROOT/'mine_model/scripts/train_joint_pd_observed.py'
 OBSERVER = ROOT/'mine_model/scripts/joint_pd_training_observer.py'
+
+
+def summarize_observations(records):
+    if len(records) != 100 or [row['update'] for row in records] != list(range(1, 101)):
+        raise ValueError('Require every one of the 100 completed native updates')
+    pairs = [summarize_pair([dict(records[i], update=1), dict(records[i+1], update=2)])
+             for i in range(0, 100, 2)]
+    return dict(optimizer_minibatches=sum(row['optimizer_minibatches'] for row in pairs),
+        all_environment_alignment_max_errors={key: max(row['all_environment_alignment_max_errors'][key]
+                                                       for row in pairs)
+                                              for key in pairs[0]['all_environment_alignment_max_errors']},
+        all_probe_RNG_unchanged=True, original_control_and_PPO_loss_unchanged=True,
+        policy_accepted=False)
+
+
+def finalize_observations(output):
+    """Kit close can exit before runpy returns; verify persisted data in parent."""
+    import numpy as np
+    output = Path(output)
+    directory = output/'native_learning_signal'
+    plan = json.loads((output/'experiment_plan.json').read_text())
+    native = json.loads((directory/'plan.json').read_text())
+    proof = json.loads((output/'resume_verification.json').read_text())
+    if (native['source_sha256'] != plan['source_sha256']
+            or native['target_actual_ppo_updates'] != plan['target_actual_ppo_updates']
+            or proof['actual_ppo_updates'] != plan['target_actual_ppo_updates']
+            or proof['optimizer_states'] != 17 or not proof['all_tensors_finite']
+            or any(guard.core.sha(Path(p)) != value for p, value in native['source_files_sha256'].items())):
+        raise ValueError('Observation source, code or saved native optimizer changed')
+    paths = sorted(directory.glob('audit_update_*.json'))
+    records = [json.loads(path.read_text()) for path in paths]
+    summary = summarize_observations(records)
+    for record in records:
+        with np.load(directory/f"rollout_{record['update']:04d}.npz", allow_pickle=False) as arrays:
+            if (arrays['observations'].shape != (48, 32, 27)
+                    or arrays['actions'].shape != (48, 32, 6)
+                    or any(not np.isfinite(arrays[key]).all() for key in arrays.files)
+                    or not np.array_equal(arrays['actions'], arrays['native_raw_actions'])):
+                raise ValueError('Missing, nonfinite or mismatched native observation record')
+    write_json(directory/'completed_external.json', dict(summary, checkpoint=proof['checkpoint'],
+        checkpoint_sha256=proof['checkpoint_sha256'], actual_observed_updates=100,
+        actual_ppo_updates=proof['actual_ppo_updates'], PPO_updates_repeated=0,
+        in_process_completion_returned=(directory/'completed.json').exists(),
+        verified_outside_Kit=True, records_sha256={str(path): guard.core.sha(path) for path in paths},
+        updated_at=datetime.now().astimezone().isoformat(),
+        limitation='Transition and optimizer diagnosis, not closed-loop tracking acceptance'))
 
 
 def lineage(source):
@@ -130,6 +177,7 @@ def run(previous_cursor, base, unit, parity_path):
             for path in [Path(__file__).resolve(), ENTRY, OBSERVER, parity_path, previous_cursor,
                          ROOT/'mine_model/scripts/diagnose_plain_joint_pd_height.py',
                          ROOT/'mine_model/scripts/audit_joint_pd_native_training.py',
+                         ROOT/'mine_model/scripts/finish_joint_pd_native_audit.py',
                          ROOT/'wheel_legged_isaaclab/tests/test_observed_joint_pd_entrypoint.py',
                          ROOT/'wheel_legged_isaaclab/tests/test_training_observer.py',
                          ROOT/'wheel_legged_isaaclab/tests/test_observed100_handoff.py',
@@ -150,6 +198,7 @@ def run(previous_cursor, base, unit, parity_path):
             try:
                 guard.old.split.ORIGINAL_COMMAND = observed_command
                 original_train(previous_output, output, delta, seed)
+                finalize_observations(output)
             finally:
                 guard.old.split.ORIGINAL_COMMAND = original_command
 

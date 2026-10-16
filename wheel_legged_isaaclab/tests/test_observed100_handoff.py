@@ -29,6 +29,7 @@ def test_handoff_retains_selected_source_and_wraps_original_native_arguments(tmp
     monkeypatch.setattr(controller, 'ROOT', tmp_path)
     monkeypatch.setattr(controller.drift.handoff, 'ROOT', tmp_path)
     monkeypatch.setattr(controller, 'verify_source', lambda *args: dict(optimizer_states=17))
+    monkeypatch.setattr(controller, 'finalize_observations', lambda *args: None)
     monkeypatch.setattr(controller.guard, 'train_trial', lambda *args: calls.append(controller.guard.old.split.ORIGINAL_COMMAND()))
     original_prepare, original_train, original_updates = controller.guard.prepare, controller.guard.train_trial, controller.guard.UPDATES
     original_command = controller.guard.old.split.ORIGINAL_COMMAND
@@ -49,3 +50,16 @@ def test_handoff_retains_selected_source_and_wraps_original_native_arguments(tmp
     assert final == 325 and saved == 'retained-Adam'
     assert controller.guard.prepare is original_prepare and controller.guard.train_trial is original_train
     assert controller.guard.UPDATES == original_updates
+
+
+def test_external_finalizer_requires_all_100_updates_even_if_kit_did_not_return():
+    from test_native_audit_finalization import records
+    values = [dict(records()[index % 2], update=index+1) for index in range(100)]
+    summary = controller.summarize_observations(values)
+    assert summary['optimizer_minibatches'] == 2000
+    assert summary['all_probe_RNG_unchanged'] and not summary['policy_accepted']
+    with pytest.raises(ValueError, match='100 completed'):
+        controller.summarize_observations(values[:-1])
+    values[-1]['all_environment_alignment_max_errors']['action_native_max_error'] = .1
+    with pytest.raises(ValueError, match='alignment'):
+        controller.summarize_observations(values)

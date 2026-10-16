@@ -131,7 +131,7 @@ def train_trial(incumbent,output,delta,seed):
     NATIVE(args,prepare_function=lambda *unused:prepare(incumbent,output,delta,seed))
 
 
-def run(candidate,abandoned,base,unit):
+def run(candidate,abandoned,base,unit,*,bootstrap_function=None,proposal_function=None):
     candidate,abandoned,base=Path(candidate).resolve(),Path(abandoned).resolve(),Path(base).resolve()
     if base.parent!=ROOT/'mine_model/results':raise ValueError('Use an owned rollback coordinator')
     base.mkdir(exist_ok=True)
@@ -145,7 +145,7 @@ def run(candidate,abandoned,base,unit):
         record('verifying_historical_rollback',candidate=str(candidate),abandoned=str(abandoned))
         with (core.RUNS/'.cumulative_learning.lock').open('a') as global_lock:
             fcntl.flock(global_lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
-            incumbent=bootstrap(candidate,abandoned,base)
+            incumbent=(bootstrap_function or bootstrap)(candidate,abandoned,base)
         anchor=json.loads((incumbent/'replay/assessment.json').read_text())
         attempts={};history=[];work=0
         while not (base/'STOP').exists():
@@ -163,7 +163,7 @@ def run(candidate,abandoned,base,unit):
                 if passed:
                     record('all_original_and_sustained_gates_verified_requires_final_audit',checkpoint=str(source),history=history);return
             identity=core.sha(source);used=attempts.setdefault(identity,set())
-            seed,delta,signature=proposal(core.validate_checkpoint_robot(source),report,used);used.add(signature)
+            seed,delta,signature=(proposal_function or proposal)(core.validate_checkpoint_robot(source),report,used);used.add(signature)
             output=ROOT/'mine_model/results'/('joint_pd_optimization_'+datetime.now().strftime('%Y%m%d_%H%M%S_%f')+'_rollback_guard')
             record('training_with_incumbent_rollback_guard',incumbent=str(incumbent),current_output=str(output),
                 source_checkpoint=str(source),branch_actual_ppo_updates=core.saved_updates(source),

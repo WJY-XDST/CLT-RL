@@ -376,7 +376,11 @@ def main():
                       or args.tracking_goal_reward_probe is not None
                       or args.joint_saturation_reward_probe is not None
                       or args.tracking_goal_component_reward_probe is not None)
-    diagnostic_reward_names = list(env._episode_sums) if record_rewards else []
+    # The optional default-zero FK cost is absent from _last_reward_terms.
+    # Keep active terms strict: missing active telemetry must still fail.
+    diagnostic_reward_names = [key for key in env._episode_sums
+        if key != 'joint_target_leg_length_error_sq'
+        or getattr(cfg.rewards, key, 0.) != 0.] if record_rewards else []
     if record_rewards:
         columns.extend(['reward_total'] + ['reward_' + key for key in diagnostic_reward_names])
     if case_biases is not None:

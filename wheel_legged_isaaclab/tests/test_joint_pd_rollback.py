@@ -59,6 +59,28 @@ def test_legacy_height_metadata_only_normalizes_after_full_expansion():
     with pytest.raises(ValueError):normalize_expanded_height(cfg,117024+47999)
 
 
+def test_prepare_legacy_checkpoint_defaults_missing_reward_multiplier_to_identity(tmp_path,monkeypatch):
+    import wheel_legged_gym_isaaclab.training_state as clocks
+    cfg=dict(commands=dict(ranges_height=[.225,.375],height_expansion_start_steps=117024,
+        height_expansion_ramp_steps=48000),rewards=dict(orientation=-60.))
+    original=copy.deepcopy(cfg)
+    monkeypatch.setattr(clocks,'load_curriculum_clock',lambda p:dict(offset_steps=0,steps_per_update=48))
+    monkeypatch.setattr(controller.core,'saved_updates',lambda p:4601)
+    monkeypatch.setattr(controller.core,'validate_checkpoint_robot',lambda p:cfg)
+    loader=controller.core.validate_checkpoint_robot
+    def prepared(previous,output,coefficient):
+        expected=controller.core.validate_checkpoint_robot('legacy.pt')
+        assert coefficient==.001 and controller.core.INTERVAL==25
+        assert expected['rewards']['tracking_task_quality_gate_floor']==1.
+        return dict(source_checkpoint='legacy.pt'),expected
+    monkeypatch.setattr(controller.core,'prepare',prepared)
+    plan,expected=controller.prepare(tmp_path,tmp_path,{},43)
+    assert cfg==original and controller.core.validate_checkpoint_robot is loader
+    assert plan['only_reward_change']=={}
+    assert plan['reward_key']=='tracking_task_quality_gate_floor' and plan['reward_value']==1.
+    assert expected['commands']['full_height_range_from_start'] is True
+
+
 def test_rejected_branch_reloads_the_same_incumbent_checkpoint_and_matching_optimizer(tmp_path,monkeypatch):
     results=tmp_path/'mine_model/results';results.mkdir(parents=True)
     incumbent=results/'source';(incumbent/'replay').mkdir(parents=True)
@@ -89,3 +111,33 @@ def test_rejected_branch_reloads_the_same_incumbent_checkpoint_and_matching_opti
     assert saved['incumbent']==str(incumbent)
     assert all(not row['promote'] for row in saved['history'])
     assert len(list(results.glob('joint_pd_optimization_*/checkpoint_rejected_but_preserved.json')))==2
+
+
+def test_bootstrap_pins_actual_sustained_assessment_artifacts_without_replaying_completed_data(tmp_path,monkeypatch):
+    candidate=tmp_path/'candidate';candidate.mkdir()
+    abandoned=tmp_path/'abandoned';abandoned.mkdir()
+    base=tmp_path/'base';base.mkdir()
+    cp=tmp_path/'model.pt'
+    (candidate/'status.json').write_text(json.dumps(dict(checkpoint=str(cp))))
+    (candidate/'resume_migration.json').write_text(json.dumps(dict(checkpoint_sha256='exact',checkpoint_bytes_identical=True,historical_loop_label=5550)))
+    (abandoned/'experiment_plan.json').write_text(json.dumps(dict(source_files={})))
+    heldout=candidate/'rollback_heldout';heldout.mkdir()
+    for name in ('completed.json','manifest.json','trace.csv','assessment_final_gate.json','assessment_stability.json'):
+        (heldout/name).touch()
+    value=report();value['checkpoint_sha256']='exact'
+    monkeypatch.setattr(controller.core,'validate_checkpoint_robot',lambda *a:dict(joint_reset_profile='joint_target_nominal_v1'))
+    monkeypatch.setattr(controller.core,'saved_updates',lambda *a:4601)
+    checked=[]
+    def sha(path):
+        path=Path(path);checked.append(path)
+        if path.parent==heldout:assert path.exists(),path
+        return controller.GATE_SHA if path.name=='tracking_acceptance.json' else 'exact'
+    monkeypatch.setattr(controller.core,'sha',sha)
+    monkeypatch.setattr(controller,'assess',lambda *a:value)
+    monkeypatch.setattr(controller,'assess_stability',lambda *a:value)
+    monkeypatch.setattr(controller.core.block,'assess_directory',lambda *a:None)
+    monkeypatch.setattr(controller.core.block.runtime,'run_child',lambda *a,**kw:pytest.fail('Completed heldout must not be rerun'))
+    assert controller.bootstrap(candidate,abandoned,base)==candidate
+    assert heldout/'assessment_stability.json' in checked
+    assert heldout/'assessment_final_gate.json' in checked
+    assert not json.loads((base/'rollback_verification.json').read_text())['policy_accepted']

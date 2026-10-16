@@ -27,7 +27,11 @@ def prepare(previous,output,delta,seed):
         from wheel_legged_gym_isaaclab.training_state import load_curriculum_clock
         clock=load_curriculum_clock(path)
         step=clock['offset_steps']+core.saved_updates(path)*clock['steps_per_update']
-        return normalize_expanded_height(original_load(path),step)
+        cfg=normalize_expanded_height(original_load(path),step)
+        # This legacy checkpoint predates the optional task-quality multiplier.
+        # Its identity default retains every original reward unchanged.
+        cfg['rewards'].setdefault('tracking_task_quality_gate_floor',1.)
+        return cfg
     try:
         core.INTERVAL=UPDATES
         core.validate_checkpoint_robot=normalized_load
@@ -92,7 +96,8 @@ def bootstrap(candidate,abandoned,base):
                  ROOT/'wheel_legged_isaaclab/tests/test_joint_pd_rollback.py',
                  ROOT/'wheel_legged_isaaclab/tests/test_disabled_reward_replay_telemetry.py',
                  *(candidate/'replay'/n for n in ('assessment.json','manifest.json','completed.json','trace.csv')),
-                 *(heldout/n for n in ('assessment.json','manifest.json','completed.json','trace.csv'))]:
+                 *(heldout/n for n in ('assessment_final_gate.json','assessment_stability.json',
+                                      'manifest.json','completed.json','trace.csv'))]:
         pins[str(path)]=core.sha(path)
     plan=dict(source_checkpoint=str(source),source_sha256=core.sha(source),source_files=pins,
         source_actual_ppo_updates=core.saved_updates(source),source_Adam_states=17,

@@ -20,6 +20,31 @@ ENTRY = ROOT/'mine_model/scripts/train_joint_pd_observed.py'
 OBSERVER = ROOT/'mine_model/scripts/joint_pd_training_observer.py'
 
 
+def choose(cfg, report, used, *, continue_improvement=False):
+    failures = drift.deficits(report)
+    if failures['survival']:
+        for value in (40., 80., 160., 320.):
+            delta = {'orientation': -value}
+            signature = (43, tuple(delta.items()))
+            if -value < cfg['rewards']['orientation'] and signature not in used:
+                return 43, delta, signature, dict(
+                    reason='Canonical survival regressed; isolate existing posture cost before drift or height',
+                    failures=failures, only_reward_change=delta, actual_PPO_updates=100,
+                    hypothesis_only=True, policy_accepted=False)
+        raise RuntimeError('Survival still fails after bounded posture comparisons; diagnose control before more training')
+    return drift.choose(cfg, report, used, continue_improvement=continue_improvement)
+
+
+def record_resource_wait(output, plan):
+    # The native block deliberately accepts only a prepared status before it
+    # starts. Keep resource waiting as a substate, never an already-started run.
+    write_json(Path(output)/'status.json', dict(state='prepared', resource_state='waiting_for_host_memory',
+        training_active=False, actual_ppo_updates=plan['source_actual_ppo_updates'],
+        live_ppo_updates=plan['source_actual_ppo_updates'], checkpoint=plan['source_checkpoint'],
+        checkpoint_sha256=plan['source_sha256'], target_actual_ppo_updates=plan['target_actual_ppo_updates'],
+        goal_remains_active=True, policy_accepted=False, updated_at=datetime.now().astimezone().isoformat()))
+
+
 def summarize_observations(records):
     if len(records) != 100 or [row['update'] for row in records] != list(range(1, 101)):
         raise ValueError('Require every one of the 100 completed native updates')
@@ -157,7 +182,7 @@ def run(previous_cursor, base, unit, parity_path):
                     used.add((plan['training_seed'], values))
             evidence_path = Path(latest['output'])/'replay/assessment.json'
             evidence = drift.completed_report(latest['output'])
-            seed, delta, signature, diagnosis = drift.choose(cfg, evidence, used,
+            seed, delta, signature, diagnosis = choose(cfg, evidence, used,
                 continue_improvement=latest['promote'])
             decision_path = base/f'reward_decision_{len(reviews):04d}.json'
             write_json(decision_path, dict(diagnosis, evidence=str(evidence_path),
@@ -167,11 +192,7 @@ def run(previous_cursor, base, unit, parity_path):
 
         def prepare(previous_output, output, delta, seed):
             plan, expected = original_prepare(previous_output, output, delta, seed)
-            write_json(Path(output)/'status.json', dict(state='waiting_for_host_memory', training_active=False,
-                actual_ppo_updates=plan['source_actual_ppo_updates'],
-                live_ppo_updates=plan['source_actual_ppo_updates'], checkpoint=plan['source_checkpoint'],
-                checkpoint_sha256=plan['source_sha256'], target_actual_ppo_updates=plan['target_actual_ppo_updates'],
-                goal_remains_active=True, policy_accepted=False, updated_at=datetime.now().astimezone().isoformat()))
+            record_resource_wait(output, plan)
             drift.wait_memory(base)
             decision = json.loads(decision_path.read_text())
             for path in [Path(__file__).resolve(), ENTRY, OBSERVER, parity_path, previous_cursor,

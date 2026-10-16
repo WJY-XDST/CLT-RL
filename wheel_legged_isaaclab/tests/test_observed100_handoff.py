@@ -63,3 +63,31 @@ def test_external_finalizer_requires_all_100_updates_even_if_kit_did_not_return(
     values[-1]['all_environment_alignment_max_errors']['action_native_max_error'] = .1
     with pytest.raises(ValueError, match='alignment'):
         controller.summarize_observations(values)
+
+
+def test_survival_loss_precedes_static_drift_when_choosing_next_existing_cost():
+    from test_stationary_drift100 import report, cfg
+    data = report(speed=.08, height=.1)
+    row = next(c for c in data['conditions'] if c['name'] == 'reverse_0p6')['trials'][0]
+    row.update(survived=False, resets=1, metrics=None)
+    data.update(survivors=26, resets=1)
+    assert controller.choose(cfg(), data, set())[1] == {'orientation': -40.}
+
+
+def test_resource_wait_status_is_accepted_by_real_native_preflight_without_starting_training(tmp_path):
+    from types import SimpleNamespace
+    output = tmp_path/'trial'; output.mkdir()
+    source = tmp_path/'model_225.pt'
+    plan = dict(source_actual_ppo_updates=226, source_checkpoint=str(source),
+                source_sha256='retained-source', target_actual_ppo_updates=326)
+    def prepare(*unused):
+        controller.record_resource_wait(output, plan)
+        waiting = json.loads((output/'status.json').read_text())
+        assert waiting['resource_state'] == 'waiting_for_host_memory' and not waiting['training_active']
+        return plan, {}
+    args = SimpleNamespace(output=output, previous=tmp_path, reward_key='orientation',
+                           value=-40., updates=100, prepare_only=True)
+    controller.guard.NATIVE(args, prepare_function=prepare)
+    state = json.loads((output/'status.json').read_text())
+    assert state['state'] == 'prepared' and not state['training_active']
+    assert state['checkpoint'] == str(source) and state['actual_ppo_updates'] == 226

@@ -1,4 +1,5 @@
 """New closed-chain deployment parity against the current Isaac Lab source."""
+import copy
 import json
 import os
 from pathlib import Path
@@ -83,7 +84,8 @@ class MineInterfaceTests(unittest.TestCase):
             ref.step_dt = self.cfg['sim']['dt'] * self.cfg['decimation']
             ref._leg_joint_ids, ref._wheel_joint_ids = [0, 1, 3, 4], [2, 5]
             ref._torque_joint_ids = list(range(6))
-            ref._raw_actions, ref._actions = sim.raw.clone(), sim.raw.clamp(-1, 1).clone()
+            ref.extras = {'log': {}}
+            ref._pre_physics_step(sim.raw.clone())
             ref._commands = torch.tensor([list(sim.command) + [0]], dtype=torch.float32)
             scales = self.cfg['obs_scales']
             ref._commands_scale = torch.tensor([scales['lin_vel'], scales['ang_vel'], scales['height_measurements']])
@@ -118,6 +120,8 @@ class MineInterfaceTests(unittest.TestCase):
                 set_joint_velocity_target=lambda value, joint_ids: setattr(ref, 'velocity_ref', value))
             ref._apply_action()
             np.testing.assert_allclose(sim.joint_ref, ref.position_ref.numpy()[0], atol=2e-6)
+            np.testing.assert_allclose(sim.length_ref, ref._l0_ref_applied.numpy()[0], atol=2e-6)
+            np.testing.assert_allclose(sim.angle_ref, ref._theta0_ref_applied.numpy()[0], atol=2e-6)
             np.testing.assert_allclose(sim.data.ctrl[[2, 5]], ref.velocity_ref.numpy()[0], atol=2e-6)
             np.testing.assert_allclose(sim.model.actuator_biasprm[[0, 1, 3, 4], 0],
                                        ref.effort.numpy()[0, [0, 1, 3, 4]], atol=3e-6, rtol=2e-6)
@@ -125,6 +129,41 @@ class MineInterfaceTests(unittest.TestCase):
             np.testing.assert_allclose(sim.actions.numpy(), ref._actions.numpy(), atol=2e-6)
             # Isaac computes quaternion/frame math in float32; MuJoCo uses float64.
             np.testing.assert_allclose(sim.observation().numpy(), ref._get_observations()['policy'].numpy(), atol=2e-6, rtol=2e-6)
+
+    def test_saved_reset_initializes_all14_joints_and_zero_action_drive(self):
+        sim = Simulation(self.cfg, self.model)
+        initial = self.cfg['robot']['init_state']
+        for name, expected in initial['joint_pos'].items():
+            if name != '.*':
+                self.assertEqual(sim.data.qpos[self.model.joint(name).qposadr[0]], expected)
+        gaps = [np.linalg.norm(sim.data.site_xpos[self.model.eq_obj1id[i]] -
+                               sim.data.site_xpos[self.model.eq_obj2id[i]])
+                for i in range(self.model.neq)]
+        self.assertLess(max(gaps), 1e-6)
+        np.testing.assert_allclose(sim.data.ctrl[[0, 1, 3, 4]],
+                                   self.cfg['leg_joint_position_offset'], atol=0, rtol=0)
+        np.testing.assert_allclose(sim.data.actuator_force, 0., atol=1e-12)
+
+    def test_saved_wheel_limits_match_native_actions_targets_and_history(self):
+        raw = torch.tensor([[0., 0., 1.8, 0., 0., -1.8]])
+        for limit in (1., 1.25):
+            with self.subTest(wheel_action_limit=limit):
+                cfg = copy.deepcopy(self.cfg)
+                cfg['wheel_action_limit'] = limit
+                sim = Simulation(cfg, self.model)
+                sim.set_action(raw)
+                sim.apply_control()
+                ref = self.reference()
+                ref.cfg, ref.extras = namespace(cfg), {'log': {}}
+                ref._pre_physics_step(raw)
+                torch.testing.assert_close(sim.actions, ref._actions, atol=0, rtol=0)
+                self.assertEqual(sim.actions[0, 2].item(), limit)
+                self.assertEqual(sim.actions[0, 5].item(), -limit)
+                np.testing.assert_allclose(sim.data.ctrl[[2, 5]],
+                                           [limit * cfg['action_scale_vel']] * 2, atol=0, rtol=0)
+                np.testing.assert_allclose(sim.observation().numpy()[0, -6:],
+                    ref._sanitize_observation(ref._actions, cfg['obs_clip']['action']).numpy()[0],
+                    atol=0, rtol=0)
 
     def test_total_pd_and_gravity_effort_is_limited_together(self):
         sim = Simulation(self.cfg, self.model)

@@ -1,0 +1,81 @@
+#usda 1.0
+(
+    defaultPrim = "mine_robot"
+    subLayers = [
+        @/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_closed_chain_training_measured_volume_mass_20261014.usda@
+    ]
+)
+
+over "mine_robot"
+{
+    over "LW_link"
+    {
+        over "smooth_tire_collision"
+        {
+            bool physics:collisionEnabled = 0
+        }
+
+        def Cylinder "analytic_tire_collision" (
+            prepend apiSchemas = ["PhysicsCollisionAPI"]
+        )
+        {
+            uniform token axis = "Z"
+            double height = 0.02
+            bool physics:collisionEnabled = 1
+            double radius = 0.06
+            token visibility = "invisible"
+            double3 xformOp:translate = (-7.228014483236696e-20, -2.3174821436877657e-18, -0.008999988553114244)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+    }
+
+    over "RW_link"
+    {
+        over "smooth_tire_collision"
+        {
+            bool physics:collisionEnabled = 0
+        }
+
+        def Cylinder "analytic_tire_collision" (
+            prepend apiSchemas = ["PhysicsCollisionAPI"]
+        )
+        {
+            uniform token axis = "Z"
+            double height = 0.02
+            bool physics:collisionEnabled = 1
+            double radius = 0.06
+            token visibility = "invisible"
+            double3 xformOp:translate = (-7.228014483236696e-20, 1.40042780612711e-19, -0.008999969926662752)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+    }
+
+    over "collision_filters"
+    {
+        over "ordinary"
+        {
+            rel collection:colliders:includes = [
+                </mine_robot/base_link/training_collision/box>,
+                </mine_robot/LB_link/simple_collision>,
+                </mine_robot/LS_link/simple_collision>,
+                </mine_robot/LW_link/collisions/part_420_NW_P15_8/node_STL_BINARY_>,
+                </mine_robot/LW_link/smooth_tire_collision>,
+                </mine_robot/LL_link/simple_collision>,
+                </mine_robot/LL1_link/simple_collision>,
+                </mine_robot/LL2_link/simple_collision>,
+                </mine_robot/LL3_link/simple_collision>,
+                </mine_robot/RB_link/simple_collision>,
+                </mine_robot/RS_link/simple_collision>,
+                </mine_robot/RW_link/collisions/part_419_NW_P15_8/node_STL_BINARY_>,
+                </mine_robot/RW_link/smooth_tire_collision>,
+                </mine_robot/RL_link/simple_collision>,
+                </mine_robot/RL1_link/simple_collision>,
+                </mine_robot/RL2_link/simple_collision>,
+                </mine_robot/RL3_link/simple_collision>,
+                </mine_robot/LW_link/analytic_tire_collision>,
+                </mine_robot/RW_link/analytic_tire_collision>,
+            ]
+        }
+    }
+}
+

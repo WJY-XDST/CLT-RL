@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "required_before_every_new_training_block": true,
+  "preferred_num_envs": 8192,
+  "fallback_num_envs": 4096,
+  "actual_ppo_updates_per_probe": 5,
+  "rollout_steps": 48,
+  "adam_minibatches_per_update": 20,
+  "standing_fraction": 0.25,
+  "maximum_probe_memory_gib": 22,
+  "maximum_probe_swap_gib": 2,
+  "minimum_host_reserve_gib": 2,
+  "minimum_gpu_reserve_mib": 1024,
+  "capacity_checkpoints_may_be_promoted": false,
+  "production_checkpoint_optimizer_std_and_learning_rate_must_be_retained": true,
+  "rewards_controller_physics_and_acceptance_must_be_unchanged": true,
+  "retry_preferred_count_each_new_block": true,
+  "pass_requires_all_updates_finite_alignment_saved_checkpoint_and_clean_exit": true,
+  "short_probe_is_not_long_term_stability_or_tracking_acceptance": true
+}

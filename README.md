@@ -74,13 +74,13 @@ GPU 检查：
 ## 代码和验证说明
 
 - [机器人工程入口](wheel_legged_isaaclab/README.md)
-- [当前代码框架和阅读指南](wheel_legged_isaaclab/learning/工程代码框架全解析_20261012.md)
+- [当前代码框架和阅读指南](wheel_legged_isaaclab/learning/强化学习框架学习/README.md)
 - [本轮精简验证](mine_model/results/framework_cleanup_20261012/validation.json)
 - [累计修改记录](mine_model/docs/训练修改记录_latest.md)
 - [IK 清理范围和恢复方式](mine_model/docs/IK清理说明_20261011.md)
 - [MuJoCo 接口](wheel_legged_isaaclab/sim2sim/README.md)
 - [离线部署接口](sim2real/README.md)
-- [本次暂停状态](mine_model/results/joint_pd_optimization_20261012_framework/status.json)
+- [2026-10-12 历史阶段记录](mine_model/results/joint_pd_optimization_20261012_framework/status.json)
 
 本轮回归核对了控制和观测接口、奖励数值及终止计时；导轨支撑验证不是自由平衡或实机验收。
 历史模型报告只代表当时配置。部署需要选定检查点及其配套配置，不能自动跟随变化的 latest。

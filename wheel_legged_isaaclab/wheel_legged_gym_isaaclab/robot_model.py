@@ -19,15 +19,24 @@ _hardware_spec.loader.exec_module(_hardware)
 HARDWARE_PROFILE = _hardware.HARDWARE_PROFILE
 LEG_EFFORT_LIMIT = _hardware.LEG_EFFORT_LIMIT
 WHEEL_EFFORT_LIMIT = _hardware.WHEEL_EFFORT_LIMIT
-NOMINAL_VEHICLE_MASS_KG = _hardware.NOMINAL_VEHICLE_MASS_KG
+MCU_REFERENCE_VEHICLE_MASS_KG = _hardware.NOMINAL_VEHICLE_MASS_KG
 
 
 ASSETS = Path(__file__).resolve().parents[1] / "assets/robots/mine"
 MANIFEST = json.loads((ASSETS / "manifest.json").read_text())
 MODEL = json.loads((ASSETS / MANIFEST["metadata"]).read_text())
+MASS_CALIBRATION = json.loads((ASSETS / MANIFEST["assembly_mass_calibration"]).read_text())
+NOMINAL_VEHICLE_MASS_KG = float(MASS_CALIBRATION["feedforward"]["nominal_vehicle_mass_kg"])
+if not math.isfinite(NOMINAL_VEHICLE_MASS_KG) or NOMINAL_VEHICLE_MASS_KG <= 0.:
+    raise ValueError("Current vehicle mass must be positive and finite")
+if not math.isclose(NOMINAL_VEHICLE_MASS_KG,
+                    MASS_CALIBRATION["calibrated_composed_total_mass_kg"], abs_tol=2.e-6):
+    raise ValueError("Current feedforward mass must match the calibrated USD total")
+GRAVITY_FORCE = NOMINAL_VEHICLE_MASS_KG * _hardware.GRAVITY / 2.0
 # MODEL retains the original CAD export, including historical mass summaries.
 # Runtime rigid-body mass comes from the composed USD; gravity feedforward uses
-# NOMINAL_VEHICLE_MASS_KG / 2 per leg, as confirmed by the owner for the MCU.
+# half the current nominal whole-vehicle mass, including the owner's payload.
+# MCU_REFERENCE_VEHICLE_MASS_KG retains the unmodified firmware's old12.34 kg.
 
 
 def mapped_five_bar_geometry(geometry):

@@ -13,6 +13,7 @@ from wheel_legged_gym_isaaclab.leg_control import (
 )
 from wheel_legged_gym_isaaclab.config_overrides import RETIRED_CONFIG_FIELDS, RETIRED_SAMPLING_FIELDS
 from wheel_legged_gym_isaaclab.tracking_goal_feedback import validate_tracking_goal_reward_config
+from wheel_legged_gym_isaaclab.reward_signals import validate_joint_target_length_reward, validate_task_quality_gate
 
 ROOT = Path(__file__).resolve().parents[2]
 CFG = ENV_DIRECTORY / 'wheel_legged_vmc_flat_env_cfg.py'
@@ -43,7 +44,7 @@ def test_retired_declarations_cannot_reappear():
 
 
 def test_remaining_group_fields_have_code_references_not_just_documentation():
-    files = [p for base in ('wheel_legged_isaaclab', 'mine_model/scripts', 'sim2real/wheelleg_deploy')
+    files = [p for base in ('wheel_legged_isaaclab', 'mine_model/scripts', 'sim2real/jetson_nx/wheelleg_deploy')
              for p in (ROOT / base).rglob('*.py')
              if not any(s in p.parts for s in ('tests', '__pycache__', 'learning', 'checkpoints'))
              and not p.name.startswith('test_')]
@@ -94,7 +95,9 @@ def validation_fixture():
                   if isinstance(n, ast.FunctionDef) and n.name == '_validate_configuration')
     scope = dict(math=math, DIRECT_JOINT_POSITION_MODE=DIRECT_JOINT_POSITION_MODE,
                  LEG_CONTROL_MODES=LEG_CONTROL_MODES, validate_joint_position_map=validate_joint_position_map,
-                 validate_tracking_goal_reward_config=validate_tracking_goal_reward_config)
+                 validate_tracking_goal_reward_config=validate_tracking_goal_reward_config,
+                 validate_joint_target_length_reward=validate_joint_target_length_reward,
+                 validate_task_quality_gate=validate_task_quality_gate)
     exec(compile(ast.Module(body=[method], type_ignores=[]), '<actual_validator>', 'exec'), scope)
     return SimpleNamespace(cfg=SimpleNamespace(**cfg), _action_dim=6), scope['_validate_configuration']
 

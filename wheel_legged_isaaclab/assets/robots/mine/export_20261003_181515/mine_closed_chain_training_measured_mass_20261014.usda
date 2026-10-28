@@ -1,0 +1,88 @@
+#usda 1.0
+(
+    defaultPrim = "mine_robot"
+    subLayers = [
+        @mine_closed_chain_training_matched_wheels_20261014.usda@
+    ]
+)
+
+over "mine_robot"
+{
+    over "base_link"
+    {
+        float physics:mass = 8.47
+    }
+
+    over "LB_link"
+    {
+        float3 physics:diagonalInertia = (0.002221139, 0.00018177145, 0.0023655547)
+        float physics:mass = 0.37553763
+    }
+
+    over "LS_link"
+    {
+        float3 physics:diagonalInertia = (0.00010980639, 0.0034627314, 0.0035505942)
+        float physics:mass = 0.37553763
+    }
+
+    over "LL_link"
+    {
+        float3 physics:diagonalInertia = (0.00039469555, 0.00018450861, 0.00038215975)
+        float physics:mass = 0.37553763
+    }
+
+    over "LL1_link"
+    {
+        float3 physics:diagonalInertia = (0.000054930257, 0.000001680722, 0.000056029454)
+        float physics:mass = 0.035846774
+    }
+
+    over "LL2_link"
+    {
+        float3 physics:diagonalInertia = (0.000008811136, 0.00020301047, 0.0002106836)
+        float physics:mass = 0.06827957
+    }
+
+    over "LL3_link"
+    {
+        float3 physics:diagonalInertia = (0.00006110153, 0.0000017628685, 0.00006222579)
+        float physics:mass = 0.039260752
+    }
+
+    over "RB_link"
+    {
+        float3 physics:diagonalInertia = (0.0022210833, 0.00018177155, 0.0023654983)
+        float physics:mass = 0.37553763
+    }
+
+    over "RS_link"
+    {
+        float3 physics:diagonalInertia = (0.000109806024, 0.003462727, 0.00355059)
+        float physics:mass = 0.37553763
+    }
+
+    over "RL_link"
+    {
+        float3 physics:diagonalInertia = (0.00039469212, 0.00018451062, 0.00038215445)
+        float physics:mass = 0.37553763
+    }
+
+    over "RL1_link"
+    {
+        float3 physics:diagonalInertia = (0.000054930257, 0.000001680722, 0.000056029454)
+        float physics:mass = 0.035846774
+    }
+
+    over "RL2_link"
+    {
+        float3 physics:diagonalInertia = (0.000008811136, 0.00020301047, 0.0002106836)
+        float physics:mass = 0.06827957
+    }
+
+    over "RL3_link"
+    {
+        float3 physics:diagonalInertia = (0.00006110153, 0.0000017628685, 0.00006222579)
+        float physics:mass = 0.039260752
+    }
+}
+

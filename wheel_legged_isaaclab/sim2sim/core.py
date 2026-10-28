@@ -61,6 +61,11 @@ _leg_spec = importlib.util.spec_from_file_location(
 LEG_CONTROL = importlib.util.module_from_spec(_leg_spec)
 _leg_spec.loader.exec_module(LEG_CONTROL)
 
+_wheel_spec = importlib.util.spec_from_file_location(
+    'sim2sim_wheel_control', PROJECT / 'wheel_legged_gym_isaaclab/wheel_control.py')
+WHEEL_CONTROL = importlib.util.module_from_spec(_wheel_spec)
+_wheel_spec.loader.exec_module(WHEEL_CONTROL)
+
 
 def load_actor(checkpoint, agent_path):
     """Reconstruct only the deterministic actor, rejecting unsupported state."""
@@ -101,6 +106,7 @@ class Simulation:
         LEG_CONTROL.require_leg_control_mode(cfg['leg_control_mode'])
         if cfg['wheel_control_mode'] != 'implicit_velocity':
             raise ValueError('MuJoCo replay requires implicit wheel velocity control')
+        self.wheel_action_limit = WHEEL_CONTROL.checkpoint_wheel_action_limit(cfg)
         legs, wheels = cfg["leg_joint_names"], cfg["wheel_joint_names"]
         self.joints = (legs[0], legs[1], wheels[0], legs[2], legs[3], wheels[1])
         self.data = mujoco.MjData(model)
@@ -126,11 +132,23 @@ class Simulation:
         initial = cfg["robot"]["init_state"]
         self.data.qpos[:3] = initial["pos"]
         self.data.qpos[3:7] = initial["rot"]
-        self.data.qpos[self.qids] = [initial["joint_pos"].get(name, initial["joint_pos"].get(".*", 0.)) for name in self.joints]
+        # Passive coordinates are part of the saved closed-chain reset pose.
+        # Initializing only the six motor/wheel coordinates opens the loops.
+        for joint_id in range(model.njnt):
+            if model.jnt_type[joint_id] == mujoco.mjtJoint.mjJNT_FREE:
+                continue
+            if model.jnt_type[joint_id] != mujoco.mjtJoint.mjJNT_HINGE:
+                raise ValueError('Imported vehicle reset requires scalar hinge joints')
+            name = mujoco.mj_id2name(model, mujoco.mjtObj.mjOBJ_JOINT, joint_id)
+            self.data.qpos[model.jnt_qposadr[joint_id]] = initial['joint_pos'].get(
+                name, initial['joint_pos'].get('.*', 0.))
+        if cfg['leg_control_mode'] == LEG_CONTROL.DIRECT_JOINT_POSITION_MODE:
+            self.data.ctrl[[0, 1, 3, 4]] = cfg['leg_joint_position_offset']
         self.actions = torch.zeros(1, 6)
         self.raw = self.actions.clone()
         self.command = np.array([0., 0., cfg["rewards"]["base_height_target"]])
         self.length_ref = np.zeros(2)
+        self.angle_ref = np.zeros(2)
         self.torques = np.zeros(6)
         mujoco.mj_forward(model, self.data)
 
@@ -191,7 +209,8 @@ class Simulation:
 
     def set_action(self, action):
         self.raw = torch.nan_to_num(action.detach(), nan=0, posinf=1, neginf=-1)
-        self.actions = self.raw.clamp(-1, 1).clone()
+        self.actions = WHEEL_CONTROL.apply_wheel_action_limit(
+            self.raw.clamp(-1, 1), self.raw, self.wheel_action_limit)
 
     def apply_control(self):
         c = self.cfg
@@ -219,7 +238,10 @@ class Simulation:
             self.model.actuator_biasprm[[0, 1, 3, 4], 0] = ff
             self.data.ctrl[[0, 1, 3, 4]] = self.joint_ref
             self.data.ctrl[[2, 5]] = self.actions[0, (2, 5)].numpy() * c['action_scale_vel'] * [1, -1]
-            self.length_ref = FIVE_BAR.five_bar_state(target[:, ::2], target[:, 1::2], **c['five_bar_geometry'])[0][0].numpy()
+            reference_length, reference_angle, _, _ = FIVE_BAR.five_bar_state(
+                target[:, ::2], target[:, 1::2], **c['five_bar_geometry'])
+            self.length_ref = reference_length[0].numpy()
+            self.angle_ref = reference_angle[0].numpy()
             return
         angle_ref = (self.actions[:, (0, 3)] * c["action_scale_theta"]).clamp(c["theta0_ref_min"], c["theta0_ref_max"])
         length_ref = self.raw[:, (1, 4)].clamp(-1, 1) * c["action_scale_l0"] + c["l0_offset"]
@@ -241,6 +263,7 @@ class Simulation:
         wheel_ref = self.actions[0, (2, 5)].numpy() * c["action_scale_vel"] * [1, -1]
         self.data.ctrl[:] = [effort[0], effort[1], wheel_ref[0], effort[2], effort[3], wheel_ref[1]]
         self.length_ref = length_ref.numpy()[0].copy()
+        self.angle_ref = angle_ref.numpy()[0].copy()
 
     def step(self):
         for _ in range(self.cfg["decimation"]):

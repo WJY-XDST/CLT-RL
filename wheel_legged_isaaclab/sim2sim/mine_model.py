@@ -35,6 +35,40 @@ def matrix_quat(matrix):
     return xyzw[[3, 0, 1, 2]]
 
 
+def training_usd_stage(source):
+    """Resolve overlay USDs in the meter context used by Isaac Lab."""
+    source = Path(source).resolve()
+    stage = Usd.Stage.Open(str(source))
+    if not stage:
+        raise ValueError(f'Cannot open training USD: {source}')
+    authored = UsdGeom.StageHasAuthoredMetersPerUnit(stage)
+    units = UsdGeom.GetStageMetersPerUnit(stage)
+    layer_units = {float(layer.pseudoRoot.GetInfo('metersPerUnit'))
+                   for layer in stage.GetLayerStack()
+                   if layer.pseudoRoot.HasInfo('metersPerUnit')}
+    metadata = dict(source_stage_meters_per_unit=float(units),
+                    source_stage_units_authored=bool(authored),
+                    authored_layer_meters_per_unit=sorted(layer_units),
+                    conversion_meters_per_unit=1., anonymous_meter_context=False,
+                    geometry_rescaled=False)
+    if authored:
+        if units != 1.:
+            raise ValueError('Expected an explicitly meter-based training USD')
+    else:
+        # Layer metadata does not compose through subLayers. The calibrated
+        # overlays omit units, while their base assets explicitly use meters.
+        # Isaac Lab references these numeric coordinates into its meter stage.
+        # Recreate that context without editing assets or applying a100x scale.
+        if layer_units != {1.}:
+            raise ValueError('Overlay USD lacks an unambiguous authored meter-based asset context')
+        context = Usd.Stage.CreateInMemory()
+        context.GetRootLayer().subLayerPaths = [str(source)]
+        UsdGeom.SetStageMetersPerUnit(context, 1.)
+        stage = context
+        metadata['anonymous_meter_context'] = True
+    return stage, metadata
+
+
 def mesh_geometry(prim, cache, body_inverse):
     mesh = UsdGeom.Mesh(prim)
     points = np.asarray(mesh.GetPointsAttr().Get(), dtype=float)
@@ -55,6 +89,35 @@ def mesh_geometry(prim, cache, body_inverse):
     return unique, faces[good]
 
 
+def cylinder_geometry(prim, cache, body_inverse):
+    """Preserve an analytic USD cylinder in the owning body's coordinates."""
+    cylinder = UsdGeom.Cylinder(prim)
+    transform = body_inverse @ np.asarray(cache.GetLocalToWorldTransform(prim)).T
+    scales = np.linalg.norm(transform[:3, :3], axis=0)
+    if not np.isfinite(transform).all() or np.any(scales <= 0.):
+        raise ValueError(f'Invalid cylinder transform: {prim.GetPath()}')
+    basis = transform[:3, :3] / scales
+    if not np.allclose(basis.T @ basis, np.eye(3), rtol=0., atol=1.e-9):
+        raise ValueError(f'Sheared cylinder cannot be represented analytically: {prim.GetPath()}')
+    axis = 'XYZ'.index(cylinder.GetAxisAttr().Get())
+    radial = [i for i in range(3) if i != axis]
+    if not np.isclose(scales[radial[0]], scales[radial[1]], rtol=1.e-9, atol=1.e-12):
+        raise ValueError(f'Elliptical cylinder requires an explicit geometry conversion: {prim.GetPath()}')
+    radius = float(cylinder.GetRadiusAttr().Get()) * scales[radial[0]]
+    half_length = float(cylinder.GetHeightAttr().Get()) * scales[axis] / 2.
+    if not np.isfinite([radius, half_length]).all() or min(radius, half_length) <= 0.:
+        raise ValueError(f'Invalid cylinder dimensions: {prim.GetPath()}')
+    # MuJoCo cylinders extend along local Z. Rotation around the cylinder
+    # axis is immaterial; construct a right-handed frame even after reflection.
+    direction = basis[:, axis]
+    reference = np.eye(3)[1 if abs(direction[0]) > .9 else 0]
+    first = np.cross(reference, direction)
+    first /= np.linalg.norm(first)
+    rotation = np.column_stack((first, np.cross(direction, first), direction))
+    return dict(pos=values(transform[:3, 3]), quat=values(matrix_quat(rotation)),
+                size=values([radius, half_length]))
+
+
 def write_obj(path, points, faces):
     with path.open('w') as handle:
         for point in points:
@@ -69,9 +132,7 @@ def build_mine_model(cfg, output_path):
     output.parent.mkdir(parents=True, exist_ok=True)
     mesh_dir = output.parent / 'meshes'
     mesh_dir.mkdir(exist_ok=True)
-    stage = Usd.Stage.Open(str(source))
-    if not stage or UsdGeom.GetStageMetersPerUnit(stage) != 1:
-        raise ValueError('Expected the composed training USD in meters')
+    stage, unit_context = training_usd_stage(source)
     cache = UsdGeom.XformCache()
     body_prims = {p.GetName(): p for p in stage.Traverse() if p.HasAPI(UsdPhysics.RigidBodyAPI)}
     poses = {name: np.asarray(cache.GetLocalToWorldTransform(p)).T for name, p in body_prims.items()}
@@ -193,6 +254,10 @@ def build_mine_model(cfg, output_path):
                 ET.SubElement(bodies[body_name], 'geom', name=name, type='box', pos=values(transform[:3, 3]),
                               quat=values(matrix_quat(rigid)), size=values(sizes * UsdGeom.Cube(prim).GetSizeAttr().Get() / 2), **attrs)
                 count += 1
+            elif prim.IsA(UsdGeom.Cylinder):
+                ET.SubElement(bodies[body_name], 'geom', name=name, type='cylinder',
+                              **cylinder_geometry(prim, cache, inverse), **attrs)
+                count += 1
             elif prim.IsA(UsdGeom.Mesh):
                 points, faces = mesh_geometry(prim, cache, inverse)
                 approximation = UsdPhysics.MeshCollisionAPI(prim).GetApproximationAttr().Get() or approx
@@ -209,6 +274,8 @@ def build_mine_model(cfg, output_path):
                     add_mesh(piece_name, vertices, triangles)
                     ET.SubElement(bodies[body_name], 'geom', name=piece_name, type='mesh', mesh=piece_name, **attrs)
                     count += 1
+        if count == 0:
+            raise ValueError(f'Enabled USD collision shape was not converted: {path}')
         geometries.append({'source': path, 'body': body_name, 'category': category, 'approximation': approx,
                            'mujoco_convex_pieces': count})
         print(f'Converted collision {len(geometries)}/21: {category} {body_name} -> {count} pieces', flush=True)
@@ -247,6 +314,7 @@ def build_mine_model(cfg, output_path):
     ET.ElementTree(root).write(output, encoding='utf-8', xml_declaration=True)
     model = mujoco.MjModel.from_xml_path(str(output))
     manifest = {'source_usd': str(source), 'source_sha256': hashlib.sha256(source.read_bytes()).hexdigest(),
+                'source_usd_unit_context': unit_context,
                 'mjcf_sha256': hashlib.sha256(output.read_bytes()).hexdigest(),
                 'mesh_sha256': {str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in mesh_dir.glob('*.obj')},
                 'usd_layers': {layer.realPath: hashlib.sha256(Path(layer.realPath).read_bytes()).hexdigest()

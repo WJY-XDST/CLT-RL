@@ -3,6 +3,50 @@ import math
 from pathlib import Path
 
 
+def make_curriculum_clock(offset_steps, steps_per_update, adam_steps_per_update):
+    """A fresh policy may start at the current command phase, not curriculum zero."""
+    values = (offset_steps, steps_per_update, adam_steps_per_update)
+    if (any(type(value) is not int for value in values)
+            or offset_steps < 0 or min(values[1:]) <= 0):
+        raise ValueError('Curriculum clock requires nonnegative offset and positive integer rates')
+    return dict(offset_steps=offset_steps, steps_per_update=steps_per_update,
+                adam_steps_per_update=adam_steps_per_update)
+
+
+def load_curriculum_clock(checkpoint):
+    """Legacy checkpoints retain their original iteration-driven clock."""
+    import yaml
+    path = Path(checkpoint).parent / 'params/curriculum_clock.yaml'
+    if not path.exists():
+        return None
+    return make_curriculum_clock(**yaml.safe_load(path.read_text()))
+
+
+def clocked_update_count(saved, clock, *, allow_initial=False):
+    """Count completed PPO updates from intact Adam, not the last loop label."""
+    states = saved['optimizer_state_dict']['state']
+    if allow_initial and not states and saved['iter'] == 0:
+        return 0
+    if not states or any('step' not in state for state in states.values()):
+        raise ValueError('Clocked resume requires complete Adam steps')
+    steps = {float(state['step']) for state in states.values()}
+    if len(steps) != 1:
+        raise ValueError('Clocked resume has inconsistent Adam steps')
+    step = steps.pop()
+    if (not math.isfinite(step) or step <= 0 or not step.is_integer()
+            or step % clock['adam_steps_per_update']):
+        raise ValueError('Clocked resume requires complete PPO updates')
+    return int(step) // clock['adam_steps_per_update']
+
+
+def save_random_initial_checkpoint(runner, destination):
+    """RSL save() needs its writer initialized even before the first learn()."""
+    if Path(destination).exists():
+        raise FileExistsError('Preserve the existing initial model instead of overwriting it')
+    runner._prepare_logging_writer()
+    runner.save(str(destination))
+
+
 def aggregate_episode_logs(records):
     """RSL's first-dictionary/mean-of-step-means logger loses sparse events.
 

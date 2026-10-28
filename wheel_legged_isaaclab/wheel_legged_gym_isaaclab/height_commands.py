@@ -21,6 +21,14 @@ SAFE_BASE_HEIGHT_RANGE_M = tuple(v + UPRIGHT_HEIGHT_OFFSET_M for v in SAFE_LEG_L
 def training_height_bounds(commands, center, step, motion_progress):
     """Expand only height from a saved range; never restart speed/yaw curricula."""
     final = tuple(commands.ranges_height)
+    independent = getattr(commands, 'full_height_range_from_start', False)
+    if not isinstance(independent, bool):
+        raise ValueError('full_height_range_from_start must be boolean')
+    if independent:
+        if (len(final) != 2 or not all(math.isfinite(v) for v in final)
+                or not 0 < final[0] <= center <= final[1]):
+            raise ValueError('Full height range must be finite, positive and contain the nominal height')
+        return final
     initial = getattr(commands, 'height_expansion_from', None)
     p = min(max(float(motion_progress), 0.), 1.)
     if initial is None:

@@ -6,12 +6,33 @@ import tempfile
 import unittest
 
 import torch
-from wheel_legged_gym_isaaclab.robot_model import MODEL, MAPPED_FIVE_BAR, mapped_five_bar_geometry, validate_robot_contract, validate_checkpoint_robot
+from wheel_legged_gym_isaaclab.robot_model import MODEL, MAPPED_FIVE_BAR, MASS_CALIBRATION, NOMINAL_VEHICLE_MASS_KG, GRAVITY_FORCE, MCU_REFERENCE_VEHICLE_MASS_KG, mapped_five_bar_geometry, validate_robot_contract, validate_checkpoint_robot
 from wheel_legged_gym_isaaclab.five_bar_vmc import five_bar_state, five_bar_torques
 from wheel_legged_gym_isaaclab.mcu_hardware import HARDWARE_PROFILE, LEG_EFFORT_LIMIT, WHEEL_EFFORT_LIMIT
 
 
 class RobotModelTests(unittest.TestCase):
+    def test_current_payload_mass_and_half_weight_do_not_rewrite_firmware_reference(self):
+        self.assertAlmostEqual(MCU_REFERENCE_VEHICLE_MASS_KG, 12.34)
+        self.assertAlmostEqual(NOMINAL_VEHICLE_MASS_KG, 13.64)
+        self.assertAlmostEqual(GRAVITY_FORCE, 66.9042)
+        self.assertAlmostEqual(MASS_CALIBRATION['body_payload']['added_body_mass_kg'], 1.3)
+        self.assertEqual(MASS_CALIBRATION['wheel_masses_kg'], {'LW_link': .665, 'RW_link': .665})
+
+    def test_old_actuation_restores_before_explicit_new_mass_override(self):
+        from types import SimpleNamespace
+        from wheel_legged_gym_isaaclab.physics_contract import restore_saved_actuation
+        cfg = SimpleNamespace(feedforward_force=GRAVITY_FORCE, wheel_damping=.65,
+            wheel_control_mode='implicit_velocity',
+            robot=SimpleNamespace(actuators={'wheels': SimpleNamespace(damping=.65)}))
+        saved = dict(feedforward_force=60.5277, wheel_damping=1., wheel_control_mode='implicit_velocity')
+        restore_saved_actuation(cfg, saved)
+        self.assertAlmostEqual(cfg.feedforward_force, 60.5277)
+        self.assertEqual(cfg.robot.actuators['wheels'].damping, 1.)
+        cfg.feedforward_force = GRAVITY_FORCE
+        self.assertAlmostEqual(cfg.feedforward_force, 66.9042)
+        self.assertEqual(saved['feedforward_force'], 60.5277)
+
     def cfg(self):
         return {"leg_model": "mine_five_bar", "five_bar_geometry": copy.deepcopy(MAPPED_FIVE_BAR),
                 "hardware_profile": HARDWARE_PROFILE,

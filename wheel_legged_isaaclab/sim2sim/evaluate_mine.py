@@ -9,8 +9,11 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import subprocess
 import sys
+
+import numpy as np
 
 from core import PROJECT, load_config
 
@@ -24,6 +27,31 @@ CASES = [('stand', 0., 0., .3), ('forward_0p3', .3, 0., .3), ('forward_0p6', .6,
          ('height_low', 0., 0., .28), ('height_high', 0., 0., .32)]
 
 
+def configured_cases(path, cfg):
+    """Validate requested fixed commands against the saved training envelope."""
+    if path is None:
+        return CASES
+    specification = json.loads(Path(path).read_text())
+    if not isinstance(specification, list) or not specification:
+        raise ValueError('cases-json must contain a nonempty list of named commands')
+    commands = cfg['commands']
+    bounds = (commands['ranges_reverse_lin_vel_x'][0], commands['ranges_lin_vel_x'][1]), commands['ranges_ang_vel_yaw'], commands['ranges_height']
+    cases, names = [], set()
+    for case in specification:
+        if not isinstance(case, dict) or set(case) != {'name', 'speed', 'yaw', 'height'}:
+            raise ValueError('Each case needs name, speed, yaw and height')
+        name = case['name']
+        if not isinstance(name, str) or not re.fullmatch(r'[a-z][a-z0-9_]*', name) or name in names:
+            raise ValueError('Case names must be unique safe identifiers')
+        values = [case[key] for key in ('speed', 'yaw', 'height')]
+        if any(type(value) not in (int, float) or not np.isfinite(value) or not low <= value <= high
+               for value, (low, high) in zip(values, bounds)):
+            raise ValueError('Requested commands must remain inside the saved training envelope')
+        cases.append((name, *values))
+        names.add(name)
+    return cases
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--checkpoint', required=True, type=Path)
@@ -32,18 +60,29 @@ def main():
     parser.add_argument('--seconds', type=float, default=12.)
     parser.add_argument('--seeds', type=int, nargs=3, default=[43, 44, 45])
     parser.add_argument('--physics-substeps', type=int, default=50)
+    parser.add_argument('--cases-json', type=Path, help='Explicit named command matrix inside saved speed/yaw/height bounds.')
     args = parser.parse_args()
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=True)
     cfg = load_config(args.checkpoint.parent / 'params/env.yaml')
+    cases = configured_cases(args.cases_json, cfg)
+    if args.seconds < 3. or args.physics_substeps < 1:
+        parser.error('At least three seconds and positive physics-substeps are required')
     dt = cfg['sim']['dt'] * cfg['decimation']
     nsteps = round(args.seconds / dt)
     import torch
     checkpoint = torch.load(args.checkpoint, map_location='cpu', weights_only=True)
+    optimizer_steps = sorted({int(state['step']) for state in checkpoint['optimizer_state_dict']['state'].values()})
+    if len(optimizer_steps) != 1 or optimizer_steps[0] % 20:
+        raise ValueError('Cannot establish the saved ordinary-PPO update clock')
     manifest = {'checkpoint': str(args.checkpoint.resolve()), 'checkpoint_iteration': checkpoint['iter'],
+                'actual_ppo_updates_from_saved_Adam': optimizer_steps[0] // 20,
+                'optimizer_states_preserved': len(checkpoint['optimizer_state_dict']['state']),
                 'checkpoint_sha256': hashlib.sha256(args.checkpoint.read_bytes()).hexdigest(),
                 'seconds_per_case': args.seconds, 'policy_dt': dt, 'seeds': args.seeds,
-                'cases': [dict(name=n, speed=v, yaw=y, height=h) for n, v, y, h in CASES],
+                'cases': [dict(name=n, speed=v, yaw=y, height=h) for n, v, y, h in cases],
+                'cases_json': str(args.cases_json.resolve()) if args.cases_json else None,
+                'cases_json_sha256': hashlib.sha256(args.cases_json.read_bytes()).hexdigest() if args.cases_json else None,
                 'reset_velocity_uniform_amplitude': .05, 'reset_rng': 'Isaac CPU torch Generator',
                 'heading': 'constant yaw rate; no heading hold', 'automatic_resets': False,
                 'mujoco_physics_substeps': args.physics_substeps,
@@ -53,7 +92,7 @@ def main():
     (output / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
     del checkpoint
     results, rows = [], []
-    for cid, (name, speed, yaw, height) in enumerate(CASES):
+    for cid, (name, speed, yaw, height) in enumerate(cases):
         for seed in args.seeds:
             folder = output / name / f'seed{seed}'
             folder.mkdir(parents=True, exist_ok=True)
@@ -94,7 +133,7 @@ def main():
                                 side + '_angle_ref_rad': r[side + '_angle_ref_rad'],
                                 side + '_wheel_rad_s': r[side + '_wheel_rad_s'], side + '_wheel_ref_rad_s': r[side + '_wheel_ref_rad_s']})
                 rows.append(row)
-            print(f'{len(results)}/27 {name} seed{seed}: {summary["status"]}, simulated {summary["duration_s"]:.2f}s', flush=True)
+            print(f'{len(results)}/{len(cases) * len(args.seeds)} {name} seed{seed}: {summary["status"]}, simulated {summary["duration_s"]:.2f}s', flush=True)
             (output / 'progress.json').write_text(json.dumps(results, indent=2) + '\n')
     with (output / 'trace.csv').open('w', newline='') as handle:
         writer = csv.DictWriter(handle, fieldnames=rows[0])
@@ -105,6 +144,21 @@ def main():
     if all_completed:
         report = assess(output)
         plot(output)
+        literal = []
+        for case in report['conditions']:
+            for trial in case['trials']:
+                relative = {metric: 100. * trial['metrics'][metric] / abs(case[command]) if case[command] else None
+                            for metric, command in (('speed_mae_m_s', 'speed'), ('yaw_mae_rad_s', 'yaw'), ('height_mae_m', 'height'))}
+                literal.append(dict(case=case['name'], seed=trial['seed'],
+                                    nonzero_command_relative_percent=relative,
+                                    original_passed=trial['passed'],
+                                    original_AND_literal10_passed=trial['passed'] and all(value is None or value < 10. for value in relative.values())))
+        (output / 'assessment_literal10.json').write_text(json.dumps(dict(
+            total_trials=len(literal), original_passed=sum(trial['original_passed'] for trial in literal),
+            original_AND_literal10_passed=sum(trial['original_AND_literal10_passed'] for trial in literal),
+            all_passed=all(trial['original_AND_literal10_passed'] for trial in literal), trials=literal,
+            zero_command_percentages_remain_None=True, original_absolute_floors_and_reference_gates_unchanged=True,
+            native_training_acceptance_not_replaced=True, policy_accepted=False), indent=2) + '\n')
         print(json.dumps({k: report[k] for k in ('iteration', 'survivors', 'total_trials', 'passed')}, indent=2), flush=True)
     else:
         print('Some independent runs failed; partial traces retained, no complete precision acceptance.', flush=True)

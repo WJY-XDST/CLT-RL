@@ -82,16 +82,25 @@ def qualified_wheel_mass_asset(evidence_path):
     if measurements:
         # Weighed legs include wheels but exclude fixed, body-mounted hip
         # motors. Require native evidence for that complete measured budget.
-        if (measurements != dict(vehicle_kg=12.34, left_leg_with_wheel_kg=1.935,
+        payload = profile.get('body_payload', {})
+        added_body_mass = float(payload.get('added_body_mass_kg', 0.))
+        nominal_vehicle_mass = measurements['vehicle_kg'] + added_body_mass
+        if (not math.isfinite(added_body_mass) or added_body_mass < 0.
+                or not math.isclose(profile['feedforward']['nominal_vehicle_mass_kg'], nominal_vehicle_mass,
+                                    rel_tol=0., abs_tol=1.e-9)
+                or (payload and not math.isclose(sum(part['mass_kg'] for part in payload['payloads']),
+                                                added_body_mass, rel_tol=0., abs_tol=1.e-9))
+                or measurements != dict(vehicle_kg=12.34, left_leg_with_wheel_kg=1.935,
                                  right_leg_with_wheel_kg=1.935, wheel_kg=.665,
                                  leg_weight_includes_wheel=True,
                                  leg_weight_excludes_hip_motors=True,
                                  hip_motors_body_mounted=True)
                 or not smoke.get('all_body_inertias_match_composed_usd')
-                or not math.isclose(smoke.get('total_mass_kg', 0.), 12.34, abs_tol=2.e-6)):
+                or not math.isclose(smoke.get('total_mass_kg', 0.), nominal_vehicle_mass, abs_tol=2.e-6)):
             raise ValueError('Measured vehicle/leg mass calibration lacks native assembly evidence')
         masses = smoke.get('body_masses_kg', {})
-        if not math.isclose(masses.get('base_link', 0.), 8.47, abs_tol=1.e-6):
+        expected_body_mass = nominal_vehicle_mass - measurements['left_leg_with_wheel_kg'] - measurements['right_leg_with_wheel_kg']
+        if not math.isclose(masses.get('base_link', 0.), expected_body_mass, abs_tol=1.e-6):
             raise ValueError('Fixed body must include the body-mounted hip motors')
         for side in ('L', 'R'):
             total = sum(masses.get(side + suffix + '_link', 0.)
@@ -108,7 +117,8 @@ def qualified_wheel_mass_asset(evidence_path):
 
 
 def continuation_command(source, cfg, label, updates, commands, stop_file, reward_overrides=None,
-                         minimum_wheel_std=None, robot_asset=None, joint_mean_guard_coef=None, joint_height_feedback_coef=None):
+                         minimum_wheel_std=None, robot_asset=None, joint_mean_guard_coef=None, joint_height_feedback_coef=None,
+                         joint_reset_profile=None, allow_reset_pose_change=False):
     guard_coefficient = resolve_coefficient(source, joint_mean_guard_coef)
     height_coefficient = resolve_height_coefficient(source,joint_height_feedback_coef)
     if minimum_wheel_std is not None and (
@@ -118,7 +128,10 @@ def continuation_command(source, cfg, label, updates, commands, stop_file, rewar
     if (not tensor_finite(saved) or not saved.get('optimizer_state_dict')
             or not saved.get('model_state_dict')):
         raise ValueError('Continuation requires intact finite weights and Adam state')
-    start = int(saved['iter'])
+    from wheel_legged_gym_isaaclab.training_state import load_curriculum_clock, clocked_update_count
+    clock = load_curriculum_clock(source)
+    start = (clocked_update_count(saved, clock, allow_initial=Path(source).name == 'model_initial.pt')
+             if clock is not None else int(saved['iter']))
     target = start + updates
     argv = [str(ROOT/'run_python.sh'), str(ROOT/'wheel_legged_isaaclab/scripts/rsl_rl/train.py'),
             '--task','WheelLeggedJointPD-Flat-v0','--require_leg_control_mode','implicit_joint_position',
@@ -139,6 +152,12 @@ def continuation_command(source, cfg, label, updates, commands, stop_file, rewar
         argv.append('env.robot.spawn.usd_path='+json.dumps(asset))
     if robot_asset is not None and robot_asset != previous_asset:
         argv.append('--allow_physics_contract_change')
+    from wheel_legged_gym_isaaclab.joint_reset import CAD_ZERO_RESET, require_matching_reset_profile
+    profile = joint_reset_profile if joint_reset_profile is not None else cfg.get('joint_reset_profile', CAD_ZERO_RESET)
+    require_matching_reset_profile(cfg, dict(cfg, joint_reset_profile=profile), allow_reset_pose_change)
+    argv.append('env.joint_reset_profile='+json.dumps(profile))
+    if allow_reset_pose_change:
+        argv.append('--allow_reset_pose_change')
     rewards = dict(cfg['rewards'])
     rewards.update({key.split('.',1)[1]:value for key,value in (reward_overrides or {}).items()})
     for group, values in (('commands',commands), ('rewards',rewards)):
@@ -150,10 +169,14 @@ def validate_continuation_config(previous, current, commands, reward_overrides=N
     previous = strip_retired_config_fields(previous)
     current = strip_retired_config_fields(current)
     expected = copy.deepcopy(previous)
+    if 'joint_reset_profile' in current:
+        expected.setdefault('joint_reset_profile', 'cad_zero_v0')
     if robot_asset is not None:
         expected['robot']['spawn']['usd_path'] = robot_asset
     expected['commands'] = dict(HEIGHT_DEFAULTS, **commands)
-    for name,default in (('base_height_relative_deadband',0.),('wheel_action_saturation',0.),
+    if 'full_height_range_from_start' in current['commands']:
+        expected['commands'].setdefault('full_height_range_from_start', False)
+    for name,default in (('base_height_relative_deadband',0.),('joint_target_leg_length_error_sq',0.),('tracking_task_quality_gate_floor',1.),('wheel_action_saturation',0.),
                          ('wheel_action_saturation_penalty_clip',40.),('tracking_goal_violation',0.),
                          ('tracking_goal_penalty_clip',40.),('tracking_goal_component_violation',0.),
                          ('tracking_goal_component_penalty_clip',200.)):

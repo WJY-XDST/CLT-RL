@@ -6,6 +6,7 @@ machine imports no Isaac Sim packages and never injects actions or forces.
 """
 
 import importlib.util
+from dataclasses import dataclass
 import sys
 from pathlib import Path
 
@@ -15,8 +16,14 @@ _spec = importlib.util.spec_from_file_location("sim2sim_keyboard_state", STATE_S
 _module = importlib.util.module_from_spec(_spec)
 sys.modules[_spec.name] = _module  # dataclasses resolves the defining module.
 _spec.loader.exec_module(_module)
-KeyboardConfig = _module.KeyboardConfig
 KeyboardCommandState = _module.KeyboardCommandState
+
+
+@dataclass(frozen=True)
+class KeyboardConfig(_module.KeyboardConfig):
+    """Use the saved MuJoCo task's default yaw envelope, retaining shared input behavior."""
+
+    yaw_rate: float = .3
 
 
 class KeyboardInput:

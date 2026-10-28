@@ -41,7 +41,7 @@ class KeyboardTests(unittest.TestCase):
     def test_hold_release_and_opposite_axes(self):
         self.input.press('w')
         self.input.press('a')
-        self.assertEqual(self.state.advance(.02), (.8, .6, .3))
+        self.assertEqual(self.state.advance(.02), (.8, .3, .3))
         self.input.press('s')
         self.input.press('d')
         self.assertEqual(self.state.advance(.02), (0., 0., .3))

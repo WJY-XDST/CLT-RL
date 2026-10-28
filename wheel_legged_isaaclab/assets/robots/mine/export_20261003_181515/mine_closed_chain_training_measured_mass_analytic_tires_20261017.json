@@ -1,0 +1,69 @@
+{
+  "source": "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_closed_chain_training_measured_volume_mass_20261014.usda",
+  "source_sha256": "7353cdd90aefb795a158176bad75bd210d27d5ba775905765c859fedbe73b71e",
+  "overlay": "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_closed_chain_training_measured_mass_analytic_tires_20261017.usda",
+  "overlay_sha256": "48cbb96dffb5b8df95dd5dba16d34c7a4d2e1dcce44b06309bec6a974a6d2ddf",
+  "changes": [
+    {
+      "wheel_joint": "LW_joint",
+      "disabled_collision": "/mine_robot/LW_link/smooth_tire_collision",
+      "new_collision": "/mine_robot/LW_link/analytic_tire_collision",
+      "radius_m": 0.06,
+      "width_m": 0.02,
+      "center_in_wheel_body_m": [
+        -7.228014483236696e-20,
+        -2.3174821436877657e-18,
+        -0.008999988553114244
+      ],
+      "axle_in_wheel_body": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "wheel_joint": "RW_joint",
+      "disabled_collision": "/mine_robot/RW_link/smooth_tire_collision",
+      "new_collision": "/mine_robot/RW_link/analytic_tire_collision",
+      "radius_m": 0.06,
+      "width_m": 0.02,
+      "center_in_wheel_body_m": [
+        -7.228014483236696e-20,
+        1.40042780612711e-19,
+        -0.008999969926662752
+      ],
+      "axle_in_wheel_body": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    }
+  ],
+  "explicit_collection_membership_redirects": [
+    "/mine_robot/collision_filters/ordinary.collection:colliders:includes"
+  ],
+  "all_original_rigid_body_mass_COM_inertia_joints_transforms_bitwise_authoring_equal": true,
+  "total_mass_kg": 12.340000309050083,
+  "source_asset_chain_sha256": {
+    "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_closed_chain_training_measured_volume_mass_20261014.usda": "7353cdd90aefb795a158176bad75bd210d27d5ba775905765c859fedbe73b71e",
+    "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_closed_chain_training_matched_wheels_20261014.usda": "cb3dec31426ae3647352b675bfcf701dc672e950f2bd9b2d0a50b9fa6509bf68",
+    "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_closed_chain_training_wheel_mass_20261014.usda": "b20e00cd117eecaed4dc66b6e905a0d9b0319a3058da215372c3236039093214",
+    "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_closed_chain_training_protected_stops_v2.usd": "2ae945dacf9ef175b9c84a969f040d1b169c4054d28e239215fe8e717f32909c",
+    "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_closed_chain_training_protected.usd": "1ec14a942dc67f413293d536ce623ca3712d941931abf28b35f3d46f24c085fc",
+    "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_closed_chain_base_box.usd": "bbde84ca678525e4c99abe3e718a927954e2dd24f41cf1f2434a3350072d392e",
+    "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_closed_chain_tires_96.usd": "cd7170cd08567ab4abf0b3ef033ae07af5d3887e8341d53ce3073e982910db88",
+    "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_closed_chain.usd": "fffbe16eeba967df5e22163523d8c09936eab43e56d46847fe93e9960067f913",
+    "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_base_box_instanceable_meshes.usd": "404cf292faa1f61a42defc5719a8062f46cb5275c15dd1533be7e70ff72edcad",
+    "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/mine_protected_leg_instanceable_meshes.usd": "d034d97112ef660f5b6f5642a71971b56d2163631867668b8f63bc9ee495d85d"
+  },
+  "required_process_setting": {
+    "/physics/collisionApproximateCylinders": false
+  },
+  "purpose": "Versioned geometry asset for a qualified isolated PPO adaptation trial; not accepted policy",
+  "builder_sha256": "34cb792c9d43efd1b715fd62a0cc0ef9357f46513297e21713e5af7993fb8348",
+  "native_simulator_started": false,
+  "original_training_asset_changed": false,
+  "native_PPO_updates": 0,
+  "policy_accepted": false,
+  "diagnostic_source_artifact": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/joint_pd_analytic_tire_geometry_candidate_20261017/measured_mass_analytic_tires_diagnostic.usda"
+}

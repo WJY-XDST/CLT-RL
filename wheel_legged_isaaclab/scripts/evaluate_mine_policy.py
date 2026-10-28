@@ -75,10 +75,16 @@ def main():
 
     saved_config = validate_checkpoint_robot(args.checkpoint)
     from wheel_legged_gym_isaaclab.physics_contract import (
-        checkpoint_force_iteration_setting, checkpoint_robot_asset_setting,
+        checkpoint_force_iteration_setting, checkpoint_robot_asset_setting, restore_saved_actuation,
     )
     saved_rewards = saved_config.get('rewards', {})
     cfg = WheelLeggedVMCFlatEnvCfg()
+    restore_saved_actuation(cfg, saved_config)
+    from wheel_legged_gym_isaaclab.wheel_control import checkpoint_wheel_action_limit
+    cfg.action_scale_vel = saved_config.get('action_scale_vel', cfg.action_scale_vel)
+    cfg.wheel_action_limit = checkpoint_wheel_action_limit(saved_config)
+    # A reset-pose fix must not silently change historical checkpoint replay.
+    cfg.joint_reset_profile = saved_config.get('joint_reset_profile', 'cad_zero_v0')
     # A replay must report the checkpoint's reward settings, not today's
     # defaults. This does not retune its actor or execution chain.
     apply_config_overrides(cfg, {f'rewards.{key}': value for key, value in saved_rewards.items()})
@@ -89,6 +95,13 @@ def main():
     overrides = json.loads(args.overrides_json.read_text()) if args.overrides_json else {}
     cfg.robot.spawn.usd_path = checkpoint_robot_asset_setting(saved_config, overrides)
     cfg.enable_external_forces_every_iteration = checkpoint_force_iteration_setting(saved_config, overrides)
+    # Resolve explicit experiment settings before constructing the cases. A
+    # calibrated-asset transfer with a full-height override must not silently
+    # keep the historical checkpoint's narrower height endpoints in its replay.
+    if args.overrides_json:
+        apply_config_overrides(cfg,overrides)
+        if cfg.wheel_control_mode == 'implicit_velocity':
+            cfg.robot.actuators['wheels'].damping=cfg.wheel_damping
     height=cfg.rewards.base_height_target
     cases=[("stand",0.,0.,height),("forward_0p3",.3,0.,height),
            ("forward_0p6",.6,0.,height),("reverse_0p3",-.3,0.,height),
@@ -181,10 +194,6 @@ def main():
         from wheel_legged_gym_isaaclab.action_bias_probe import build_bias_cases
         cases, case_biases, bias_labels = build_bias_cases(cases, json.loads(args.bias_probe_json.read_text()))
     seeds=args.seeds
-    if args.overrides_json:
-        apply_config_overrides(cfg,overrides)
-        if cfg.wheel_control_mode == 'implicit_velocity':
-            cfg.robot.actuators['wheels'].damping=cfg.wheel_damping
     from wheel_legged_gym_isaaclab.leg_control import require_matching_policy_contract
     require_matching_policy_contract(saved_config, cfg.to_dict())
     if args.physics_hz is not None:
@@ -334,8 +343,8 @@ def main():
                 torques=d.applied_torque[:,self._torque_joint_ids]
                 saturation=(torques.abs()>=self._torque_limits*.99).float().mean(-1)
                 action_limits = self._actions.new_ones(6)
-                if args.wheel_reference_limit_probe is not None:
-                    action_limits[[2, 5]] = args.wheel_reference_limit_probe
+                action_limits[[2, 5]] = (args.wheel_reference_limit_probe
+                    if args.wheel_reference_limit_probe is not None else self.cfg.wheel_action_limit)
                 fields=[self.episode_length_buf*self.step_dt,self._commands[:,0],self._commands[:,1],self._commands[:,2],
                     vel[:,0],vel[:,1],d.root_ang_vel_b[:,2],d.root_pos_w[:,2],pitch,roll,yaw,
                     self._L0[:,0],self._L0[:,1],self._l0_ref_applied[:,0],self._l0_ref_applied[:,1],
@@ -345,6 +354,7 @@ def main():
                     torques.abs().max(-1).values,saturation,(self._raw_actions.abs()>action_limits).float().mean(-1),
                     died.float(),timeout.float()]
                 fields.extend(self._termination_reasons[key].float() for key in REASONS)
+                fields.extend([d.root_pos_w[:, 0], d.root_pos_w[:, 1]])
                 if args.diagnose_contacts:
                     from isaaclab.utils.math import quat_apply
                     filtered = self._base_ground_sensor.data.force_matrix_w
@@ -367,6 +377,7 @@ def main():
     columns=["episode_time_s","speed_cmd_m_s","yaw_cmd_rad_s","height_cmd_m","speed_m_s","lateral_speed_m_s","yaw_rate_rad_s","height_m","pitch_rad","roll_rad","yaw_rad",
         "left_length_m","right_length_m","left_length_ref_m","right_length_ref_m","left_angle_rad","right_angle_rad","left_angle_ref_rad","right_angle_ref_rad",
         "left_wheel_rad_s","right_wheel_rad_s","left_wheel_ref_rad_s","right_wheel_ref_rad_s","peak_torque_nm","torque_saturation_fraction","action_clipping_fraction","terminated","timeout"]+["fail_"+r for r in REASONS]
+    columns.extend(['root_x_w_m', 'root_y_w_m'])
     if args.diagnose_contacts:
         columns.extend(['base_net_force_n', 'base_ground_force_n', 'wheel_ground_force_n', 'base_collision_min_z_m',
                         'active_joint_tracking_max_abs_rad'])
@@ -475,6 +486,8 @@ def main():
                    else "constant requested yaw rate; no added heading feedback"),
         "telemetry":"post-physics, BEFORE automatic reset; errors are actual minus applied reference",
         "weights_updated":False,"policy_input_remapping":False,"leg_control_mode":cfg.leg_control_mode,
+        "joint_reset_profile":cfg.joint_reset_profile,
+        "source_joint_reset_profile":saved_config.get('joint_reset_profile','cad_zero_v0'),
         "wheel_probe":args.wheel_probe,"policy_acceptance_test":not (args.wheel_probe or args.bias_probe_json or args.command_probe_json or args.tracking_goal_reward_probe is not None or args.joint_saturation_reward_probe is not None or args.tracking_goal_component_reward_probe is not None),
         "joint_saturation_reward_probe":args.joint_saturation_reward_probe,
         "tracking_goal_component_reward_probe":args.tracking_goal_component_reward_probe,
@@ -486,7 +499,10 @@ def main():
         "wheel_action_saturation_reward_probe":args.wheel_action_saturation_reward_probe,
         "policy_noise_seed":43 if args.sample_policy_actions else None,
         "wheel_reference_limit_probe":args.wheel_reference_limit_probe,
-        "wheel_reference_max_rad_s":cfg.action_scale_vel * (args.wheel_reference_limit_probe or 1.),
+        "saved_wheel_action_limit":cfg.wheel_action_limit,
+        "wheel_reference_max_rad_s":cfg.action_scale_vel * (
+            args.wheel_reference_limit_probe if args.wheel_reference_limit_probe is not None
+            else cfg.wheel_action_limit),
         "action_bias_probes":bias_labels,
         "reward_telemetry":('Actual environment reward per control step; no weights changed'
                             if record_rewards else None),

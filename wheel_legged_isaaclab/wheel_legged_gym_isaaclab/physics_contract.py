@@ -6,6 +6,28 @@ EXTERNAL_FORCE_FIELD = 'enable_external_forces_every_iteration'
 ROBOT_ASSET_FIELD = 'robot.spawn.usd_path'
 
 
+def restore_saved_actuation(config, saved_config):
+    """Keep historical replay independent of today's mass and drive defaults.
+
+    Explicit diagnostic overrides are applied after this function. Geometry,
+    observations and action semantics still pass their existing validators.
+    """
+    from copy import deepcopy
+    fields = (
+        'leg_control_mode', 'wheel_control_mode', 'wheel_damping',
+        'leg_joint_stiffness', 'leg_joint_damping', 'leg_joint_position_offset',
+        'leg_joint_position_scale', 'leg_joint_target_limit_margin',
+        'leg_joint_gravity_feedforward', 'leg_effort_limit', 'wheel_effort_limit',
+        'feedforward_force', 'feedforward_mode', 'feedforward_angle_bias',
+        'feedforward_force_limit', 'kp_theta', 'kd_theta', 'kp_l0', 'kd_l0',
+    )
+    for name in fields:
+        if name in saved_config:
+            setattr(config, name, deepcopy(saved_config[name]))
+    if config.wheel_control_mode == 'implicit_velocity':
+        config.robot.actuators['wheels'].damping = config.wheel_damping
+
+
 def checkpoint_robot_asset_setting(saved_config, overrides=None):
     """Replay historical CAD masses unless a different asset is explicitly requested."""
     value = (overrides or {}).get(ROBOT_ASSET_FIELD,

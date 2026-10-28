@@ -1,0 +1,2700 @@
+{
+  "document_source_date": "2026-10-25",
+  "created_at": "2026-10-23T15:47:14.091130+08:00",
+  "root": "/home/aaa/studyRL/src/CLT-RL",
+  "format": "local repository Markdown",
+  "software_versions": {
+    "isaac_sim": "5.1.0",
+    "isaac_lab": "v2.3.1",
+    "python": "3.11",
+    "rsl_rl": "3.0.1",
+    "torch": "2.7.0+cu128"
+  },
+  "sources": [
+    {
+      "path": "IsaacLab/_isaac_sim/kit/python/lib/python3.11/site-packages/rsl_rl/algorithms/ppo.py",
+      "sha256": "deafc8c947eba4df3e91b393869426cdab8d7b71e05974c3734125d2331d7d1c",
+      "symbols": {
+        "PPO": 19,
+        "PPO.__init__": 25,
+        "PPO.init_storage": 118,
+        "PPO.act": 129,
+        "PPO.process_env_step": 142,
+        "PPO.compute_returns": 171,
+        "PPO.update": 178,
+        "PPO.broadcast_parameters": 428,
+        "PPO.reduce_parameters": 441
+      }
+    },
+    {
+      "path": "IsaacLab/_isaac_sim/kit/python/lib/python3.11/site-packages/rsl_rl/modules/actor_critic.py",
+      "sha256": "20c6396d32802112dc217ba51add5fe7f7953518a0c7cdb4b7da51f77dc30b6e",
+      "symbols": {
+        "ActorCritic": 15,
+        "ActorCritic.__init__": 18,
+        "ActorCritic.reset": 84,
+        "ActorCritic.forward": 87,
+        "ActorCritic.action_mean": 91,
+        "ActorCritic.action_std": 95,
+        "ActorCritic.entropy": 99,
+        "ActorCritic.update_distribution": 102,
+        "ActorCritic.act": 115,
+        "ActorCritic.act_inference": 121,
+        "ActorCritic.evaluate": 126,
+        "ActorCritic.get_actor_obs": 131,
+        "ActorCritic.get_critic_obs": 137,
+        "ActorCritic.get_actions_log_prob": 143,
+        "ActorCritic.update_normalization": 146,
+        "ActorCritic.load_state_dict": 154
+      }
+    },
+    {
+      "path": "IsaacLab/_isaac_sim/kit/python/lib/python3.11/site-packages/rsl_rl/runners/on_policy_runner.py",
+      "sha256": "e51e4dd49664ccc8743a16b71d2971d392f40a6988136f10fe8c5f03ab6a83b5",
+      "symbols": {
+        "OnPolicyRunner": 22,
+        "OnPolicyRunner.__init__": 25,
+        "OnPolicyRunner.learn": 61,
+        "OnPolicyRunner.log": 177,
+        "OnPolicyRunner.save": 289,
+        "OnPolicyRunner.load": 307,
+        "OnPolicyRunner.get_inference_policy": 326,
+        "OnPolicyRunner.train_mode": 332,
+        "OnPolicyRunner.eval_mode": 339,
+        "OnPolicyRunner.add_git_repo_to_log": 346,
+        "OnPolicyRunner._configure_multi_gpu": 353,
+        "OnPolicyRunner._construct_algorithm": 397,
+        "OnPolicyRunner._prepare_logging_writer": 438
+      }
+    },
+    {
+      "path": "IsaacLab/_isaac_sim/kit/python/lib/python3.11/site-packages/rsl_rl/storage/rollout_storage.py",
+      "sha256": "10510c1c0e7b250a343ba923a4747a5c337b78c286c1dd5d684128305ee0afa1",
+      "symbols": {
+        "RolloutStorage": 14,
+        "RolloutStorage.Transition": 15,
+        "RolloutStorage.Transition.__init__": 16,
+        "RolloutStorage.Transition.clear": 28,
+        "RolloutStorage.__init__": 31,
+        "RolloutStorage.add_transitions": 77,
+        "RolloutStorage._save_hidden_states": 105,
+        "RolloutStorage.clear": 124,
+        "RolloutStorage.compute_returns": 127,
+        "RolloutStorage.generator": 152,
+        "RolloutStorage.mini_batch_generator": 160,
+        "RolloutStorage.recurrent_mini_batch_generator": 206
+      }
+    },
+    {
+      "path": "IsaacLab/source/isaaclab/isaaclab/actuators/actuator_pd.py",
+      "sha256": "1d2a9b80812714f5aade3ed7bbb7c74a403ab718868aa73d187eb77173695beb",
+      "symbols": {
+        "ImplicitActuator": 34,
+        "ImplicitActuator.__init__": 56,
+        "ImplicitActuator.reset": 111,
+        "ImplicitActuator.compute": 115,
+        "IdealPDActuator": 148,
+        "IdealPDActuator.reset": 181,
+        "IdealPDActuator.compute": 184,
+        "DCMotor": 201,
+        "DCMotor.__init__": 260,
+        "DCMotor.compute": 280,
+        "DCMotor._clip_effort": 292,
+        "DelayedPDActuator": 307,
+        "DelayedPDActuator.__init__": 323,
+        "DelayedPDActuator.reset": 332,
+        "DelayedPDActuator.compute": 356,
+        "RemotizedPDActuator": 367,
+        "RemotizedPDActuator.__init__": 377,
+        "RemotizedPDActuator.angle_samples": 421,
+        "RemotizedPDActuator.transmission_ratio_samples": 425,
+        "RemotizedPDActuator.max_torque_samples": 429,
+        "RemotizedPDActuator.compute": 436
+      }
+    },
+    {
+      "path": "IsaacLab/source/isaaclab/isaaclab/assets/articulation/articulation.py",
+      "sha256": "be0849ddd1787b2115a61ac5bbb4425aca35836f804fef3e87a5edf9078353f5",
+      "symbols": {
+        "Articulation": 35,
+        "Articulation.__init__": 94,
+        "Articulation.data": 107,
+        "Articulation.num_instances": 111,
+        "Articulation.is_fixed_base": 115,
+        "Articulation.num_joints": 120,
+        "Articulation.num_fixed_tendons": 125,
+        "Articulation.num_spatial_tendons": 130,
+        "Articulation.num_bodies": 135,
+        "Articulation.joint_names": 140,
+        "Articulation.fixed_tendon_names": 145,
+        "Articulation.spatial_tendon_names": 150,
+        "Articulation.body_names": 155,
+        "Articulation.root_physx_view": 160,
+        "Articulation.reset": 172,
+        "Articulation.write_data_to_sim": 184,
+        "Articulation.update": 222,
+        "Articulation.find_bodies": 229,
+        "Articulation.find_joints": 244,
+        "Articulation.find_fixed_tendons": 266,
+        "Articulation.find_spatial_tendons": 290,
+        "Articulation.write_root_state_to_sim": 316,
+        "Articulation.write_root_com_state_to_sim": 329,
+        "Articulation.write_root_link_state_to_sim": 342,
+        "Articulation.write_root_pose_to_sim": 355,
+        "Articulation.write_root_link_pose_to_sim": 366,
+        "Articulation.write_root_com_pose_to_sim": 404,
+        "Articulation.write_root_velocity_to_sim": 441,
+        "Articulation.write_root_com_velocity_to_sim": 453,
+        "Articulation.write_root_link_velocity_to_sim": 483,
+        "Articulation.write_joint_state_to_sim": 517,
+        "Articulation.write_joint_position_to_sim": 536,
+        "Articulation.write_joint_velocity_to_sim": 574,
+        "Articulation.write_joint_stiffness_to_sim": 608,
+        "Articulation.write_joint_damping_to_sim": 637,
+        "Articulation.write_joint_position_limit_to_sim": 666,
+        "Articulation.write_joint_velocity_limit_to_sim": 726,
+        "Articulation.write_joint_effort_limit_to_sim": 761,
+        "Articulation.write_joint_armature_to_sim": 796,
+        "Articulation.write_joint_friction_coefficient_to_sim": 827,
+        "Articulation.write_joint_dynamic_friction_coefficient_to_sim": 903,
+        "Articulation.write_joint_viscous_friction_coefficient_to_sim": 929,
+        "Articulation.set_external_force_and_torque": 959,
+        "Articulation.set_joint_position_target": 1057,
+        "Articulation.set_joint_velocity_target": 1081,
+        "Articulation.set_joint_effort_target": 1105,
+        "Articulation.set_fixed_tendon_stiffness": 1133,
+        "Articulation.set_fixed_tendon_damping": 1159,
+        "Articulation.set_fixed_tendon_limit_stiffness": 1185,
+        "Articulation.set_fixed_tendon_position_limit": 1211,
+        "Articulation.set_fixed_tendon_rest_length": 1237,
+        "Articulation.set_fixed_tendon_offset": 1263,
+        "Articulation.write_fixed_tendon_properties_to_sim": 1289,
+        "Articulation.set_spatial_tendon_stiffness": 1318,
+        "Articulation.set_spatial_tendon_damping": 1349,
+        "Articulation.set_spatial_tendon_limit_stiffness": 1380,
+        "Articulation.set_spatial_tendon_offset": 1411,
+        "Articulation.write_spatial_tendon_properties_to_sim": 1442,
+        "Articulation._initialize_impl": 1473,
+        "Articulation._create_buffers": 1559,
+        "Articulation._process_cfg": 1633,
+        "Articulation._invalidate_initialize_callback": 1665,
+        "Articulation._process_actuators_cfg": 1675,
+        "Articulation._process_tendons": 1782,
+        "Articulation._apply_actuator_model": 1837,
+        "Articulation._validate_cfg": 1880,
+        "Articulation._log_articulation_info": 1920,
+        "Articulation.write_joint_friction_to_sim": 2082,
+        "Articulation.write_joint_limits_to_sim": 2099,
+        "Articulation.set_fixed_tendon_limit": 2119
+      }
+    },
+    {
+      "path": "IsaacLab/source/isaaclab/isaaclab/envs/direct_rl_env.py",
+      "sha256": "52f16e81cbde14abfffcb3946b612ba9f78b3d6394e54c6f5a13af67976f6bba",
+      "symbols": {
+        "DirectRLEnv": 40,
+        "DirectRLEnv.__init__": 73,
+        "DirectRLEnv.__del__": 225,
+        "DirectRLEnv.num_envs": 234,
+        "DirectRLEnv.physics_dt": 239,
+        "DirectRLEnv.step_dt": 247,
+        "DirectRLEnv.device": 255,
+        "DirectRLEnv.max_episode_length_s": 260,
+        "DirectRLEnv.max_episode_length": 265,
+        "DirectRLEnv.reset": 273,
+        "DirectRLEnv.step": 313,
+        "DirectRLEnv.seed": 400,
+        "DirectRLEnv.render": 419,
+        "DirectRLEnv.close": 483,
+        "DirectRLEnv.set_debug_vis": 515,
+        "DirectRLEnv._configure_gym_env_spaces": 550,
+        "DirectRLEnv._reset_idx": 586,
+        "DirectRLEnv._setup_scene": 613,
+        "DirectRLEnv._pre_physics_step": 626,
+        "DirectRLEnv._apply_action": 638,
+        "DirectRLEnv._get_observations": 647,
+        "DirectRLEnv._get_states": 655,
+        "DirectRLEnv._get_rewards": 668,
+        "DirectRLEnv._get_dones": 677,
+        "DirectRLEnv._set_debug_vis_impl": 686
+      }
+    },
+    {
+      "path": "IsaacLab/source/isaaclab/isaaclab/utils/configclass.py",
+      "sha256": "9f78d610a88434db170f38a722873c20371e760ff0c69b19e480682597ff3d7b",
+      "symbols": {
+        "__dataclass_transform__": 25,
+        "configclass": 31,
+        "_class_to_dict": 115,
+        "_update_class_from_dict": 127,
+        "_replace_class_with_kwargs": 144,
+        "_copy_class": 170,
+        "_add_annotation_types": 180,
+        "_validate": 244,
+        "_process_mutable_types": 301,
+        "_custom_post_init": 382,
+        "_combined_function": 402,
+        "_combined_function._combined": 413,
+        "_skippable_class_member": 426,
+        "_return_f": 477,
+        "_return_f._wrap": 490
+      }
+    },
+    {
+      "path": "IsaacLab/source/isaaclab_rl/isaaclab_rl/rsl_rl/vecenv_wrapper.py",
+      "sha256": "96fcd3a849a2b0996f16db15b38408b2fed3cc17be201f557b22df735421f1be",
+      "symbols": {
+        "RslRlVecEnvWrapper": 15,
+        "RslRlVecEnvWrapper.__init__": 27,
+        "RslRlVecEnvWrapper.__str__": 69,
+        "RslRlVecEnvWrapper.__repr__": 73,
+        "RslRlVecEnvWrapper.cfg": 82,
+        "RslRlVecEnvWrapper.render_mode": 87,
+        "RslRlVecEnvWrapper.observation_space": 92,
+        "RslRlVecEnvWrapper.action_space": 97,
+        "RslRlVecEnvWrapper.class_name": 102,
+        "RslRlVecEnvWrapper.unwrapped": 107,
+        "RslRlVecEnvWrapper.episode_length_buf": 124,
+        "RslRlVecEnvWrapper.seed": 136,
+        "RslRlVecEnvWrapper.reset": 139,
+        "RslRlVecEnvWrapper.get_observations": 144,
+        "RslRlVecEnvWrapper.step": 152,
+        "RslRlVecEnvWrapper.close": 167,
+        "RslRlVecEnvWrapper._modify_action_space": 174
+      }
+    },
+    {
+      "path": "IsaacLab/source/isaaclab_tasks/isaaclab_tasks/utils/hydra.py",
+      "sha256": "9382332eb0c3307093f71a41791e01ba77b9e11082ef594bdf81e30802db0361",
+      "symbols": {
+        "register_task_to_hydra": 26,
+        "hydra_task_config": 63,
+        "hydra_task_config.decorator": 77,
+        "hydra_task_config.decorator.wrapper": 79,
+        "hydra_task_config.decorator.wrapper.hydra_main": 85
+      }
+    },
+    {
+      "path": "IsaacLab/source/isaaclab_tasks/isaaclab_tasks/utils/parse_cfg.py",
+      "sha256": "7464c5bb41b15c3562c8e197fc18b3018a9e061bad6a87adf0dc140ad96145e5",
+      "symbols": {
+        "load_cfg_from_registry": 19,
+        "parse_env_cfg": 119,
+        "get_checkpoint_path": 159
+      }
+    },
+    {
+      "path": "isaacsim-5.1.0/kit/python/lib/python3.11/site-packages/rsl_rl/algorithms/ppo.py",
+      "sha256": "deafc8c947eba4df3e91b393869426cdab8d7b71e05974c3734125d2331d7d1c",
+      "symbols": {
+        "PPO": 19,
+        "PPO.__init__": 25,
+        "PPO.init_storage": 118,
+        "PPO.act": 129,
+        "PPO.process_env_step": 142,
+        "PPO.compute_returns": 171,
+        "PPO.update": 178,
+        "PPO.broadcast_parameters": 428,
+        "PPO.reduce_parameters": 441
+      }
+    },
+    {
+      "path": "isaacsim-5.1.0/kit/python/lib/python3.11/site-packages/rsl_rl/modules/actor_critic.py",
+      "sha256": "20c6396d32802112dc217ba51add5fe7f7953518a0c7cdb4b7da51f77dc30b6e",
+      "symbols": {
+        "ActorCritic": 15,
+        "ActorCritic.__init__": 18,
+        "ActorCritic.reset": 84,
+        "ActorCritic.forward": 87,
+        "ActorCritic.action_mean": 91,
+        "ActorCritic.action_std": 95,
+        "ActorCritic.entropy": 99,
+        "ActorCritic.update_distribution": 102,
+        "ActorCritic.act": 115,
+        "ActorCritic.act_inference": 121,
+        "ActorCritic.evaluate": 126,
+        "ActorCritic.get_actor_obs": 131,
+        "ActorCritic.get_critic_obs": 137,
+        "ActorCritic.get_actions_log_prob": 143,
+        "ActorCritic.update_normalization": 146,
+        "ActorCritic.load_state_dict": 154
+      }
+    },
+    {
+      "path": "isaacsim-5.1.0/kit/python/lib/python3.11/site-packages/rsl_rl/runners/on_policy_runner.py",
+      "sha256": "e51e4dd49664ccc8743a16b71d2971d392f40a6988136f10fe8c5f03ab6a83b5",
+      "symbols": {
+        "OnPolicyRunner": 22,
+        "OnPolicyRunner.__init__": 25,
+        "OnPolicyRunner.learn": 61,
+        "OnPolicyRunner.log": 177,
+        "OnPolicyRunner.save": 289,
+        "OnPolicyRunner.load": 307,
+        "OnPolicyRunner.get_inference_policy": 326,
+        "OnPolicyRunner.train_mode": 332,
+        "OnPolicyRunner.eval_mode": 339,
+        "OnPolicyRunner.add_git_repo_to_log": 346,
+        "OnPolicyRunner._configure_multi_gpu": 353,
+        "OnPolicyRunner._construct_algorithm": 397,
+        "OnPolicyRunner._prepare_logging_writer": 438
+      }
+    },
+    {
+      "path": "isaacsim-5.1.0/kit/python/lib/python3.11/site-packages/rsl_rl/storage/rollout_storage.py",
+      "sha256": "10510c1c0e7b250a343ba923a4747a5c337b78c286c1dd5d684128305ee0afa1",
+      "symbols": {
+        "RolloutStorage": 14,
+        "RolloutStorage.Transition": 15,
+        "RolloutStorage.Transition.__init__": 16,
+        "RolloutStorage.Transition.clear": 28,
+        "RolloutStorage.__init__": 31,
+        "RolloutStorage.add_transitions": 77,
+        "RolloutStorage._save_hidden_states": 105,
+        "RolloutStorage.clear": 124,
+        "RolloutStorage.compute_returns": 127,
+        "RolloutStorage.generator": 152,
+        "RolloutStorage.mini_batch_generator": 160,
+        "RolloutStorage.recurrent_mini_batch_generator": 206
+      }
+    },
+    {
+      "path": "mine_model/scripts/summarize_mine_trial.py",
+      "sha256": "591ac5bcee505947ac49e761cfaf97e5bf3474c99bb155611e600917fd4999f7",
+      "symbols": {
+        "tracking_components": 11,
+        "acceptance_criteria": 33,
+        "metrics_for_window": 46,
+        "assess": 62,
+        "assess_stability": 122,
+        "plot": 166,
+        "plot_optimization_history": 225
+      }
+    },
+    {
+      "path": "wheel_legged_isaaclab/scripts/evaluate_mine_policy.py",
+      "sha256": "4ed07c6fcd570d81a97766bf760a371ea3a7605cc8c8286038f675de3db53c41",
+      "symbols": {
+        "main": 62,
+        "main.EvaluationEnv": 223,
+        "main.EvaluationEnv._setup_scene": 224,
+        "main.EvaluationEnv.__init__": 269,
+        "main.EvaluationEnv._reset_idx": 281,
+        "main.EvaluationEnv._update_commands": 292,
+        "main.EvaluationEnv._pre_physics_step": 295,
+        "main.EvaluationEnv._apply_action": 302,
+        "main.EvaluationEnv._get_observations": 310,
+        "main.EvaluationEnv._get_dones": 331
+      }
+    },
+    {
+      "path": "wheel_legged_isaaclab/scripts/rsl_rl/cli_args.py",
+      "sha256": "dbcd5949e6699126fd5d0aa650104e38a4f136a01c36fe934f1cae267a95759a",
+      "symbols": {
+        "add_rsl_rl_args": 16,
+        "parse_rsl_rl_cfg": 54,
+        "update_rsl_rl_cfg": 72
+      }
+    },
+    {
+      "path": "wheel_legged_isaaclab/scripts/rsl_rl/play.py",
+      "sha256": "31ca41de11f015b3c68d449c906ce26e06521f7fc46421e5a803bbb7e9af0932",
+      "symbols": {
+        "main": 248,
+        "main.apply_velocity_cycle_command": 523,
+        "main.robot_camera_position": 594,
+        "main.set_camera_mode": 599,
+        "main.center_camera": 618,
+        "main.update_orbit_camera": 625,
+        "main.measured_yaw_degrees": 780
+      }
+    },
+    {
+      "path": "wheel_legged_isaaclab/scripts/rsl_rl/train.py",
+      "sha256": "9bb11afc0e76072d913498046eaaf3148bb52ad0d23eeb1588d7053d469bc00d",
+      "symbols": {
+        "main": 140
+      }
+    },
+    {
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/exploration.py",
+      "sha256": "0ec5e221e93e870936fac9e2d8f3343b89a98f5ff2803d6366cd1486ae672d30",
+      "symbols": {
+        "enforce_positive_exploration": 6,
+        "enforce_positive_exploration.project_noise": 31,
+        "set_wheel_exploration_std": 41
+      }
+    },
+    {
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/five_bar_vmc.py",
+      "sha256": "bca9b1af0d27d743c1dbad5f61bd2051eff6666839d0bffee5c7af745758defb",
+      "symbols": {
+        "five_bar_state": 5,
+        "five_bar_torques": 44
+      }
+    },
+    {
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/height_commands.py",
+      "sha256": "ce6a9812733cbde8b5f0119ee68fa890045f3947d82d99d9642a403f8a4f23f3",
+      "symbols": {
+        "training_height_bounds": 21
+      }
+    },
+    {
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/joint_mean_guard.py",
+      "sha256": "48a7880c7d68f9a20a31051315a934f13b7b37fbef384455aa5301f40d747c18",
+      "symbols": {
+        "validate_coefficient": 34,
+        "joint_mean_overshoot_loss": 40,
+        "resolve_coefficient": 46,
+        "configured_runner_dict": 62,
+        "register_runner_algorithm": 87,
+        "JointMeanGuardPPO": 94,
+        "JointMeanGuardPPO.__init__": 95,
+        "JointMeanGuardPPO.update": 112
+      }
+    },
+    {
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/joint_reset.py",
+      "sha256": "21eaeb7d4de81024053220f9ea58c083726c80b80e60485bd366b27915e1aaca",
+      "symbols": {
+        "_points": 12,
+        "closed_chain_reset_pose": 32,
+        "closed_chain_reset_pose.direction_change": 47,
+        "reset_profile": 63,
+        "configure_reset_pose": 71,
+        "require_matching_reset_profile": 89,
+        "nominal_reset_config": 96
+      }
+    },
+    {
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/leg_control.py",
+      "sha256": "3b119cb25005f8cd8f086e3c5d2e9547a45da628003b5995e1633571bdf8b021",
+      "symbols": {
+        "validate_joint_position_map": 10,
+        "joint_position_targets": 21,
+        "require_matching_policy_contract": 54,
+        "require_leg_control_mode": 72,
+        "leg_drive_gains": 81,
+        "resolve_training_leg_mode": 92
+      }
+    },
+    {
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/mcu_hardware.py",
+      "sha256": "ab718788b29f9258cdc4167ad82363bdf728f0e68a909177651e46bd186de3e1",
+      "symbols": {
+        "wheel_rpm_to_output_speed": 77,
+        "gravity_feedforward": 82,
+        "synchronize_actuator_limits": 114
+      }
+    },
+    {
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/mine_collision_filters.py",
+      "sha256": "2bc9a5c12e503def200247337f5ff6407e1dd4f168e4281c344062f5c04bd856",
+      "symbols": {
+        "relocate_collision_groups": 4
+      }
+    },
+    {
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/physics_contract.py",
+      "sha256": "efbef286a0a418cadbe4de23d68f7aa044ee157c7c91611a8164e397bbca7a1d",
+      "symbols": {
+        "checkpoint_robot_asset_setting": 9,
+        "require_matching_robot_asset_setting": 18,
+        "checkpoint_force_iteration_setting": 29,
+        "require_matching_force_iteration_setting": 38,
+        "apply_force_iteration_setting": 46
+      }
+    },
+    {
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/reward_signals.py",
+      "sha256": "fae85b8300ede5bab62dcaeb6825eddbd6e3b222001c80e62706c86041c26397",
+      "symbols": {
+        "task_tracking_quality": 7,
+        "guard_tracking_bonuses": 29,
+        "validate_task_quality_gate": 37,
+        "joint_target_length_error_squared": 43,
+        "validate_joint_target_length_reward": 58,
+        "height_tracking_kernel": 65,
+        "wheel_action_overshoot_penalty": 85,
+        "horizontal_velocity_error_squared": 94,
+        "merge_step_diagnostics": 107,
+        "action_second_difference_penalty": 116
+      }
+    },
+    {
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/robot_model.py",
+      "sha256": "eb14ee684a11d06598e2c9c1ef5b3b2c3e35643e62df33d7967df2748a715cde",
+      "symbols": {
+        "mapped_five_bar_geometry": 33,
+        "validate_robot_contract": 56,
+        "validate_checkpoint_robot": 82,
+        "validate_checkpoint_robot.Loader": 85
+      }
+    },
+    {
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/__init__.py",
+      "sha256": "4c5ab49a19320667c1072c6850a9715652ee58b08e574e919e3d1dedf9a4b8a1",
+      "symbols": {}
+    },
+    {
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/agents/rsl_rl_ppo_cfg.py",
+      "sha256": "8246d358e6a56203cdae1fdfb2cffa44066d1d2c149d114c70feda918011d372",
+      "symbols": {
+        "WheelLeggedVMCFlatPPORunnerCfg": 22
+      }
+    },
+    {
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/env_commands.py",
+      "sha256": "f0a97242e1851351e47d9a7b3bedc7648cd0d73b82452891adaa347907e6e314",
+      "symbols": {
+        "resample_commands": 14
+      }
+    },
+    {
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py",
+      "sha256": "c1dd69e35d26d518f2d282c74c4fe081e789f3e8514c4865ea8604d2c3997a7e",
+      "symbols": {
+        "WheelLeggedVMCFlatEnv": 69,
+        "WheelLeggedVMCFlatEnv.__init__": 78,
+        "WheelLeggedVMCFlatEnv._setup_scene": 234,
+        "WheelLeggedVMCFlatEnv._pre_physics_step": 308,
+        "WheelLeggedVMCFlatEnv._apply_action": 322,
+        "WheelLeggedVMCFlatEnv._apply_direct_joint_position_action": 411,
+        "WheelLeggedVMCFlatEnv._wheel_effort_from_reference": 445,
+        "WheelLeggedVMCFlatEnv._modify_leg_references": 454,
+        "WheelLeggedVMCFlatEnv._get_leg_force_bias": 457,
+        "WheelLeggedVMCFlatEnv._get_gravity_feedforward": 460,
+        "WheelLeggedVMCFlatEnv._update_forward_kinematics": 468,
+        "WheelLeggedVMCFlatEnv._vmc": 489,
+        "WheelLeggedVMCFlatEnv._get_observations": 495,
+        "WheelLeggedVMCFlatEnv._get_leg_observation": 564,
+        "WheelLeggedVMCFlatEnv._get_wheel_vel_forward_positive": 581,
+        "WheelLeggedVMCFlatEnv._get_heading_frame_horizontal_velocity": 593,
+        "WheelLeggedVMCFlatEnv._sanitize_observation": 621,
+        "WheelLeggedVMCFlatEnv._update_commands": 629,
+        "WheelLeggedVMCFlatEnv._resample_commands_for": 647,
+        "WheelLeggedVMCFlatEnv._get_rewards": 654,
+        "WheelLeggedVMCFlatEnv._get_dones": 907,
+        "WheelLeggedVMCFlatEnv._advance_failure_counter": 964,
+        "WheelLeggedVMCFlatEnv._validate_configuration": 973,
+        "WheelLeggedVMCFlatEnv._reset_idx": 1140
+      }
+    },
+    {
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env_cfg.py",
+      "sha256": "33366b6d9dd664605efb7df7ea8bb95e4dcd2a3858225d6818e4ab9b2cc2053a",
+      "symbols": {
+        "ObsScalesCfg": 32,
+        "ObsClipCfg": 45,
+        "CommandsCfg": 64,
+        "RewardsCfg": 108,
+        "WheelLeggedVMCFlatEnvCfg": 184,
+        "WheelLeggedVMCFlatEnvCfg.__post_init__": 363
+      }
+    },
+    {
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/training_state.py",
+      "sha256": "ae518ab63c05b96fa7820858ebf7032116ccc05132533a668c37f0f28deea69a",
+      "symbols": {
+        "make_curriculum_clock": 6,
+        "load_curriculum_clock": 16,
+        "clocked_update_count": 25,
+        "save_random_initial_checkpoint": 42,
+        "aggregate_episode_logs": 50,
+        "install_episode_log_aggregation": 81,
+        "install_episode_log_aggregation.log_events": 85,
+        "CheckpointStopRequested": 93,
+        "install_checkpoint_stop": 97,
+        "install_checkpoint_stop.log_and_check": 108,
+        "restore_adaptive_learning_rate": 119
+      }
+    },
+    {
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/wheel_control.py",
+      "sha256": "6e2240d06868efb51f69980d658879e0eef829df46c38df223ade33624117a77",
+      "symbols": {
+        "validated_wheel_action_limit": 5,
+        "apply_wheel_action_limit": 14,
+        "checkpoint_wheel_action_limit": 31
+      }
+    },
+    {
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tracking_goal_feedback.py",
+      "sha256": "53e6d06634222facfc2aec6632cd1b3d367596949338f68fbbc3c229f8b7e364",
+      "symbols": {
+        "load_tracking_goal_criteria": 14,
+        "_tracking_goal_error_ratios": 32,
+        "tracking_goal_violation_penalty": 63,
+        "tracking_goal_component_violation_penalty": 75,
+        "validate_tracking_goal_reward_config": 92
+      }
+    },
+    {
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/yaw_training.py",
+      "sha256": "7af025eac68dd8d6d5b298a7acca464dba4d4df909efb464631ea002d162b39e",
+      "symbols": {
+        "curriculum_replay_cases": 9,
+        "grouped_task_ids": 31,
+        "sample_grouped_motion": 48,
+        "sample_yaw_rates": 88,
+        "spin_center_velocity_penalty": 107
+      }
+    },
+    {
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/motion_curriculum.py",
+      "sha256": "7c65e24b3a561745dd2d21515f6cafde563330bebde86f4b1d4416621f3dab65",
+      "symbols": {
+        "training_motion_scale": 5,
+        "scale_training_motion": 14
+      }
+    },
+    {
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/joint_height_feedback.py",
+      "sha256": "ebbd7dac7335912e1c1772aa2a5314361b96d46de7d99f55b7fcc8543d5ec524",
+      "symbols": {
+        "validate_coefficient": 16,
+        "resolve_coefficient": 23,
+        "model_from_config": 38,
+        "validate_counterfactual_gradient_scale": 54,
+        "predict_support_heights": 61,
+        "height_proxy_loss": 76,
+        "height_proxy_loss.huber": 86,
+        "height_training_loss": 91
+      }
+    },
+    {
+      "path": "IsaacLab/source/isaaclab/isaaclab/app/app_launcher.py",
+      "sha256": "9a0dfe41e34e43828fe29f4c578e71e9e036ec292c80973f8e88193906867ddd",
+      "symbols": {
+        "ExplicitAction": 29,
+        "ExplicitAction.__call__": 32,
+        "AppLauncher": 39,
+        "AppLauncher.__init__": 59,
+        "AppLauncher.app": 166,
+        "AppLauncher.add_app_launcher_args": 178,
+        "AppLauncher._check_argparser_config_params": 426,
+        "AppLauncher._config_resolution": 469,
+        "AppLauncher._resolve_livestream_settings": 501,
+        "AppLauncher._resolve_headless_settings": 556,
+        "AppLauncher._resolve_camera_settings": 593,
+        "AppLauncher._resolve_xr_settings": 612,
+        "AppLauncher._resolve_viewport_settings": 625,
+        "AppLauncher._resolve_device_settings": 642,
+        "AppLauncher._resolve_experience_file": 694,
+        "AppLauncher._resolve_anim_recording_settings": 753,
+        "AppLauncher._resolve_kit_args": 767,
+        "AppLauncher._create_app": 775,
+        "AppLauncher._rendering_enabled": 828,
+        "AppLauncher._load_extensions": 834,
+        "AppLauncher._hide_stop_button": 864,
+        "AppLauncher._set_rendering_mode_settings": 883,
+        "AppLauncher._set_animation_recording_settings": 900,
+        "AppLauncher._interrupt_signal_handle_callback": 927,
+        "AppLauncher.is_isaac_sim_version_4_5": 934,
+        "AppLauncher._hide_play_button": 958,
+        "AppLauncher._abort_signal_handle_callback": 975,
+        "AppLauncher.__patch_simulation_start_app": 980,
+        "AppLauncher.__patch_simulation_start_app._start_app_patch": 989,
+        "AppLauncher.__patch_pxr_gf_matrix4d": 995,
+        "AppLauncher.__patch_pxr_gf_matrix4d.patch_matrix4d": 1010
+      }
+    },
+    {
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/config_overrides.py",
+      "sha256": "33af7b699c39fa5eda8d1a9464a0ae5a47385cfb9d1549226b2961821b6d9c6a",
+      "symbols": {
+        "strip_retired_config_fields": 19,
+        "apply_config_overrides": 41
+      }
+    }
+  ],
+  "example_completed_training": {
+    "experiment_plan": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/joint_pd_optimization_20261023_133407_839804_1a5a4a1221_AF7001_leg005_fallback4096_200/experiment_plan.json",
+    "experiment_plan_sha256": "86573611b7b94ec259d572ec2c08590b59ea9cabd857f46243612dc5e3d3abc2",
+    "checkpoint_sha256": "6b5745df5dd3e84b93e11f093add92ad2f2c2e16a1319f4dae06c68ee9891f32",
+    "actual_ppo_updates": 7201,
+    "all17_Adam_step": 144020,
+    "native_num_envs": 4096,
+    "fixed_standing_environments": 1024,
+    "only_change": {
+      "rewards": {},
+      "commands": {},
+      "exploration": {
+        "minimum_leg_std": [
+          0.01,
+          0.005
+        ],
+        "global_minimum_std": [
+          0.01,
+          0.005
+        ]
+      },
+      "controller": {},
+      "physics": {}
+    },
+    "rewards": {
+      "base_height_target": 0.3,
+      "leg_length_target_height_offset": -0.03534645530999998,
+      "leg_length_target_cap": 0.32,
+      "profile": "joint_pd_balance_v1",
+      "tracking_lin_vel": 3.0,
+      "tracking_lin_vel_enhance": 0.0,
+      "tracking_lin_vel_precise": 0.0,
+      "lin_vel_error_sq": -2.0,
+      "lin_vel_error_lateral_multiplier": 1.0,
+      "standing_velocity": -50.0,
+      "base_height_error_sq": 0.0,
+      "joint_target_leg_length_error_sq": 0.0,
+      "tracking_ang_vel": 2.0,
+      "yaw_rate_error_sq": -200.0,
+      "spin_center_velocity": 0.0,
+      "base_height": 3.0,
+      "nominal_state": 0.0,
+      "standing_leg_angle": 0.0,
+      "standing_wheel_tracking": -0.1,
+      "lin_vel_z": 0.0,
+      "ang_vel_xy": 0.0,
+      "orientation": -60.0,
+      "dof_vel": 0.0,
+      "dof_acc": 0.0,
+      "torques": 0.0,
+      "action_rate": -0.02,
+      "action_smooth": -0.1,
+      "leg_length_action_saturation": 0.0,
+      "leg_length_action_difference": 0.0,
+      "leg_length_target_underreach": 0.0,
+      "joint_position_action_saturation": -0.5,
+      "wheel_action_saturation": 0.0,
+      "tracking_goal_violation": 0.0,
+      "tracking_goal_penalty_clip": 40.0,
+      "tracking_goal_component_violation": 0.0,
+      "tracking_goal_component_penalty_clip": 200.0,
+      "tracking_task_quality_gate_floor": 0.5,
+      "collision": -1.0,
+      "dof_pos_limits": -1.0,
+      "termination": -20.0,
+      "clip_single_reward": 5.0,
+      "nominal_state_penalty_clip": 3.0,
+      "orientation_penalty_clip": 30.0,
+      "base_height_penalty_clip": 30.0,
+      "standing_leg_angle_penalty_clip": 3.0,
+      "lin_vel_penalty_clip": 8.0,
+      "yaw_rate_penalty_clip": 4.0,
+      "standing_wheel_penalty_clip": 1.0,
+      "action_rate_penalty_clip": 1.0,
+      "action_smooth_penalty_clip": 3.0,
+      "wheel_action_saturation_penalty_clip": 40.0,
+      "action_smooth_wheel_multiplier": 5.0,
+      "tracking_sigma": 0.01,
+      "tracking_sigma_ang": 0.01,
+      "tracking_sigma_enhance": 0.025,
+      "tracking_sigma_precise": 0.01,
+      "orientation_roll_multiplier": 2.0,
+      "base_height_sigma": 0.0025,
+      "base_height_relative_deadband": 0.0,
+      "leg_length_action_soft_limit": 0.85,
+      "joint_position_action_soft_limit": 0.85
+    },
+    "obs_clip": {
+      "lin_vel": 5.0,
+      "ang_vel": 20.0,
+      "projected_gravity": 1.0,
+      "theta": 3.1415926536,
+      "theta_dot": 50.0,
+      "leg_length": 0.5,
+      "leg_length_dot": 5.0,
+      "wheel_vel": 100.0,
+      "action": 1.0
+    },
+    "commands": {
+      "ranges_height": [
+        0.22534645530999997,
+        0.37534645531
+      ],
+      "training_motion_scale": 1.0,
+      "height_expansion_from": null,
+      "resampling_time": 5.0,
+      "linear_acceleration_limit": 0.8,
+      "heading_command": false,
+      "heading_kp": 1.5,
+      "heading_rate_limit": 0.5,
+      "ranges_lin_vel_x": [
+        0.2,
+        0.8
+      ],
+      "ranges_reverse_lin_vel_x": [
+        -0.8,
+        -0.2
+      ],
+      "speed_boundary_fraction": 0.3,
+      "height_boundary_fraction": 0.4,
+      "ranges_transition_lin_vel_x": [
+        -0.2,
+        0.2
+      ],
+      "ranges_ang_vel_yaw": [
+        -0.3,
+        0.3
+      ],
+      "yaw_min_abs_rate": 0.0,
+      "yaw_boundary_fraction": 0.2,
+      "yaw_start_steps": 0,
+      "yaw_ramp_steps": 48000,
+      "grouped_training": true,
+      "fixed_standing_groups": true,
+      "grouped_low_speed_fraction": 0.3333333333333333,
+      "full_height_range_from_start": true,
+      "height_expansion_start_steps": 0,
+      "height_expansion_ramp_steps": 48000,
+      "standing_only_steps": 0,
+      "motion_ramp_steps": 48000,
+      "standing_env_fraction": 0.25,
+      "reverse_ramp_start_steps": 0,
+      "reverse_ramp_steps": 48000,
+      "targeted_turn_command_fraction": 0.3
+    },
+    "not_a_best_model_or_acceptance_claim": true,
+    "historical_example_only_not_current_training_or_acceptance": true
+  },
+  "documentation_generation_started_simulator": false,
+  "documentation_generation_changed_training_code": false,
+  "data_sources": [
+    {
+      "path": "wheel_legged_isaaclab/assets/robots/mine/manifest.json",
+      "sha256": "5b3be550a5da444df8e5f24e2b61c28d97e3fa766519a97f1af57ce9d299773f"
+    },
+    {
+      "path": "wheel_legged_isaaclab/assets/robots/mine/export_20261003_181515/model.json",
+      "sha256": "5d58be9e4ddf69ea73b8793ec7807428477136870384447208c8601b06823103"
+    },
+    {
+      "path": "mine_model/config/tracking_acceptance.json",
+      "sha256": "08fbf1aa50cc450bd7170ec310dba9acba3f8bd7ceded330ccffe9e6015cb91d"
+    }
+  ],
+  "verified_document_numbers": {
+    "verified": true,
+    "simulation_started": false,
+    "training_process_touched": false,
+    "device": "cpu",
+    "numerical_examples_only": true,
+    "finite_difference_states": 66,
+    "jacobian_max_absolute_errors": [
+      1.6520862455848828e-10,
+      2.0991330895725469e-10
+    ],
+    "virtual_work_max_power_difference": 1.1102230246251565e-16,
+    "joint_target_example_rad": 0.27999999999999997,
+    "applied_normalized_example": 0.5999999999999999,
+    "GAE_two_step_returns": [
+      0.6902380585670471,
+      0.5960000157356262
+    ],
+    "terminal_GAE_first_advantage": -0.4000000059604645,
+    "timeout_example_stored_reward": 0.694,
+    "full_parameter_tensors": 17,
+    "full_parameter_scalars": 97101,
+    "Gaussian_entropy_four_leg035_two_wheel030": -11.90911346538282,
+    "observation_dimension_sum": 27,
+    "rollout_samples": {
+      "4096": 196608,
+      "8192": 393216
+    },
+    "Adam_steps_per_update": 20,
+    "Adam_steps_per_200_block": 4000,
+    "safe_height_range_m": [
+      0.22534645530999997,
+      0.37534645531
+    ],
+    "gravity_force_per_leg_N": 60.5277,
+    "sustained_windows_example": 101
+  },
+  "document_verification": {
+    "verified": true,
+    "observed_at": "2026-10-25T20:08:50.690897+08:00",
+    "errors": [],
+    "source_files_indexed": 44,
+    "source_excerpts_exactly_reproduced": 144,
+    "local_links_and_heading_anchors_verified": 547,
+    "baseline_source_fingerprints_unchanged": true,
+    "baseline_source_count": 44,
+    "previous_source_mismatch_paths": [],
+    "training_source_changed_for_documentation": false,
+    "simulator_started_for_documentation": false,
+    "existing_training_not_interrupted_for_documentation": true,
+    "documents": [
+      {
+        "path": "wheel_legged_isaaclab/learning/强化学习框架学习/04_续训验证与下位机数据.md",
+        "sha256": "eeecd3bbee3d9cb5399c8033c330c25f10c738b150a16290c8f7090339978211",
+        "lines": 799,
+        "characters": 26053,
+        "code_blocks": 13,
+        "local_links": 32,
+        "literal_source_excerpts": 3
+      },
+      {
+        "path": "wheel_legged_isaaclab/learning/强化学习框架学习/README.md",
+        "sha256": "7ae9f7186cb339a68eaf7adac4c6fb2fcca5f087920c388b17d3536e4d4b0650",
+        "lines": 83,
+        "characters": 3313,
+        "code_blocks": 1,
+        "local_links": 7,
+        "literal_source_excerpts": 0
+      },
+      {
+        "path": "wheel_legged_isaaclab/learning/强化学习框架学习/源码定位索引.md",
+        "sha256": "a6fcc1d133ee2fff4810806c274187f9f33e49608029231d2e9d2102f4f4f482",
+        "lines": 273,
+        "characters": 29836,
+        "code_blocks": 0,
+        "local_links": 236,
+        "literal_source_excerpts": 0
+      },
+      {
+        "path": "wheel_legged_isaaclab/learning/强化学习框架学习/01_环境构建与配置.md",
+        "sha256": "8c4bcac4314203f12916d8aa3c46b7b6421013e85587b7c26222188f1a0f114f",
+        "lines": 1438,
+        "characters": 52584,
+        "code_blocks": 43,
+        "local_links": 55,
+        "literal_source_excerpts": 3
+      },
+      {
+        "path": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+        "sha256": "0ded6b3065f5fc6cbb65ea92463c321d06cff871e4b5beb002214cddaf2d3e1e",
+        "lines": 3861,
+        "characters": 173864,
+        "code_blocks": 126,
+        "local_links": 151,
+        "literal_source_excerpts": 95
+      },
+      {
+        "path": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+        "sha256": "64e5b62409a1383bc306bc100b45b82ddfd3ebbc042441f6350da938ed675681",
+        "lines": 1415,
+        "characters": 58287,
+        "code_blocks": 45,
+        "local_links": 66,
+        "literal_source_excerpts": 43
+      }
+    ],
+    "UTF8_strict_verified": true,
+    "replacement_or_control_characters": 0,
+    "renderer_placeholder_or_broken_UI_fragments": 0,
+    "library_implementation_source_blocks": 0
+  },
+  "source_excerpts": [
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/04_续训验证与下位机数据.md",
+      "path": "wheel_legged_isaaclab/scripts/rsl_rl/train.py",
+      "start": 282,
+      "end": 290,
+      "sha256": "9bb11afc0e76072d913498046eaaf3148bb52ad0d23eeb1588d7053d469bc00d",
+      "excerpt_sha256": "a6f59de655a2dc822f03184a8f1d2aa111a7745f2b1887d9c62c0e5e592ef08a"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/04_续训验证与下位机数据.md",
+      "path": "wheel_legged_isaaclab/scripts/rsl_rl/train.py",
+      "start": 291,
+      "end": 292,
+      "sha256": "9bb11afc0e76072d913498046eaaf3148bb52ad0d23eeb1588d7053d469bc00d",
+      "excerpt_sha256": "d948dfecf462a42dfb7718eecf45cc1d6c5c37dc674ec82ef4497b795bacecff"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/04_续训验证与下位机数据.md",
+      "path": "mine_model/scripts/summarize_mine_trial.py",
+      "start": 46,
+      "end": 59,
+      "sha256": "591ac5bcee505947ac49e761cfaf97e5bf3474c99bb155611e600917fd4999f7",
+      "excerpt_sha256": "aee1122a6a592223aef12c4d92158faaa3f8e0752622e99ebcfe140e6a495585"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/01_环境构建与配置.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/robot_model.py",
+      "start": 82,
+      "end": 97,
+      "sha256": "eb14ee684a11d06598e2c9c1ef5b3b2c3e35643e62df33d7967df2748a715cde",
+      "excerpt_sha256": "963044d092c341a8aa5b5d3a15965df1ef850c93250b9d571ead8e6da2b80d39"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/01_环境构建与配置.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/config_overrides.py",
+      "start": 19,
+      "end": 38,
+      "sha256": "33af7b699c39fa5eda8d1a9464a0ae5a47385cfb9d1549226b2961821b6d9c6a",
+      "excerpt_sha256": "36f268f4efdfebfec1c163bcbfbd272cbbec9a4294125c12142335c7b0d9f082"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/01_环境构建与配置.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/robot_model.py",
+      "start": 56,
+      "end": 79,
+      "sha256": "eb14ee684a11d06598e2c9c1ef5b3b2c3e35643e62df33d7967df2748a715cde",
+      "excerpt_sha256": "1d8a0eb6e66cb84221f195e3f43d354920ef11e723bd7fc67f69a07727e19413"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py",
+      "start": 78,
+      "end": 81,
+      "sha256": "c1dd69e35d26d518f2d282c74c4fe081e789f3e8514c4865ea8604d2c3997a7e",
+      "excerpt_sha256": "d75866e5eb5c295d8520936033b70ca5df2613e32af531a71ee8f6cce1c12fff"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/wheel_control.py",
+      "start": 5,
+      "end": 11,
+      "sha256": "6e2240d06868efb51f69980d658879e0eef829df46c38df223ade33624117a77",
+      "excerpt_sha256": "857a1629cb35c08a42d8c5314136f6943efe738e67636acd587f3475820b530d"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py",
+      "start": 82,
+      "end": 82,
+      "sha256": "c1dd69e35d26d518f2d282c74c4fe081e789f3e8514c4865ea8604d2c3997a7e",
+      "excerpt_sha256": "6b5c16f3f867e2497ec61b941674ff6a1a596b5e13ef5dd286f60403f836dc30"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py",
+      "start": 83,
+      "end": 83,
+      "sha256": "c1dd69e35d26d518f2d282c74c4fe081e789f3e8514c4865ea8604d2c3997a7e",
+      "excerpt_sha256": "d33db122eff43a24c11b3fb482a8ec472f8f6db2f0fd68ec7a6d3a4975ca396c"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/joint_reset.py",
+      "start": 71,
+      "end": 86,
+      "sha256": "21eaeb7d4de81024053220f9ea58c083726c80b80e60485bd366b27915e1aaca",
+      "excerpt_sha256": "ce9a02df68511890b356f4c146964777a3de31294d7d0d44ae9dbf77036a7af5"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/joint_reset.py",
+      "start": 63,
+      "end": 68,
+      "sha256": "21eaeb7d4de81024053220f9ea58c083726c80b80e60485bd366b27915e1aaca",
+      "excerpt_sha256": "53e53d1f37133f2ea369dd8d3b36cff06df777320a69d068122b90e69fb6378a"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/joint_reset.py",
+      "start": 32,
+      "end": 60,
+      "sha256": "21eaeb7d4de81024053220f9ea58c083726c80b80e60485bd366b27915e1aaca",
+      "excerpt_sha256": "2135e662136dc348ee7ef0369ace5cb784ba6e8fd428cb2232e0500fa1a06548"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/joint_reset.py",
+      "start": 12,
+      "end": 29,
+      "sha256": "21eaeb7d4de81024053220f9ea58c083726c80b80e60485bd366b27915e1aaca",
+      "excerpt_sha256": "0cd0630b60e2b9285ad3f6771b82ecbe30c1d23dd96e7af76397cc25f6c5c5cb"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py",
+      "start": 87,
+      "end": 89,
+      "sha256": "c1dd69e35d26d518f2d282c74c4fe081e789f3e8514c4865ea8604d2c3997a7e",
+      "excerpt_sha256": "540cb8cbe87762ced31d873cb5bb936e787ae8ebdd3f460fad1e218d302277ff"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py",
+      "start": 973,
+      "end": 1003,
+      "sha256": "c1dd69e35d26d518f2d282c74c4fe081e789f3e8514c4865ea8604d2c3997a7e",
+      "excerpt_sha256": "87bd9efc04602c275b6827151a5c4126d749699405cf76f8e9cf8777071c79a9"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/leg_control.py",
+      "start": 10,
+      "end": 18,
+      "sha256": "3b119cb25005f8cd8f086e3c5d2e9547a45da628003b5995e1633571bdf8b021",
+      "excerpt_sha256": "813b6c34ed8642a0f59f5d701a4d6aacb28d21ddb0f176b13d420c7422567795"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/reward_signals.py",
+      "start": 58,
+      "end": 62,
+      "sha256": "fae85b8300ede5bab62dcaeb6825eddbd6e3b222001c80e62706c86041c26397",
+      "excerpt_sha256": "1774b4ecbd80b3d27646c37c7e743705c17ff94042ab557a956a5c5615f57ad8"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/reward_signals.py",
+      "start": 37,
+      "end": 40,
+      "sha256": "fae85b8300ede5bab62dcaeb6825eddbd6e3b222001c80e62706c86041c26397",
+      "excerpt_sha256": "8f4f4eda1b305f116b472bad38eb8829f6e14a6facc2a65ba1688c05853b91aa"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tracking_goal_feedback.py",
+      "start": 92,
+      "end": 110,
+      "sha256": "53e6d06634222facfc2aec6632cd1b3d367596949338f68fbbc3c229f8b7e364",
+      "excerpt_sha256": "3f421b6befa124cc1fec01486eaa5332af8695a14671013a0b12591efe9e78bb"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py",
+      "start": 1004,
+      "end": 1047,
+      "sha256": "c1dd69e35d26d518f2d282c74c4fe081e789f3e8514c4865ea8604d2c3997a7e",
+      "excerpt_sha256": "35ead407c058b1b0bc66ba9c9357f8997c63567b0a36e148ee33b2cc74b34db3"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py",
+      "start": 1048,
+      "end": 1102,
+      "sha256": "c1dd69e35d26d518f2d282c74c4fe081e789f3e8514c4865ea8604d2c3997a7e",
+      "excerpt_sha256": "54b8b3cc6aaf06ec7a5d0e6eda69a1644a47b2d7ce1791d552ee1e71b40504a9"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py",
+      "start": 1103,
+      "end": 1137,
+      "sha256": "c1dd69e35d26d518f2d282c74c4fe081e789f3e8514c4865ea8604d2c3997a7e",
+      "excerpt_sha256": "f7b07cb8b4a034687d19ab7e6c1adaded1ec522c40cf831e190cf0e688028672"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py",
+      "start": 141,
+      "end": 165,
+      "sha256": "c1dd69e35d26d518f2d282c74c4fe081e789f3e8514c4865ea8604d2c3997a7e",
+      "excerpt_sha256": "a5055148f54f9c1c5085f19a486629c7b5ea2fe9ecf0b246fbbb7242f31cb9a7"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py",
+      "start": 166,
+      "end": 177,
+      "sha256": "c1dd69e35d26d518f2d282c74c4fe081e789f3e8514c4865ea8604d2c3997a7e",
+      "excerpt_sha256": "883960ca684a24a6058fa7a88aef2c2fdae36f002a353b5455252a55303283a2"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/yaw_training.py",
+      "start": 31,
+      "end": 45,
+      "sha256": "7af025eac68dd8d6d5b298a7acca464dba4d4df909efb464631ea002d162b39e",
+      "excerpt_sha256": "f1702d9a3563c0389de97ad1f85b08239fbab0c5d19a826c8a1a79ef7360b974"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py",
+      "start": 188,
+      "end": 202,
+      "sha256": "c1dd69e35d26d518f2d282c74c4fe081e789f3e8514c4865ea8604d2c3997a7e",
+      "excerpt_sha256": "d78a4e983751346ca7a7a55210905559b0a8005f4083a14f3161cfc68f3555ff"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/leg_control.py",
+      "start": 21,
+      "end": 51,
+      "sha256": "3b119cb25005f8cd8f086e3c5d2e9547a45da628003b5995e1633571bdf8b021",
+      "excerpt_sha256": "2dbe16dd0d79f1bdba19fc1934a2384c8db6120ce021a01f17a44dda84708e69"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py",
+      "start": 214,
+      "end": 230,
+      "sha256": "c1dd69e35d26d518f2d282c74c4fe081e789f3e8514c4865ea8604d2c3997a7e",
+      "excerpt_sha256": "1a66e2fd08720afc8626cff63449bafa2e254cbb9de136015d009062bb14fcdb"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tracking_goal_feedback.py",
+      "start": 14,
+      "end": 29,
+      "sha256": "53e6d06634222facfc2aec6632cd1b3d367596949338f68fbbc3c229f8b7e364",
+      "excerpt_sha256": "4871c6bdefa5ab4ff0968d2924d70eb27bce01a3e4d2911bf44421ec19b3b470"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py",
+      "start": 234,
+      "end": 241,
+      "sha256": "c1dd69e35d26d518f2d282c74c4fe081e789f3e8514c4865ea8604d2c3997a7e",
+      "excerpt_sha256": "d6004f2149e177fce24ca4a2fa359c6804b5f8d6d795a2f56f896a570a2472d4"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py",
+      "start": 242,
+      "end": 243,
+      "sha256": "c1dd69e35d26d518f2d282c74c4fe081e789f3e8514c4865ea8604d2c3997a7e",
+      "excerpt_sha256": "417ee2b5298f0a280ddf8f01a58f4469982d448a78163c9eaf3138c80893317a"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/mcu_hardware.py",
+      "start": 114,
+      "end": 122,
+      "sha256": "ab718788b29f9258cdc4167ad82363bdf728f0e68a909177651e46bd186de3e1",
+      "excerpt_sha256": "89c1cf7746e089ccb0bb3a943bc81300c3a06d7546e5c5d419233c110e1e9a47"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py",
+      "start": 244,
+      "end": 246,
+      "sha256": "c1dd69e35d26d518f2d282c74c4fe081e789f3e8514c4865ea8604d2c3997a7e",
+      "excerpt_sha256": "4d0677e0fe8b2e9595fc63216d68400059c9f8d5e16468664cf636877c0be7d4"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/leg_control.py",
+      "start": 81,
+      "end": 89,
+      "sha256": "3b119cb25005f8cd8f086e3c5d2e9547a45da628003b5995e1633571bdf8b021",
+      "excerpt_sha256": "0a2ae8bffab34da3e077e192fc9f8028818bffd1486c3da1cbf77d7debbe7ce4"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/leg_control.py",
+      "start": 72,
+      "end": 78,
+      "sha256": "3b119cb25005f8cd8f086e3c5d2e9547a45da628003b5995e1633571bdf8b021",
+      "excerpt_sha256": "111503fbb045e9e1d88d6f383b0e82d2e55ac17e8b05837c0179ca30e8d147f1"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py",
+      "start": 247,
+      "end": 250,
+      "sha256": "c1dd69e35d26d518f2d282c74c4fe081e789f3e8514c4865ea8604d2c3997a7e",
+      "excerpt_sha256": "ae74d5138f72a7698d3613273b6c8797547fee84e47b3e93123dc7ed527d30d9"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py",
+      "start": 251,
+      "end": 261,
+      "sha256": "c1dd69e35d26d518f2d282c74c4fe081e789f3e8514c4865ea8604d2c3997a7e",
+      "excerpt_sha256": "91a24117097956d1e419a8db3df5d4bee22dd7e15e41b217439d85be03fcae69"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py",
+      "start": 262,
+      "end": 271,
+      "sha256": "c1dd69e35d26d518f2d282c74c4fe081e789f3e8514c4865ea8604d2c3997a7e",
+      "excerpt_sha256": "b221a546d32fd7f95d57ea435cf3550f9f6df813d65d4c2c13be137a89be6d5c"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py",
+      "start": 272,
+      "end": 286,
+      "sha256": "c1dd69e35d26d518f2d282c74c4fe081e789f3e8514c4865ea8604d2c3997a7e",
+      "excerpt_sha256": "0cec60a05271c386e5bf45083623618b9f6fb5d852ea781ad85a848338799168"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py",
+      "start": 287,
+      "end": 293,
+      "sha256": "c1dd69e35d26d518f2d282c74c4fe081e789f3e8514c4865ea8604d2c3997a7e",
+      "excerpt_sha256": "b014d8c60ae8081fb537142ac3f91b6c6cad44c842dfa74c9ee5f0ef17ceeee6"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py",
+      "start": 291,
+      "end": 293,
+      "sha256": "c1dd69e35d26d518f2d282c74c4fe081e789f3e8514c4865ea8604d2c3997a7e",
+      "excerpt_sha256": "e56e1ce12230a2651c16515f5b41fea6131d592186bf02b437c12f1fce5b90e2"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/mine_collision_filters.py",
+      "start": 4,
+      "end": 40,
+      "sha256": "2bc9a5c12e503def200247337f5ff6407e1dd4f168e4281c344062f5c04bd856",
+      "excerpt_sha256": "04ee46ec667542908fc8fdede297c838bad821fdee6f080e8b320d8d9349d5be"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py",
+      "start": 294,
+      "end": 299,
+      "sha256": "c1dd69e35d26d518f2d282c74c4fe081e789f3e8514c4865ea8604d2c3997a7e",
+      "excerpt_sha256": "e29e5624ce6e29a3ffe5db4cd4b6a551687f46b563646e6bb606191c34edfe64"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py",
+      "start": 298,
+      "end": 302,
+      "sha256": "c1dd69e35d26d518f2d282c74c4fe081e789f3e8514c4865ea8604d2c3997a7e",
+      "excerpt_sha256": "74bbf05b03a499356644c4d4eee85b3fd29facfe1adfee20c4510aac8c7e2cad"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py",
+      "start": 303,
+      "end": 305,
+      "sha256": "c1dd69e35d26d518f2d282c74c4fe081e789f3e8514c4865ea8604d2c3997a7e",
+      "excerpt_sha256": "9a309b6ac5d30147379ab410413e0b03c6aeabb30dcbefa775a934853dde6b77"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py",
+      "start": 308,
+      "end": 320,
+      "sha256": "c1dd69e35d26d518f2d282c74c4fe081e789f3e8514c4865ea8604d2c3997a7e",
+      "excerpt_sha256": "e5f69af2ee9b298b4f2e6d392308bab752cd7456cb40fa06204294d714a31785"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/wheel_control.py",
+      "start": 14,
+      "end": 28,
+      "sha256": "6e2240d06868efb51f69980d658879e0eef829df46c38df223ade33624117a77",
+      "excerpt_sha256": "5c49b273f1ae6f3fb65fee66bbe9534c6966cb8ebe6e847175ad9875d0606c29"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py",
+      "start": 322,
+      "end": 328,
+      "sha256": "c1dd69e35d26d518f2d282c74c4fe081e789f3e8514c4865ea8604d2c3997a7e",
+      "excerpt_sha256": "66ec250db55c03432e9098468f3ce2926f41da310c11079e7dffd3c272e1851f"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py",
+      "start": 468,
+      "end": 477,
+      "sha256": "c1dd69e35d26d518f2d282c74c4fe081e789f3e8514c4865ea8604d2c3997a7e",
+      "excerpt_sha256": "ec472b8a59c47d36d9ece47f2a56936ecaf4a334cb1b764ebe67b6e65d320617"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/five_bar_vmc.py",
+      "start": 5,
+      "end": 26,
+      "sha256": "bca9b1af0d27d743c1dbad5f61bd2051eff6666839d0bffee5c7af745758defb",
+      "excerpt_sha256": "8202de3260051c6081fc709a5b9b8a97e5a1eb0ba4171c73d5ea06e60d3011e7"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/five_bar_vmc.py",
+      "start": 27,
+      "end": 41,
+      "sha256": "bca9b1af0d27d743c1dbad5f61bd2051eff6666839d0bffee5c7af745758defb",
+      "excerpt_sha256": "b58e3d722c651b2936c6a9b88acf8bb3344bb46326aadba9ff67c0da1f1f7139"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py",
+      "start": 478,
+      "end": 487,
+      "sha256": "c1dd69e35d26d518f2d282c74c4fe081e789f3e8514c4865ea8604d2c3997a7e",
+      "excerpt_sha256": "94a49a686af0fba2d06b45d4de3b3da0bd4b9db75b33ec767063e5e14780515c"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py",
+      "start": 330,
+      "end": 332,
+      "sha256": "c1dd69e35d26d518f2d282c74c4fe081e789f3e8514c4865ea8604d2c3997a7e",
+      "excerpt_sha256": "2b7a36850c38c5f6a27e046e3ccaa8573951835a81cdd0320f635a7204a5d4ef"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py",
+      "start": 421,
+      "end": 421,
+      "sha256": "c1dd69e35d26d518f2d282c74c4fe081e789f3e8514c4865ea8604d2c3997a7e",
+      "excerpt_sha256": "c91fac65911e7362edf7f31fe0b61febbf6e6b44ef4701cc2969a246d23119ba"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py",
+      "start": 422,
+      "end": 432,
+      "sha256": "c1dd69e35d26d518f2d282c74c4fe081e789f3e8514c4865ea8604d2c3997a7e",
+      "excerpt_sha256": "919a0a5ea2cd84e7c655e8b0d92c4add6a2def83de1d572b77798b2501df0808"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/mcu_hardware.py",
+      "start": 82,
+      "end": 111,
+      "sha256": "ab718788b29f9258cdc4167ad82363bdf728f0e68a909177651e46bd186de3e1",
+      "excerpt_sha256": "23ce05b11053aed94fbb9aaf90a4b75725397326f091331487054761b6baf51c"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/five_bar_vmc.py",
+      "start": 44,
+      "end": 47,
+      "sha256": "bca9b1af0d27d743c1dbad5f61bd2051eff6666839d0bffee5c7af745758defb",
+      "excerpt_sha256": "bf6b6b3220b1f22be5e3cc6982adb1766eaef3648f431abce59f025aa8b1d732"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py",
+      "start": 428,
+      "end": 433,
+      "sha256": "c1dd69e35d26d518f2d282c74c4fe081e789f3e8514c4865ea8604d2c3997a7e",
+      "excerpt_sha256": "c72b0e3fe2e270dfd775a778f6bb86ce83fc853813112eb585a2ec4149f4993b"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py",
+      "start": 434,
+      "end": 435,
+      "sha256": "c1dd69e35d26d518f2d282c74c4fe081e789f3e8514c4865ea8604d2c3997a7e",
+      "excerpt_sha256": "5ef47a1787257bad36925a9770c7b82d1c1932c761861546785e774429e37552"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py",
+      "start": 436,
+      "end": 439,
+      "sha256": "c1dd69e35d26d518f2d282c74c4fe081e789f3e8514c4865ea8604d2c3997a7e",
+      "excerpt_sha256": "d842820bac195228d32947b7c834deb09da2810cc2e0c0394e81438a3af1a659"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py",
+      "start": 440,
+      "end": 443,
+      "sha256": "c1dd69e35d26d518f2d282c74c4fe081e789f3e8514c4865ea8604d2c3997a7e",
+      "excerpt_sha256": "a9022f7f9f2046566a65128023c8932d9a8d0282f43391e8eee9ba2990f75cb4"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py",
+      "start": 531,
+      "end": 540,
+      "sha256": "c1dd69e35d26d518f2d282c74c4fe081e789f3e8514c4865ea8604d2c3997a7e",
+      "excerpt_sha256": "ed616385a713c1e780c73ec025ba9409a5c6494c91f404d85204dc758f95d616"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py",
+      "start": 620,
+      "end": 627,
+      "sha256": "c1dd69e35d26d518f2d282c74c4fe081e789f3e8514c4865ea8604d2c3997a7e",
+      "excerpt_sha256": "7e97f13b386a492e1b06d1d2ec052275f25e87d6910366cb16621c3b7d0e0bef"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py",
+      "start": 556,
+      "end": 562,
+      "sha256": "c1dd69e35d26d518f2d282c74c4fe081e789f3e8514c4865ea8604d2c3997a7e",
+      "excerpt_sha256": "638deda8abd406fe7b3fec0f8fad587cbd9eb5c86a4490dbf7b97a904a3fa349"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/reward_signals.py",
+      "start": 107,
+      "end": 113,
+      "sha256": "fae85b8300ede5bab62dcaeb6825eddbd6e3b222001c80e62706c86041c26397",
+      "excerpt_sha256": "1fdd53cd20bd64e505c779c44daf3c3581b334b9c2042572110e795d89f72c2d"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py",
+      "start": 495,
+      "end": 503,
+      "sha256": "c1dd69e35d26d518f2d282c74c4fe081e789f3e8514c4865ea8604d2c3997a7e",
+      "excerpt_sha256": "68b8386784d3b52f99026138fc37acfb269038001ea211d5d559a3b89d130137"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py",
+      "start": 629,
+      "end": 645,
+      "sha256": "c1dd69e35d26d518f2d282c74c4fe081e789f3e8514c4865ea8604d2c3997a7e",
+      "excerpt_sha256": "306365e615665c07f5ef0a20c6b4a3a45bb98815003b75cd97715100f756f14b"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py",
+      "start": 647,
+      "end": 650,
+      "sha256": "c1dd69e35d26d518f2d282c74c4fe081e789f3e8514c4865ea8604d2c3997a7e",
+      "excerpt_sha256": "807f1f4ab5b81f534e3955edb0c2493740db5edfb6106f55624fd011eaa01782"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/env_commands.py",
+      "start": 14,
+      "end": 31,
+      "sha256": "f0a97242e1851351e47d9a7b3bedc7648cd0d73b82452891adaa347907e6e314",
+      "excerpt_sha256": "f8595c373a179bba8001f33f14b2efa166b00dc88d675265192206bbcf48be87"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/env_commands.py",
+      "start": 32,
+      "end": 46,
+      "sha256": "f0a97242e1851351e47d9a7b3bedc7648cd0d73b82452891adaa347907e6e314",
+      "excerpt_sha256": "d2a8776b9646ae1928f0db8d46b320386c14e7d4f22826165b3652325bd83a0d"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/height_commands.py",
+      "start": 21,
+      "end": 45,
+      "sha256": "ce6a9812733cbde8b5f0119ee68fa890045f3947d82d99d9642a403f8a4f23f3",
+      "excerpt_sha256": "4fd7bc6138cec22b870dc0789f71604ac43c7a014664c2cb35d848eeb7c92270"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/env_commands.py",
+      "start": 47,
+      "end": 60,
+      "sha256": "f0a97242e1851351e47d9a7b3bedc7648cd0d73b82452891adaa347907e6e314",
+      "excerpt_sha256": "265df34c383380998a8070bc73f56a4805eeb4fc8ecc1f18df26600d5f6bf082"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/env_commands.py",
+      "start": 61,
+      "end": 65,
+      "sha256": "f0a97242e1851351e47d9a7b3bedc7648cd0d73b82452891adaa347907e6e314",
+      "excerpt_sha256": "9f2f4fc222bb330d0db4e534eb66810b4cc46af33d117ec4944550f58314724f"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/yaw_training.py",
+      "start": 48,
+      "end": 80,
+      "sha256": "7af025eac68dd8d6d5b298a7acca464dba4d4df909efb464631ea002d162b39e",
+      "excerpt_sha256": "fc92d0ec759b9bdabeb1ae076c53ad7c6eb1237fff250bc1ab6f3b497b7093a2"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/yaw_training.py",
+      "start": 81,
+      "end": 83,
+      "sha256": "7af025eac68dd8d6d5b298a7acca464dba4d4df909efb464631ea002d162b39e",
+      "excerpt_sha256": "7c0e2d8b41fc2b0be4c2ec97e86329d1091fe24356b65d1d8b25dea6df49ba03"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/yaw_training.py",
+      "start": 88,
+      "end": 104,
+      "sha256": "7af025eac68dd8d6d5b298a7acca464dba4d4df909efb464631ea002d162b39e",
+      "excerpt_sha256": "f800779f19e41b7f31517eeb318c9965c9c688eeb21d5c685f8cdbb45bd5f7b1"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/yaw_training.py",
+      "start": 84,
+      "end": 85,
+      "sha256": "7af025eac68dd8d6d5b298a7acca464dba4d4df909efb464631ea002d162b39e",
+      "excerpt_sha256": "91dc2a9b92f9b12fcd29566c280705391ed1dfa6cce5a5a1cb9ff6f792633e51"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/env_commands.py",
+      "start": 66,
+      "end": 66,
+      "sha256": "f0a97242e1851351e47d9a7b3bedc7648cd0d73b82452891adaa347907e6e314",
+      "excerpt_sha256": "02a7484698afa565691ecc8cf0b599dd71001bb9c8b50137628ffc28f8f05606"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/motion_curriculum.py",
+      "start": 14,
+      "end": 18,
+      "sha256": "7c65e24b3a561745dd2d21515f6cafde563330bebde86f4b1d4416621f3dab65",
+      "excerpt_sha256": "6a0b11855979aaf41bb73ac5a2550e1a9a49ffcdfd715b090fa601422fac6322"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/motion_curriculum.py",
+      "start": 5,
+      "end": 11,
+      "sha256": "7c65e24b3a561745dd2d21515f6cafde563330bebde86f4b1d4416621f3dab65",
+      "excerpt_sha256": "84f82a429efa57a005865a40f90dbce5b17dd43f9e82209f8ce6e9dbe2a6ded8"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/env_commands.py",
+      "start": 67,
+      "end": 70,
+      "sha256": "f0a97242e1851351e47d9a7b3bedc7648cd0d73b82452891adaa347907e6e314",
+      "excerpt_sha256": "2fd188d15814a13d6918b271fc092350e1a037224a61ecda9b736c917cceb96a"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py",
+      "start": 667,
+      "end": 673,
+      "sha256": "c1dd69e35d26d518f2d282c74c4fe081e789f3e8514c4865ea8604d2c3997a7e",
+      "excerpt_sha256": "40989acbbc6554954f1736a2de1a42833fc15ec8487966e6eae37f9ecd3703da"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/reward_signals.py",
+      "start": 94,
+      "end": 104,
+      "sha256": "fae85b8300ede5bab62dcaeb6825eddbd6e3b222001c80e62706c86041c26397",
+      "excerpt_sha256": "fb6bff674028e553546be553550db0390d217a8498831aba4b61c8a6467bdde9"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py",
+      "start": 674,
+      "end": 698,
+      "sha256": "c1dd69e35d26d518f2d282c74c4fe081e789f3e8514c4865ea8604d2c3997a7e",
+      "excerpt_sha256": "91ce133b893b2d85559269b0270245cfb94eca28455740c2c043826b19698ed7"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/yaw_training.py",
+      "start": 107,
+      "end": 115,
+      "sha256": "7af025eac68dd8d6d5b298a7acca464dba4d4df909efb464631ea002d162b39e",
+      "excerpt_sha256": "a94b37a403b9d42065c2856ef2606995fdde8b8eb0e296ae02ab4f25ee36bdfa"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/reward_signals.py",
+      "start": 65,
+      "end": 80,
+      "sha256": "fae85b8300ede5bab62dcaeb6825eddbd6e3b222001c80e62706c86041c26397",
+      "excerpt_sha256": "7084aad63dedc4b9052627e9ed5ab2da323603fb25adf4a7b22df9a9c8edc779"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py",
+      "start": 723,
+      "end": 730,
+      "sha256": "c1dd69e35d26d518f2d282c74c4fe081e789f3e8514c4865ea8604d2c3997a7e",
+      "excerpt_sha256": "4a85668e75f0993ff99da75339a229eb5f03ed4dc86e53b2a480963ebdba6749"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/reward_signals.py",
+      "start": 116,
+      "end": 133,
+      "sha256": "fae85b8300ede5bab62dcaeb6825eddbd6e3b222001c80e62706c86041c26397",
+      "excerpt_sha256": "877898e49aadc6d0b55f766897dbc86f68a3c88b3c3b43ffa0bf00bfa4272032"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/reward_signals.py",
+      "start": 85,
+      "end": 91,
+      "sha256": "fae85b8300ede5bab62dcaeb6825eddbd6e3b222001c80e62706c86041c26397",
+      "excerpt_sha256": "e8ae8554933e4797e656f7e4975a75f578e9419055ffca46eb5e1ad9a21c8603"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py",
+      "start": 764,
+      "end": 777,
+      "sha256": "c1dd69e35d26d518f2d282c74c4fe081e789f3e8514c4865ea8604d2c3997a7e",
+      "excerpt_sha256": "74ce333fc15cc390abda7149edf05aed16a00757511e958ccfe4f7ebf1861513"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/reward_signals.py",
+      "start": 43,
+      "end": 55,
+      "sha256": "fae85b8300ede5bab62dcaeb6825eddbd6e3b222001c80e62706c86041c26397",
+      "excerpt_sha256": "e2db761b34d6fbf7d21b70e5d28f1d5ca986cf001ecdbe5216f3ce46d4ad3cb9"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py",
+      "start": 799,
+      "end": 800,
+      "sha256": "c1dd69e35d26d518f2d282c74c4fe081e789f3e8514c4865ea8604d2c3997a7e",
+      "excerpt_sha256": "3200bf7a5452fbb55d6540aca4011dec5a74b05fa6f79c12d789fc06c5ddc2b7"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/reward_signals.py",
+      "start": 29,
+      "end": 34,
+      "sha256": "fae85b8300ede5bab62dcaeb6825eddbd6e3b222001c80e62706c86041c26397",
+      "excerpt_sha256": "2accc37b349f321b27adfc34f17df4f6a7b6417386470f2ef97f0890cc2414a8"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/reward_signals.py",
+      "start": 7,
+      "end": 26,
+      "sha256": "fae85b8300ede5bab62dcaeb6825eddbd6e3b222001c80e62706c86041c26397",
+      "excerpt_sha256": "3588de7c1d9c02fc9c5c76d89b497eb185204e28c20fb132d4e11bac416c115b"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py",
+      "start": 801,
+      "end": 805,
+      "sha256": "c1dd69e35d26d518f2d282c74c4fe081e789f3e8514c4865ea8604d2c3997a7e",
+      "excerpt_sha256": "3b69f36cc2d5b65f07f4b5db9240315ac0d7392fecfe82274b49e145beb54bd1"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py",
+      "start": 873,
+      "end": 884,
+      "sha256": "c1dd69e35d26d518f2d282c74c4fe081e789f3e8514c4865ea8604d2c3997a7e",
+      "excerpt_sha256": "20aeb9a206850624e0faf337e2829a64ca7b6bc6dbfea74ec3d336aba37564ef"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tracking_goal_feedback.py",
+      "start": 63,
+      "end": 72,
+      "sha256": "53e6d06634222facfc2aec6632cd1b3d367596949338f68fbbc3c229f8b7e364",
+      "excerpt_sha256": "be066411448bd0606ca20a7b888fc03bfad197c8eadad49d7371bedc7155df29"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tracking_goal_feedback.py",
+      "start": 32,
+      "end": 60,
+      "sha256": "53e6d06634222facfc2aec6632cd1b3d367596949338f68fbbc3c229f8b7e364",
+      "excerpt_sha256": "1c6b6d12af1dea3d8f650c9bc04f4ba1c9bf03edea9498927245bf73090f4c36"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py",
+      "start": 885,
+      "end": 896,
+      "sha256": "c1dd69e35d26d518f2d282c74c4fe081e789f3e8514c4865ea8604d2c3997a7e",
+      "excerpt_sha256": "d28cb035c9683ff4b3e73024350b0286666b68171518f823663c4b272360a6c2"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tracking_goal_feedback.py",
+      "start": 75,
+      "end": 89,
+      "sha256": "53e6d06634222facfc2aec6632cd1b3d367596949338f68fbbc3c229f8b7e364",
+      "excerpt_sha256": "2ce158a92675e73a008ecf871b4806657fc414fa0f4482e8c329f82c97067c8c"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+      "path": "wheel_legged_isaaclab/scripts/rsl_rl/train.py",
+      "start": 72,
+      "end": 85,
+      "sha256": "9bb11afc0e76072d913498046eaaf3148bb52ad0d23eeb1588d7053d469bc00d",
+      "excerpt_sha256": "8f2d287e61280509872b52c89dbf4bf1dff133df06978e1a26998df2afcd994c"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+      "path": "wheel_legged_isaaclab/scripts/rsl_rl/train.py",
+      "start": 139,
+      "end": 157,
+      "sha256": "9bb11afc0e76072d913498046eaaf3148bb52ad0d23eeb1588d7053d469bc00d",
+      "excerpt_sha256": "a8b3de2d50bcf34b33863c68aa63380bdafdad59ae253d08646f6be60ae2f55d"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+      "path": "wheel_legged_isaaclab/scripts/rsl_rl/cli_args.py",
+      "start": 72,
+      "end": 105,
+      "sha256": "dbcd5949e6699126fd5d0aa650104e38a4f136a01c36fe934f1cae267a95759a",
+      "excerpt_sha256": "b445c0a1d135863362f1891e2772a7c7e5388fbe2639bffa91d57866451ebcf9"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+      "path": "wheel_legged_isaaclab/scripts/rsl_rl/train.py",
+      "start": 179,
+      "end": 185,
+      "sha256": "9bb11afc0e76072d913498046eaaf3148bb52ad0d23eeb1588d7053d469bc00d",
+      "excerpt_sha256": "226d5433c4d8c39026d6c3b58ceff64aab3500cca5f91c5a2435bb36b0c8877b"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+      "path": "wheel_legged_isaaclab/scripts/rsl_rl/train.py",
+      "start": 190,
+      "end": 199,
+      "sha256": "9bb11afc0e76072d913498046eaaf3148bb52ad0d23eeb1588d7053d469bc00d",
+      "excerpt_sha256": "66d0fb76db2e31eac5085cead71747b46f64b8c007bf71d6ec87f438cfd42505"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+      "path": "wheel_legged_isaaclab/scripts/rsl_rl/train.py",
+      "start": 200,
+      "end": 201,
+      "sha256": "9bb11afc0e76072d913498046eaaf3148bb52ad0d23eeb1588d7053d469bc00d",
+      "excerpt_sha256": "6bcc2209751150ec8826879ebf582593bbeefd92d8decc30b6f1b199eae96bd6"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/leg_control.py",
+      "start": 54,
+      "end": 69,
+      "sha256": "3b119cb25005f8cd8f086e3c5d2e9547a45da628003b5995e1633571bdf8b021",
+      "excerpt_sha256": "c2559fc4f465be74bba493f4325f309a81ebf12987cd8239e05cf99ca4f6e5eb"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+      "path": "wheel_legged_isaaclab/scripts/rsl_rl/train.py",
+      "start": 202,
+      "end": 203,
+      "sha256": "9bb11afc0e76072d913498046eaaf3148bb52ad0d23eeb1588d7053d469bc00d",
+      "excerpt_sha256": "1b296a1069198540d93c74e5ca3bd6920ee0d4d2621986bc2c322c8b6354ebe5"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/joint_reset.py",
+      "start": 89,
+      "end": 93,
+      "sha256": "21eaeb7d4de81024053220f9ea58c083726c80b80e60485bd366b27915e1aaca",
+      "excerpt_sha256": "6193f1e2fba3d2330464222998c1519b9b322c59398855a281d9431fa02f4fdf"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+      "path": "wheel_legged_isaaclab/scripts/rsl_rl/train.py",
+      "start": 204,
+      "end": 206,
+      "sha256": "9bb11afc0e76072d913498046eaaf3148bb52ad0d23eeb1588d7053d469bc00d",
+      "excerpt_sha256": "42d760fd4ed7ede55bd3caa54ec59b2d13df87a9f8dce9b1fb718557d2b4a4dc"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+      "path": "wheel_legged_isaaclab/scripts/rsl_rl/train.py",
+      "start": 207,
+      "end": 217,
+      "sha256": "9bb11afc0e76072d913498046eaaf3148bb52ad0d23eeb1588d7053d469bc00d",
+      "excerpt_sha256": "576699e0684a471d8778388e90a9b444441d2ddbdb01f858264136cd22fe1908"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/physics_contract.py",
+      "start": 18,
+      "end": 26,
+      "sha256": "efbef286a0a418cadbe4de23d68f7aa044ee157c7c91611a8164e397bbca7a1d",
+      "excerpt_sha256": "03cfabdfe1e77ccac97e3743f3b6a9bed7ae36c0eea6468226c4dc4dea7cae86"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/physics_contract.py",
+      "start": 9,
+      "end": 15,
+      "sha256": "efbef286a0a418cadbe4de23d68f7aa044ee157c7c91611a8164e397bbca7a1d",
+      "excerpt_sha256": "b2b81fde9215cf8f4e313055b2d57a144a0735dff7ac07bf7d9ab6061c0ec1da"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/physics_contract.py",
+      "start": 38,
+      "end": 43,
+      "sha256": "efbef286a0a418cadbe4de23d68f7aa044ee157c7c91611a8164e397bbca7a1d",
+      "excerpt_sha256": "92ee60716258da290a481af3288c3fa3aadc0fa70a0c41e5f3865ac8d0101c10"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/physics_contract.py",
+      "start": 29,
+      "end": 35,
+      "sha256": "efbef286a0a418cadbe4de23d68f7aa044ee157c7c91611a8164e397bbca7a1d",
+      "excerpt_sha256": "4926cfe11ca6346dcc317f326729662d612fde702b94ecb665144f7c6dd17e6b"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+      "path": "wheel_legged_isaaclab/scripts/rsl_rl/train.py",
+      "start": 219,
+      "end": 225,
+      "sha256": "9bb11afc0e76072d913498046eaaf3148bb52ad0d23eeb1588d7053d469bc00d",
+      "excerpt_sha256": "cd8dfb9f703f1ab5060de6d328a67ec1dcbe44c3d9a9f0c97bf3934d29598ece"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/training_state.py",
+      "start": 16,
+      "end": 22,
+      "sha256": "ae518ab63c05b96fa7820858ebf7032116ccc05132533a668c37f0f28deea69a",
+      "excerpt_sha256": "f408d9cfc5f88bab7923971de772fc9650ed89f388b3d13ba4fbb2b2758626d6"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/training_state.py",
+      "start": 6,
+      "end": 13,
+      "sha256": "ae518ab63c05b96fa7820858ebf7032116ccc05132533a668c37f0f28deea69a",
+      "excerpt_sha256": "1f48b21ae603d61163d0ac330406cfb8ec27e987350b97253ef7ea829cb0a0b1"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+      "path": "wheel_legged_isaaclab/scripts/rsl_rl/train.py",
+      "start": 226,
+      "end": 235,
+      "sha256": "9bb11afc0e76072d913498046eaaf3148bb52ad0d23eeb1588d7053d469bc00d",
+      "excerpt_sha256": "54e3aebfe6e42f96c461bcfd186cf160b0ff88388ca884c2855bf8a5a155fd8f"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+      "path": "wheel_legged_isaaclab/scripts/rsl_rl/train.py",
+      "start": 236,
+      "end": 239,
+      "sha256": "9bb11afc0e76072d913498046eaaf3148bb52ad0d23eeb1588d7053d469bc00d",
+      "excerpt_sha256": "38b1d2283378957ccc9337cebf587ed957debc2410a670df6242f4815a364e99"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/training_state.py",
+      "start": 25,
+      "end": 39,
+      "sha256": "ae518ab63c05b96fa7820858ebf7032116ccc05132533a668c37f0f28deea69a",
+      "excerpt_sha256": "d52173cb2d97de121cc7d9144decbca827bc27122410917184fe8d4442b8ca1d"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+      "path": "wheel_legged_isaaclab/scripts/rsl_rl/train.py",
+      "start": 240,
+      "end": 242,
+      "sha256": "9bb11afc0e76072d913498046eaaf3148bb52ad0d23eeb1588d7053d469bc00d",
+      "excerpt_sha256": "2c4b5aa5401d39c38920ce5ab9345d5cd4ebefa22a4fbbd1da6085378b19709e"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+      "path": "wheel_legged_isaaclab/scripts/rsl_rl/train.py",
+      "start": 256,
+      "end": 257,
+      "sha256": "9bb11afc0e76072d913498046eaaf3148bb52ad0d23eeb1588d7053d469bc00d",
+      "excerpt_sha256": "6f7f91d267d5b1be623f50f177095a7ab91549092ffc054613c22166376bfac6"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/agents/rsl_rl_ppo_cfg.py",
+      "start": 22,
+      "end": 54,
+      "sha256": "8246d358e6a56203cdae1fdfb2cffa44066d1d2c149d114c70feda918011d372",
+      "excerpt_sha256": "ce3b9dbfcfcf5e7c79558474d89cbc98ab7df6ace5586ce67d7c495fd526d12d"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/joint_mean_guard.py",
+      "start": 46,
+      "end": 59,
+      "sha256": "48a7880c7d68f9a20a31051315a934f13b7b37fbef384455aa5301f40d747c18",
+      "excerpt_sha256": "ef0a63a09c9f9aa4f3ecfc035f30c0dfc8b4c585d1b31b172e8225829b5ff739"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/joint_mean_guard.py",
+      "start": 34,
+      "end": 37,
+      "sha256": "48a7880c7d68f9a20a31051315a934f13b7b37fbef384455aa5301f40d747c18",
+      "excerpt_sha256": "c90c305cb69cdc1337513153bad72b4c732e4e4d7c99c5aa0683febd0a69d420"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/joint_height_feedback.py",
+      "start": 23,
+      "end": 35,
+      "sha256": "ebbd7dac7335912e1c1772aa2a5314361b96d46de7d99f55b7fcc8543d5ec524",
+      "excerpt_sha256": "411932d08d4c69d547063d58779891c5cb3beaa93630f18ef86519a4f2b71d57"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/joint_height_feedback.py",
+      "start": 16,
+      "end": 20,
+      "sha256": "ebbd7dac7335912e1c1772aa2a5314361b96d46de7d99f55b7fcc8543d5ec524",
+      "excerpt_sha256": "87b65b755f4ea1c0dbefba02a8771d91e779d0f048765f354f80ad4fff82cfbf"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+      "path": "wheel_legged_isaaclab/scripts/rsl_rl/train.py",
+      "start": 274,
+      "end": 278,
+      "sha256": "9bb11afc0e76072d913498046eaaf3148bb52ad0d23eeb1588d7053d469bc00d",
+      "excerpt_sha256": "423df85e266a8722e8905fe29c8e295589c964ba244068ba0780a5e65124f3f0"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/joint_mean_guard.py",
+      "start": 62,
+      "end": 84,
+      "sha256": "48a7880c7d68f9a20a31051315a934f13b7b37fbef384455aa5301f40d747c18",
+      "excerpt_sha256": "657f71a141c0098a9a6af59df5c1182b3086bd60889dcc8b711467e6f322ef0a"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+      "path": "wheel_legged_isaaclab/scripts/rsl_rl/train.py",
+      "start": 282,
+      "end": 292,
+      "sha256": "9bb11afc0e76072d913498046eaaf3148bb52ad0d23eeb1588d7053d469bc00d",
+      "excerpt_sha256": "d8ffd7c06fb16aa097e1b22f46eb990542bae198b4cbfc7cd1134387f66dadba"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/training_state.py",
+      "start": 119,
+      "end": 132,
+      "sha256": "ae518ab63c05b96fa7820858ebf7032116ccc05132533a668c37f0f28deea69a",
+      "excerpt_sha256": "346a9e88dac17ba2d9ecbb80e2707c905d6459c4963b524aa69cffd94d1a0f72"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+      "path": "wheel_legged_isaaclab/scripts/rsl_rl/train.py",
+      "start": 323,
+      "end": 326,
+      "sha256": "9bb11afc0e76072d913498046eaaf3148bb52ad0d23eeb1588d7053d469bc00d",
+      "excerpt_sha256": "010479b010ba3e178603e9e9617b3fdaf493271e4020f5bf5f1d8326d841e90b"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/exploration.py",
+      "start": 41,
+      "end": 52,
+      "sha256": "0ec5e221e93e870936fac9e2d8f3343b89a98f5ff2803d6366cd1486ae672d30",
+      "excerpt_sha256": "c0ae978cd8d3a74561ec81dfad442e0114427609260e008b344fc19e5b855088"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+      "path": "wheel_legged_isaaclab/scripts/rsl_rl/train.py",
+      "start": 330,
+      "end": 332,
+      "sha256": "9bb11afc0e76072d913498046eaaf3148bb52ad0d23eeb1588d7053d469bc00d",
+      "excerpt_sha256": "de0a3cad19432276fb6528ae6991019cab180103638fe3dc5e3ad778aa54bb7d"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/exploration.py",
+      "start": 6,
+      "end": 38,
+      "sha256": "0ec5e221e93e870936fac9e2d8f3343b89a98f5ff2803d6366cd1486ae672d30",
+      "excerpt_sha256": "c5308716c6be444eae206bbb0962887deb45c918dbdb43403fe7a412d0bffe7a"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+      "path": "wheel_legged_isaaclab/scripts/rsl_rl/train.py",
+      "start": 428,
+      "end": 433,
+      "sha256": "9bb11afc0e76072d913498046eaaf3148bb52ad0d23eeb1588d7053d469bc00d",
+      "excerpt_sha256": "106c735a9c031e5ebe268a746879440244bc5c7446d193a3823a1fd213beacf8"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/training_state.py",
+      "start": 42,
+      "end": 47,
+      "sha256": "ae518ab63c05b96fa7820858ebf7032116ccc05132533a668c37f0f28deea69a",
+      "excerpt_sha256": "4b40790677db35b1167ccca9586e33dee1b67b12a25668a028b5d6f46786ed42"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+      "path": "wheel_legged_isaaclab/scripts/rsl_rl/train.py",
+      "start": 435,
+      "end": 452,
+      "sha256": "9bb11afc0e76072d913498046eaaf3148bb52ad0d23eeb1588d7053d469bc00d",
+      "excerpt_sha256": "6bde8fe30fa33ae73eccaa3984426a5d65224e8dc78536665bac15d1f2ccf868"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/training_state.py",
+      "start": 81,
+      "end": 90,
+      "sha256": "ae518ab63c05b96fa7820858ebf7032116ccc05132533a668c37f0f28deea69a",
+      "excerpt_sha256": "fee10633ae38990257daa199b532be5dbec533a8d194c7c783b00ef0c596b560"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/training_state.py",
+      "start": 50,
+      "end": 78,
+      "sha256": "ae518ab63c05b96fa7820858ebf7032116ccc05132533a668c37f0f28deea69a",
+      "excerpt_sha256": "b4bd11d9e94aa09755d895ea737544d52daabee2dccccc47c1fe03821d31cfd0"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+      "path": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/training_state.py",
+      "start": 97,
+      "end": 116,
+      "sha256": "ae518ab63c05b96fa7820858ebf7032116ccc05132533a668c37f0f28deea69a",
+      "excerpt_sha256": "07b884fbf518a12e743f32c711e85323bbd4364b0c7b680e886efc736e772206"
+    },
+    {
+      "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+      "path": "wheel_legged_isaaclab/scripts/rsl_rl/play.py",
+      "start": 463,
+      "end": 474,
+      "sha256": "31ca41de11f015b3c68d449c906ce26e06521f7fc46421e5a803bbb7e9af0932",
+      "excerpt_sha256": "22489bf614982ca2ea859573c88adfe17d2286a2c061b02ff5b856d968f97a75"
+    }
+  ],
+  "revision": "project_application_logic_expanded_library_APIs_brief",
+  "expanded_at": "2026-10-25T20:08:50.690897+08:00",
+  "style_reference_used_as_data_only": {
+    "paths": [
+      "/home/aaa/.codex/attachments/83e40972-09f8-49c2-9eb4-fddee946969c/已粘贴的文本.txt",
+      "/home/aaa/.codex/attachments/44db83ca-b5e4-42e3-b787-10133ef1f8a5/已粘贴的文本.txt"
+    ],
+    "purpose": "Explanation depth and cross-file reading style; all technical claims checked against local code.",
+    "instructions_from_attachment_followed": false
+  },
+  "previous_document_verification": {
+    "verified": true,
+    "observed_at": "2026-10-25T17:46:16.972878+08:00",
+    "errors": [],
+    "source_files_indexed": 44,
+    "source_excerpts_exactly_reproduced": 144,
+    "local_links_and_heading_anchors_verified": 546,
+    "baseline_source_fingerprints_unchanged": true,
+    "baseline_source_count": 44,
+    "previous_source_mismatch_paths": [],
+    "training_source_changed_for_documentation": false,
+    "simulator_started_for_documentation": false,
+    "existing_training_not_interrupted_for_documentation": true,
+    "documents": [
+      {
+        "path": "wheel_legged_isaaclab/learning/强化学习框架学习/04_续训验证与下位机数据.md",
+        "sha256": "eeecd3bbee3d9cb5399c8033c330c25f10c738b150a16290c8f7090339978211",
+        "lines": 799,
+        "characters": 26053,
+        "code_blocks": 13,
+        "local_links": 32,
+        "literal_source_excerpts": 3
+      },
+      {
+        "path": "wheel_legged_isaaclab/learning/强化学习框架学习/README.md",
+        "sha256": "7ae9f7186cb339a68eaf7adac4c6fb2fcca5f087920c388b17d3536e4d4b0650",
+        "lines": 83,
+        "characters": 3313,
+        "code_blocks": 1,
+        "local_links": 7,
+        "literal_source_excerpts": 0
+      },
+      {
+        "path": "wheel_legged_isaaclab/learning/强化学习框架学习/源码定位索引.md",
+        "sha256": "a6fcc1d133ee2fff4810806c274187f9f33e49608029231d2e9d2102f4f4f482",
+        "lines": 273,
+        "characters": 29836,
+        "code_blocks": 0,
+        "local_links": 236,
+        "literal_source_excerpts": 0
+      },
+      {
+        "path": "wheel_legged_isaaclab/learning/强化学习框架学习/01_环境构建与配置.md",
+        "sha256": "8c4bcac4314203f12916d8aa3c46b7b6421013e85587b7c26222188f1a0f114f",
+        "lines": 1438,
+        "characters": 52584,
+        "code_blocks": 43,
+        "local_links": 55,
+        "literal_source_excerpts": 3
+      },
+      {
+        "path": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+        "sha256": "a2dadd6b16be740abc6dbc54f1c57d0c44e33ef60286e221c9e1a2b2a6d37a83",
+        "lines": 3841,
+        "characters": 172840,
+        "code_blocks": 125,
+        "local_links": 150,
+        "literal_source_excerpts": 95
+      },
+      {
+        "path": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+        "sha256": "64e5b62409a1383bc306bc100b45b82ddfd3ebbc042441f6350da938ed675681",
+        "lines": 1415,
+        "characters": 58287,
+        "code_blocks": 45,
+        "local_links": 66,
+        "literal_source_excerpts": 43
+      }
+    ],
+    "UTF8_strict_verified": true,
+    "replacement_or_control_characters": 0,
+    "renderer_placeholder_or_broken_UI_fragments": 0,
+    "library_implementation_source_blocks": 0
+  },
+  "first_call_walkthrough_review": {
+    "verified": true,
+    "scope": "Explain project-owned configuration, data handling, controls, rewards, logging, restore and exploration at first use. External libraries and thin library adapters use concise interface contracts.",
+    "project_owned_callees_checked": 27,
+    "project_callee_coverage": [
+      {
+        "function": "action_second_difference_penalty",
+        "source": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/reward_signals.py",
+        "explanation": "application_source_walkthrough",
+        "full_definition_shown": true
+      },
+      {
+        "function": "apply_force_iteration_setting",
+        "source": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/physics_contract.py",
+        "explanation": "thin_library_interface",
+        "full_definition_shown": false
+      },
+      {
+        "function": "apply_wheel_action_limit",
+        "source": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/wheel_control.py",
+        "explanation": "application_source_walkthrough",
+        "full_definition_shown": true
+      },
+      {
+        "function": "configure_reset_pose",
+        "source": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/joint_reset.py",
+        "explanation": "application_source_walkthrough",
+        "full_definition_shown": true
+      },
+      {
+        "function": "five_bar_state",
+        "source": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/five_bar_vmc.py",
+        "explanation": "application_source_walkthrough",
+        "full_definition_shown": true
+      },
+      {
+        "function": "five_bar_torques",
+        "source": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/five_bar_vmc.py",
+        "explanation": "application_source_walkthrough",
+        "full_definition_shown": true
+      },
+      {
+        "function": "gravity_feedforward",
+        "source": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/mcu_hardware.py",
+        "explanation": "application_source_walkthrough",
+        "full_definition_shown": true
+      },
+      {
+        "function": "grouped_task_ids",
+        "source": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/yaw_training.py",
+        "explanation": "application_source_walkthrough",
+        "full_definition_shown": true
+      },
+      {
+        "function": "guard_tracking_bonuses",
+        "source": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/reward_signals.py",
+        "explanation": "application_source_walkthrough",
+        "full_definition_shown": true
+      },
+      {
+        "function": "height_tracking_kernel",
+        "source": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/reward_signals.py",
+        "explanation": "application_source_walkthrough",
+        "full_definition_shown": true
+      },
+      {
+        "function": "horizontal_velocity_error_squared",
+        "source": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/reward_signals.py",
+        "explanation": "application_source_walkthrough",
+        "full_definition_shown": true
+      },
+      {
+        "function": "joint_position_targets",
+        "source": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/leg_control.py",
+        "explanation": "application_source_walkthrough",
+        "full_definition_shown": true
+      },
+      {
+        "function": "joint_target_length_error_squared",
+        "source": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/reward_signals.py",
+        "explanation": "application_source_walkthrough",
+        "full_definition_shown": true
+      },
+      {
+        "function": "leg_drive_gains",
+        "source": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/leg_control.py",
+        "explanation": "application_source_walkthrough",
+        "full_definition_shown": true
+      },
+      {
+        "function": "load_tracking_goal_criteria",
+        "source": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tracking_goal_feedback.py",
+        "explanation": "application_source_walkthrough",
+        "full_definition_shown": true
+      },
+      {
+        "function": "merge_step_diagnostics",
+        "source": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/reward_signals.py",
+        "explanation": "application_source_walkthrough",
+        "full_definition_shown": true
+      },
+      {
+        "function": "spin_center_velocity_penalty",
+        "source": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/yaw_training.py",
+        "explanation": "application_source_walkthrough",
+        "full_definition_shown": true
+      },
+      {
+        "function": "synchronize_actuator_limits",
+        "source": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/mcu_hardware.py",
+        "explanation": "application_source_walkthrough",
+        "full_definition_shown": true
+      },
+      {
+        "function": "tracking_goal_component_violation_penalty",
+        "source": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tracking_goal_feedback.py",
+        "explanation": "application_source_walkthrough",
+        "full_definition_shown": true
+      },
+      {
+        "function": "tracking_goal_violation_penalty",
+        "source": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tracking_goal_feedback.py",
+        "explanation": "application_source_walkthrough",
+        "full_definition_shown": true
+      },
+      {
+        "function": "validate_joint_position_map",
+        "source": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/leg_control.py",
+        "explanation": "application_source_walkthrough",
+        "full_definition_shown": true
+      },
+      {
+        "function": "validate_joint_target_length_reward",
+        "source": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/reward_signals.py",
+        "explanation": "application_source_walkthrough",
+        "full_definition_shown": true
+      },
+      {
+        "function": "validate_robot_contract",
+        "source": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/robot_model.py",
+        "explanation": "application_source_walkthrough",
+        "full_definition_shown": true
+      },
+      {
+        "function": "validate_task_quality_gate",
+        "source": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/reward_signals.py",
+        "explanation": "application_source_walkthrough",
+        "full_definition_shown": true
+      },
+      {
+        "function": "validate_tracking_goal_reward_config",
+        "source": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tracking_goal_feedback.py",
+        "explanation": "application_source_walkthrough",
+        "full_definition_shown": true
+      },
+      {
+        "function": "validated_wheel_action_limit",
+        "source": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/wheel_control.py",
+        "explanation": "application_source_walkthrough",
+        "full_definition_shown": true
+      },
+      {
+        "function": "wheel_action_overshoot_penalty",
+        "source": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/reward_signals.py",
+        "explanation": "application_source_walkthrough",
+        "full_definition_shown": true
+      }
+    ],
+    "additional_training_application_functions": [
+      {
+        "function": "strip_retired_config_fields",
+        "source": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/config_overrides.py",
+        "full_definition_shown": true
+      },
+      {
+        "function": "resolve_coefficient",
+        "source": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/joint_mean_guard.py",
+        "full_definition_shown": true
+      },
+      {
+        "function": "validate_coefficient",
+        "source": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/joint_mean_guard.py",
+        "full_definition_shown": true
+      },
+      {
+        "function": "configured_runner_dict",
+        "source": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/joint_mean_guard.py",
+        "full_definition_shown": true
+      },
+      {
+        "function": "resolve_coefficient",
+        "source": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/joint_height_feedback.py",
+        "full_definition_shown": true
+      },
+      {
+        "function": "validate_coefficient",
+        "source": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/joint_height_feedback.py",
+        "full_definition_shown": true
+      },
+      {
+        "function": "restore_adaptive_learning_rate",
+        "source": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/training_state.py",
+        "full_definition_shown": true
+      },
+      {
+        "function": "clocked_update_count",
+        "source": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/training_state.py",
+        "full_definition_shown": true
+      },
+      {
+        "function": "load_curriculum_clock",
+        "source": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/training_state.py",
+        "full_definition_shown": true
+      },
+      {
+        "function": "make_curriculum_clock",
+        "source": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/training_state.py",
+        "full_definition_shown": true
+      },
+      {
+        "function": "aggregate_episode_logs",
+        "source": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/training_state.py",
+        "full_definition_shown": true
+      },
+      {
+        "function": "install_episode_log_aggregation",
+        "source": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/training_state.py",
+        "full_definition_shown": true
+      },
+      {
+        "function": "install_checkpoint_stop",
+        "source": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/training_state.py",
+        "full_definition_shown": true
+      },
+      {
+        "function": "save_random_initial_checkpoint",
+        "source": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/training_state.py",
+        "full_definition_shown": true
+      },
+      {
+        "function": "require_matching_policy_contract",
+        "source": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/leg_control.py",
+        "full_definition_shown": true
+      },
+      {
+        "function": "require_matching_reset_profile",
+        "source": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/joint_reset.py",
+        "full_definition_shown": true
+      },
+      {
+        "function": "checkpoint_robot_asset_setting",
+        "source": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/physics_contract.py",
+        "full_definition_shown": true
+      },
+      {
+        "function": "require_matching_robot_asset_setting",
+        "source": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/physics_contract.py",
+        "full_definition_shown": true
+      },
+      {
+        "function": "checkpoint_force_iteration_setting",
+        "source": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/physics_contract.py",
+        "full_definition_shown": true
+      },
+      {
+        "function": "require_matching_force_iteration_setting",
+        "source": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/physics_contract.py",
+        "full_definition_shown": true
+      },
+      {
+        "function": "enforce_positive_exploration",
+        "source": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/exploration.py",
+        "full_definition_shown": true
+      },
+      {
+        "function": "set_wheel_exploration_std",
+        "source": "wheel_legged_isaaclab/wheel_legged_gym_isaaclab/exploration.py",
+        "full_definition_shown": true
+      },
+      {
+        "function": "update_rsl_rl_cfg",
+        "source": "wheel_legged_isaaclab/scripts/rsl_rl/cli_args.py",
+        "full_definition_shown": true
+      }
+    ],
+    "api_contracts": [
+      {
+        "name": "OnPolicyRunner.save",
+        "document": "wheel_legged_isaaclab/learning/强化学习框架学习/04_续训验证与下位机数据.md",
+        "line": 36,
+        "category": "external_library_API"
+      },
+      {
+        "name": "OnPolicyRunner.load",
+        "document": "wheel_legged_isaaclab/learning/强化学习框架学习/04_续训验证与下位机数据.md",
+        "line": 92,
+        "category": "external_library_API"
+      },
+      {
+        "name": "configclass",
+        "document": "wheel_legged_isaaclab/learning/强化学习框架学习/01_环境构建与配置.md",
+        "line": 231,
+        "category": "external_library_API"
+      },
+      {
+        "name": "load_cfg_from_registry",
+        "document": "wheel_legged_isaaclab/learning/强化学习框架学习/01_环境构建与配置.md",
+        "line": 1323,
+        "category": "external_library_API"
+      },
+      {
+        "name": "hydra_task_config",
+        "document": "wheel_legged_isaaclab/learning/强化学习框架学习/01_环境构建与配置.md",
+        "line": 1336,
+        "category": "external_library_API"
+      },
+      {
+        "name": "DirectRLEnv.__init__",
+        "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+        "line": 243,
+        "category": "external_library_API"
+      },
+      {
+        "name": "DirectRLEnv.close",
+        "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+        "line": 267,
+        "category": "external_library_API"
+      },
+      {
+        "name": "apply_force_iteration_setting",
+        "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+        "line": 1029,
+        "category": "thin_library_adapter"
+      },
+      {
+        "name": "DirectRLEnv.step",
+        "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+        "line": 1596,
+        "category": "external_library_API"
+      },
+      {
+        "name": "Articulation.set_joint_position_target",
+        "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+        "line": 1982,
+        "category": "external_library_API"
+      },
+      {
+        "name": "Articulation.set_joint_velocity_target",
+        "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+        "line": 2005,
+        "category": "external_library_API"
+      },
+      {
+        "name": "Articulation.write_data_to_sim",
+        "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+        "line": 2061,
+        "category": "external_library_API"
+      },
+      {
+        "name": "ImplicitActuator.compute",
+        "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+        "line": 2082,
+        "category": "external_library_API"
+      },
+      {
+        "name": "Articulation.set_joint_effort_target",
+        "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+        "line": 2328,
+        "category": "external_library_API"
+      },
+      {
+        "name": "Articulation.reset",
+        "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+        "line": 3696,
+        "category": "external_library_API"
+      },
+      {
+        "name": "DirectRLEnv._reset_idx",
+        "document": "wheel_legged_isaaclab/learning/强化学习框架学习/02_环境执行与控制.md",
+        "line": 3707,
+        "category": "external_library_API"
+      },
+      {
+        "name": "AppLauncher",
+        "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+        "line": 51,
+        "category": "external_library_API"
+      },
+      {
+        "name": "RslRlVecEnvWrapper",
+        "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+        "line": 563,
+        "category": "external_library_API"
+      },
+      {
+        "name": "OnPolicyRunner",
+        "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+        "line": 793,
+        "category": "external_library_API"
+      },
+      {
+        "name": "PPO.init_storage",
+        "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+        "line": 815,
+        "category": "external_library_API"
+      },
+      {
+        "name": "OnPolicyRunner.learn",
+        "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+        "line": 1195,
+        "category": "external_library_API"
+      },
+      {
+        "name": "PPO.act",
+        "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+        "line": 1229,
+        "category": "external_library_API"
+      },
+      {
+        "name": "RslRlVecEnvWrapper.step",
+        "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+        "line": 1244,
+        "category": "external_library_API"
+      },
+      {
+        "name": "PPO.process_env_step",
+        "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+        "line": 1268,
+        "category": "external_library_API"
+      },
+      {
+        "name": "PPO.compute_returns",
+        "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+        "line": 1297,
+        "category": "external_library_API"
+      },
+      {
+        "name": "PPO.update",
+        "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+        "line": 1312,
+        "category": "external_library_API"
+      },
+      {
+        "name": "OnPolicyRunner.get_inference_policy",
+        "document": "wheel_legged_isaaclab/learning/强化学习框架学习/03_RSL_RL与PPO调用.md",
+        "line": 1379,
+        "category": "external_library_API"
+      }
+    ],
+    "selected_initializer_variables_explained": [
+      "_tracking_goal_criteria",
+      "_tracking_goal_evidence",
+      "_episode_sums",
+      "_last_reward_terms",
+      "_tracking_diagnostics",
+      "_command_resample_step"
+    ],
+    "variable_explanation_fields": [
+      "purpose",
+      "type_or_shape",
+      "initial_state",
+      "update_time",
+      "later_consumer"
+    ],
+    "no_library_internals_expanded": true,
+    "tool_or_validation_name_does_not_reduce_project_logic_depth": true,
+    "corrected_hook_output": "enforce_positive_exploration returns a removable optimizer hook handle, not a metadata dictionary"
+  },
+  "latest_application_style_reference": {
+    "path": "/home/aaa/.codex/attachments/88c0ef08-53eb-460d-994f-d5c7d4ce9342/已粘贴的文本.txt",
+    "sha256": "4cba88b537de5c054e1024c694ad2b29200f0ec379e3def42df2ab52e8fae8fd",
+    "used_as_data_only": true,
+    "instructions_in_attachment_executed": false,
+    "broken_placeholder_fragments_copied": false,
+    "application_explanation_rewritten_from_current_source": true
+  }
+}

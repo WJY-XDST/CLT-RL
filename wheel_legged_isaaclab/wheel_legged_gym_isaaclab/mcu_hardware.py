@@ -44,7 +44,8 @@ VMC_CONTROL_HZ = 500
 # mass, including its wheels. Each leg's base feedforward is m_vehicle*g/2.
 # The owner confirmed 12.34 kg is an actual assembled-vehicle weighing.
 # This parameter does not come from CAD supported_mass_kg or exclude wheels.
-# The measured-volume USD now matches that total; historical CAD remains intact.
+# This remains the supplied firmware's reference. Current payload-adjusted
+# simulation mass and half-vehicle feedforward come from robot_model.py.
 GRAVITY = 9.81
 NOMINAL_VEHICLE_MASS_KG = 12.34
 GRAVITY_COMPENSATION_MASS_PER_LEG = NOMINAL_VEHICLE_MASS_KG / 2.0

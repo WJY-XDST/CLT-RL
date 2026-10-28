@@ -12,6 +12,8 @@ from env_source import environment_tree
 from wheel_legged_gym_isaaclab.leg_control import DIRECT_JOINT_POSITION_MODE, LEG_ACTION_COLUMNS
 from wheel_legged_gym_isaaclab.reward_signals import (
     horizontal_velocity_error_squared, action_second_difference_penalty, height_tracking_kernel, wheel_action_overshoot_penalty,
+    joint_target_length_error_squared,
+    guard_tracking_bonuses,
 )
 from wheel_legged_gym_isaaclab.yaw_training import spin_center_velocity_penalty
 
@@ -30,7 +32,7 @@ def current_reward_config():
     return SimpleNamespace(**values)
 
 
-def reward_fixture(n=3):
+def reward_fixture(n=3, source_text=None):
     rewards = current_reward_config()
     data = SimpleNamespace(
         root_lin_vel_b=torch.zeros(n, 3), root_ang_vel_b=torch.zeros(n, 3),
@@ -53,11 +55,11 @@ def reward_fixture(n=3):
         _last_actions=torch.zeros(n, 6, 2), _update_forward_kinematics=lambda: None,
         _get_heading_frame_horizontal_velocity=lambda: heading,
         _get_wheel_vel_forward_positive=lambda: torch.zeros(n, 2),
-        _tracking_diagnostics={'fixture': 1}, common_step_counter=1, step_dt=.02,
+        _tracking_diagnostics={'fixture': 1}, _tracking_goal_criteria=None, common_step_counter=1, step_dt=.02,
         reset_terminated=torch.zeros(n, dtype=torch.bool),
         _episode_sums=defaultdict(lambda: torch.zeros(n)),
     )
-    tree = environment_tree()
+    tree = ast.parse(source_text) if source_text is not None else environment_tree()
     method = next(x for x in ast.walk(tree) if isinstance(x, ast.FunctionDef) and x.name == '_get_rewards')
     scale_fields = next(
         x for x in tree.body if isinstance(x, ast.Assign)
@@ -68,6 +70,8 @@ def reward_fixture(n=3):
                  action_second_difference_penalty=action_second_difference_penalty,
                  height_tracking_kernel=height_tracking_kernel,
                  wheel_action_overshoot_penalty=wheel_action_overshoot_penalty,
+                 joint_target_length_error_squared=joint_target_length_error_squared,
+                 guard_tracking_bonuses=guard_tracking_bonuses,
                  DIRECT_JOINT_POSITION_MODE=DIRECT_JOINT_POSITION_MODE, LEG_ACTION_COLUMNS=LEG_ACTION_COLUMNS)
     exec(compile(ast.Module(body=[scale_fields, method], type_ignores=[]), '<production_reward>', 'exec'), scope)
     return obj, heading, lambda: scope['_get_rewards'](obj)

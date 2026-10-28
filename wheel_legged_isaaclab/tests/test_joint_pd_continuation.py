@@ -24,6 +24,28 @@ def test_resume_keeps_adam_and_policy_and_uses_loaded_iteration(tmp_path):
     assert loaded['optimizer_state_dict']['param_groups'][0]['lr']==.0000759375
 
 
+def test_reset_pose_migration_is_explicit_and_never_resets_policy_or_Adam(tmp_path):
+    checkpoint=tmp_path/'model_349.pt'
+    saved=dict(iter=349,model_state_dict={'actor':torch.ones(1)},
+               optimizer_state_dict={'state':{0:{'step':torch.tensor(7000.)}},'param_groups':[{'lr':.00002}]})
+    torch.save(saved,checkpoint)
+    cfg=dict(leg_control_mode='implicit_joint_position',rewards={})
+    original_hash=hashlib.sha256(checkpoint.read_bytes()).hexdigest()
+    with pytest.raises(ValueError,match='allow_reset_pose_change'):
+        continuation_command(checkpoint,cfg,'reset',5,{},tmp_path/'STOP',
+                             joint_reset_profile='joint_target_nominal_v1')
+    command,_,loaded=continuation_command(checkpoint,cfg,'reset',5,{},tmp_path/'STOP',
+        joint_reset_profile='joint_target_nominal_v1',allow_reset_pose_change=True)
+    assert '--allow_reset_pose_change' in command
+    assert 'env.joint_reset_profile="joint_target_nominal_v1"' in command
+    assert optimizer_step(loaded)==7000 and loaded['optimizer_state_dict']['param_groups'][0]['lr']==.00002
+    assert '--reset_optimizer' not in command and '--reset_exploration_std' not in command
+    assert hashlib.sha256(checkpoint.read_bytes()).hexdigest()==original_hash
+    legacy,_,_=continuation_command(checkpoint,cfg,'legacy',5,{},tmp_path/'STOP')
+    assert 'env.joint_reset_profile="cad_zero_v0"' in legacy
+    assert '--allow_reset_pose_change' not in legacy
+
+
 def test_only_the_declared_height_command_change_is_permitted():
     previous={'commands':{'ranges_height':[.28,.32],'ranges_ang_vel_yaw':[-.3,.3]},
               'rewards':{'base_height_relative_deadband':.05},'leg_joint_stiffness':300.}

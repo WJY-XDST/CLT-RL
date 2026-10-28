@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+*.egg-info/
+bundles/*/
+logs/
+config/hardware.local.json
+dist/
+verification/*.json

@@ -29,7 +29,7 @@ def main():
     parser.add_argument("--headless", action="store_true")
     parser.add_argument("--no-keyboard", "--no_keyboard", action="store_true", help="Disable the automatic focused keyboard panel for GUI replay.")
     parser.add_argument("--keyboard-speed", type=float, default=.8, help="W/S target speed in m/s (0 < value <= 0.8).")
-    parser.add_argument("--keyboard-yaw-rate", type=float, default=.6, help="A/D target yaw rate in rad/s (0 < value <= 0.6; may exceed training range).")
+    parser.add_argument("--keyboard-yaw-rate", type=float, default=.3, help="A/D target yaw rate in rad/s (default: 0.3; explicit values up to 0.6 may exceed training range).")
     parser.add_argument("--keyboard-height-step", type=float, default=.005, help="Q/E single-press height goal step in m.")
     parser.add_argument("--keyboard-height-rate", type=float, default=.02, help="Q/E held height goal rate in m/s.")
     parser.add_argument("--keyboard-height-slew-rate", type=float, default=.02, help="Height command ramp rate in m/s, continuing after key release.")
@@ -232,8 +232,8 @@ def main():
                     row['left_wheel_rad_s'] = sim.data.qvel[sim.vids[2]]
                     row['right_wheel_rad_s'] = -sim.data.qvel[sim.vids[5]]
                     row['five_bar_valid'] = bool(sim.kinematics_valid.all())
-                    for side, angle_action, wheel_action in [('left', 0, 2), ('right', 3, 5)]:
-                        row[side + '_angle_ref_rad'] = float(np.clip(sim.actions[0, angle_action].item() * cfg['action_scale_theta'], cfg['theta0_ref_min'], cfg['theta0_ref_max']))
+                    for side, side_id, wheel_action in [('left', 0, 2), ('right', 1, 5)]:
+                        row[side + '_angle_ref_rad'] = float(sim.angle_ref[side_id])
                         row[side + '_wheel_ref_rad_s'] = float(sim.actions[0, wheel_action].item() * cfg['action_scale_vel'])
                     stop_contacts = [contact for contact in sim.data.contact
                                      if {model.geom_contype[contact.geom1], model.geom_contype[contact.geom2]} == {4, 8}]

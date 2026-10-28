@@ -190,7 +190,7 @@ keyboard_group.add_argument('--no_keyboard', dest='keyboard', action='store_fals
                             help='Disable automatic keyboard control for reproducible evaluation')
 parser.set_defaults(keyboard=None)
 parser.add_argument('--keyboard_speed', type=float, default=0.8, help='Held W/S speed [m/s]')
-parser.add_argument('--keyboard_yaw_rate', type=float, default=0.6, help='Held A/D yaw rate [rad/s]')
+parser.add_argument('--keyboard_yaw_rate', type=float, default=0.3, help='Held A/D yaw rate [rad/s]')
 parser.add_argument('--keyboard_height_rate', type=float, default=0.02, help='Held Q/E height change [m/s]')
 parser.add_argument('--keyboard_height_step', type=float, default=0.005, help='Q/E initial press height step [m]')
 parser.add_argument('--keyboard_height_slew_rate', type=float, default=0.02,
@@ -307,8 +307,6 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                                          args_cli.keyboard_height_rate, height_min, height_max, initial_height,
                                          height_step=args_cli.keyboard_height_step,
                                          height_slew_rate=args_cli.keyboard_height_slew_rate)
-        if keyboard_config.speed > env_cfg.wheel_radius * env_cfg.action_scale_vel:
-            raise ValueError('Keyboard speed exceeds the wheel action range')
         if args_cli.heading_feedback and keyboard_config.yaw_rate > 0.5:
             raise ValueError('Heading feedback requires --keyboard_yaw_rate <= 0.5 rad/s; '
                              'use direct keyboard yaw-rate mode for larger commands')
@@ -420,6 +418,15 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     from wheel_legged_gym_isaaclab.leg_control import require_matching_policy_contract
     require_matching_policy_contract(saved_config, env_cfg.to_dict())
     physics_overrides = json.loads(args_cli.overrides_json.read_text()) if args_cli.overrides_json else {}
+    from wheel_legged_gym_isaaclab.wheel_control import checkpoint_wheel_action_limit
+    if any(arg.startswith('env.wheel_action_limit=') for arg in hydra_args):
+        physics_overrides['wheel_action_limit'] = env_cfg.wheel_action_limit
+    env_cfg.wheel_action_limit = checkpoint_wheel_action_limit(saved_config, physics_overrides)
+    if not any(arg.startswith('env.action_scale_vel=') for arg in hydra_args):
+        env_cfg.action_scale_vel = saved_config.get('action_scale_vel', env_cfg.action_scale_vel)
+    if keyboard_enabled and keyboard_config.speed > (
+            env_cfg.wheel_radius * env_cfg.action_scale_vel * env_cfg.wheel_action_limit):
+        raise ValueError('Keyboard speed exceeds the saved wheel action range')
     if any(arg.startswith(f'env.{ROBOT_ASSET_FIELD}=') for arg in hydra_args):
         physics_overrides[ROBOT_ASSET_FIELD] = env_cfg.robot.spawn.usd_path
     env_cfg.robot.spawn.usd_path = checkpoint_robot_asset_setting(saved_config, physics_overrides)
@@ -499,7 +506,8 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     if any(cycle is not None for cycle in (args_cli.velocity_cycle, args_cli.height_cycle, args_cli.yaw_cycle)):
         velocity_phase_steps = max(1, round(args_cli.velocity_phase_duration / dt))
     if args_cli.velocity_cycle is not None:
-        reachable_speed = env.unwrapped.cfg.wheel_radius * env.unwrapped.cfg.action_scale_vel
+        reachable_speed = (env.unwrapped.cfg.wheel_radius * env.unwrapped.cfg.action_scale_vel
+                           * env.unwrapped.cfg.wheel_action_limit)
         if any(abs(value) > reachable_speed for value in args_cli.velocity_cycle):
             raise ValueError(
                 "A --velocity_cycle command exceeds the ideal wheel-speed action range "

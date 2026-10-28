@@ -28,6 +28,10 @@ parser.add_argument("--seed", type=int, default=None, help="Seed used for the en
 parser.add_argument("--max_iterations", type=int, default=None, help="RL Policy training iterations.")
 parser.add_argument('--stop_file', type=str, default=None,
                     help='Save a complete checkpoint and exit after an update when this marker exists.')
+parser.add_argument('--curriculum_step_offset', type=int, default=None,
+                    help='Fresh-policy command-clock offset; inherited from saved metadata on resume.')
+parser.add_argument('--save_initial_checkpoint', action='store_true',
+                    help='Preserve random initial weights and empty Adam before fresh training.')
 parser.add_argument(
     "--target_iteration", type=int, default=None,
     help="Stop at a total PPO iteration target, including iterations loaded from a checkpoint.",
@@ -47,6 +51,8 @@ parser.add_argument('--require_leg_control_mode', choices=('explicit_vmc','impli
                     help='Fail if Hydra overrides select a different leg execution chain.')
 parser.add_argument('--allow_physics_contract_change', action='store_true',
                     help='Explicitly allow a different robot asset or external-effort solver flag for a new experiment.')
+parser.add_argument('--allow_reset_pose_change', action='store_true',
+                    help='Explicit qualified migration from CAD-zero reset to the consistent nominal joint-target pose; weights/Adam unchanged.')
 parser.add_argument(
     "--checkpoint_path",
     type=str,
@@ -193,6 +199,8 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         source_config = validate_checkpoint_robot(resume_path)
         from wheel_legged_gym_isaaclab.leg_control import require_matching_policy_contract
         require_matching_policy_contract(source_config, env_cfg.to_dict())
+        from wheel_legged_gym_isaaclab.joint_reset import require_matching_reset_profile
+        require_matching_reset_profile(source_config, env_cfg.to_dict(), args_cli.allow_reset_pose_change)
         source_mode = source_config.get('leg_control_mode')
         require_leg_control_mode(source_mode)
         require_leg_control_mode(env_cfg.leg_control_mode, source_mode)
@@ -207,6 +215,31 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
             source_config, env_cfg.enable_external_forces_every_iteration,
             allow_change=args_cli.allow_physics_contract_change,
         )
+
+    # Set the command phase BEFORE RSL's wrapper performs its first reset.
+    # This opt-in clock leaves legacy continuation behavior unchanged.
+    from wheel_legged_gym_isaaclab.training_state import (
+        make_curriculum_clock, load_curriculum_clock, clocked_update_count,
+    )
+    clock = load_curriculum_clock(resume_path) if agent_cfg.resume else None
+    completed_clock_updates = 0
+    if args_cli.curriculum_step_offset is not None:
+        if agent_cfg.resume:
+            raise ValueError('Set a fresh curriculum offset only once; resume inherits it.')
+        clock = make_curriculum_clock(args_cli.curriculum_step_offset, int(agent_cfg.num_steps_per_env),
+            int(agent_cfg.algorithm.num_learning_epochs) * int(agent_cfg.algorithm.num_mini_batches))
+    if clock is not None:
+        expected = make_curriculum_clock(clock['offset_steps'], int(agent_cfg.num_steps_per_env),
+            int(agent_cfg.algorithm.num_learning_epochs) * int(agent_cfg.algorithm.num_mini_batches))
+        if clock != expected:
+            raise ValueError('Saved curriculum clock does not match the PPO update rates')
+        if agent_cfg.resume:
+            completed_clock_updates = clocked_update_count(
+                torch.load(resume_path, map_location='cpu', weights_only=True), clock,
+                allow_initial=os.path.basename(resume_path) == 'model_initial.pt')
+        env.unwrapped.common_step_counter = (clock['offset_steps']
+            + completed_clock_updates * clock['steps_per_update'])
+        print(f'[INFO]: Initial command curriculum step: {env.unwrapped.common_step_counter}', flush=True)
 
     # wrap for video recording
     if args_cli.video:
@@ -260,7 +293,11 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         # The environment curriculum is driven by control steps, whereas the
         # checkpoint stores PPO iterations. Keep both clocks aligned so a
         # resumed run does not silently return to the standing-only phase.
-        if hasattr(env.unwrapped, "common_step_counter"):
+        if clock is not None:
+            runner.current_learning_iteration = completed_clock_updates
+            env.unwrapped.common_step_counter = (clock['offset_steps']
+                + completed_clock_updates * clock['steps_per_update'])
+        elif hasattr(env.unwrapped, "common_step_counter"):
             curriculum_step = int(runner.current_learning_iteration) * int(
                 agent_cfg.num_steps_per_env
             )
@@ -320,12 +357,36 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     dump_yaml(os.path.join(log_dir, "params", "env.yaml"), env_cfg)
     dump_yaml(os.path.join(log_dir, "params", "agent.yaml"),
               configured_runner_dict(agent_cfg.to_dict(), joint_mean_guard_coef,joint_height_feedback_coef,height_model))
+    if clock is not None:
+        from wheel_legged_gym_isaaclab.height_commands import training_height_bounds
+        dump_yaml(os.path.join(log_dir, 'params', 'curriculum_clock.yaml'), clock)
+        initial_step = clock['offset_steps'] + completed_clock_updates * clock['steps_per_update']
+        progress = min(max((initial_step - env_cfg.commands.standing_only_steps)
+            / max(env_cfg.commands.motion_ramp_steps, 1), 0.), 1.)
+        dump_yaml(os.path.join(log_dir, 'params', 'curriculum_start.yaml'), {
+            'initial_common_step_counter': initial_step,
+            'completed_ppo_updates': completed_clock_updates,
+            'motion_progress': float(progress),
+            'height_bounds_m': list(training_height_bounds(
+                env_cfg.commands, env_cfg.rewards.base_height_target, initial_step, progress)),
+            'sampled_command_height_min_m': float(env.unwrapped._commands[:, 2].min()),
+            'sampled_command_height_max_m': float(env.unwrapped._commands[:, 2].max()),
+            'sampled_command_speed_min_m_s': float(env.unwrapped._commands[:, 0].min()),
+            'sampled_command_speed_max_m_s': float(env.unwrapped._commands[:, 0].max()),
+            'sampled_command_yaw_min_rad_s': float(env.unwrapped._commands[:, 1].min()),
+            'sampled_command_yaw_max_rad_s': float(env.unwrapped._commands[:, 1].max()),
+        })
     from wheel_legged_gym_isaaclab.mcu_hardware import MCU_LIMIT_EVIDENCE
     dump_yaml(os.path.join(log_dir, 'params', 'control_contract.yaml'), {
+        'joint_reset_profile': env_cfg.joint_reset_profile,
         'hardware_profile': env_cfg.hardware_profile,
         'hardware_limit_authority': MCU_LIMIT_EVIDENCE,
         'joint_action_scale_is_hardware_limit': False,
         'wheel_action_scale_is_hardware_limit': False,
+        'action_scale_vel': env_cfg.action_scale_vel,
+        'wheel_action_limit': env_cfg.wheel_action_limit,
+        'wheel_reference_max_rad_s': env_cfg.action_scale_vel * env_cfg.wheel_action_limit,
+        'wheel_reference_cap_is_verified_motor_speed_limit': False,
         'leg_control_mode': env_cfg.leg_control_mode,
         'leg_action_order': (['LB_joint_position', 'LL_joint_position', 'LW_speed', 'RB_joint_position', 'RL_joint_position', 'RW_speed']
                              if env_cfg.leg_control_mode == 'implicit_joint_position' else
@@ -363,6 +424,13 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         'fresh_weights': not agent_cfg.resume,
         'hardware_controller_calibrated': False,
     })
+
+    if args_cli.save_initial_checkpoint:
+        if agent_cfg.resume:
+            raise ValueError('Initial random-weight checkpoint is only valid for a fresh policy')
+        from wheel_legged_gym_isaaclab.training_state import save_random_initial_checkpoint
+        save_random_initial_checkpoint(runner, os.path.join(log_dir, 'model_initial.pt'))
+        print('[INFO]: Preserved fresh random weights and empty Adam before training.', flush=True)
 
     # 用户／服务正常停止时，等一次完整更新结束再保存，避免信号打断原生物理线程。
     from wheel_legged_gym_isaaclab.training_state import (

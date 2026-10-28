@@ -1,0 +1,466 @@
+{
+  "schema": "deployment_robustness_request_v1",
+  "user_requested_mass_offset_kg": [
+    -2.0,
+    2.0
+  ],
+  "nominal_mass_kg": 13.64,
+  "expected_total_mass_kg": [
+    11.64,
+    15.64
+  ],
+  "nominal_body_mass_kg": 9.77,
+  "nominal_feedforward_per_leg_N": 66.9042,
+  "measured_wheel_mass_each_kg": 0.665,
+  "payload_location": "base_link_only",
+  "leg_and_wheel_masses_fixed": true,
+  "gravity_feedforward_uses_nominal_mass": true,
+  "enabled_in_current_nominal_training": false,
+  "simulator_started": false,
+  "profiles": [
+    {
+      "name": "nominal",
+      "specification": {
+        "enabled": false
+      }
+    },
+    {
+      "name": "payload_minus2kg",
+      "specification": {
+        "enabled": true,
+        "seed": 20261027,
+        "body_mass_offset_kg": [
+          -2.0,
+          -2.0
+        ]
+      }
+    },
+    {
+      "name": "payload_plus2kg",
+      "specification": {
+        "enabled": true,
+        "seed": 20261027,
+        "body_mass_offset_kg": [
+          2.0,
+          2.0
+        ]
+      }
+    },
+    {
+      "name": "payload_uniform2kg",
+      "specification": {
+        "enabled": true,
+        "seed": 20261027,
+        "body_mass_offset_kg": [
+          -2.0,
+          2.0
+        ]
+      }
+    },
+    {
+      "name": "friction_low",
+      "specification": {
+        "enabled": true,
+        "seed": 20261027,
+        "material_static_friction": [
+          0.2,
+          0.2
+        ],
+        "dynamic_friction_fraction": [
+          0.7,
+          0.7
+        ]
+      }
+    },
+    {
+      "name": "friction_high",
+      "specification": {
+        "enabled": true,
+        "seed": 20261027,
+        "material_static_friction": [
+          1.5,
+          1.5
+        ],
+        "dynamic_friction_fraction": [
+          0.8,
+          0.8
+        ]
+      }
+    },
+    {
+      "name": "friction_uniform",
+      "specification": {
+        "enabled": true,
+        "seed": 20261027,
+        "material_static_friction": [
+          0.2,
+          1.5
+        ],
+        "dynamic_friction_fraction": [
+          0.7,
+          1.0
+        ]
+      }
+    },
+    {
+      "name": "body_inertia",
+      "specification": {
+        "enabled": true,
+        "seed": 20261027,
+        "body_inertia_scale": [
+          0.8,
+          1.2
+        ]
+      }
+    },
+    {
+      "name": "body_com",
+      "specification": {
+        "enabled": true,
+        "seed": 20261027,
+        "body_com_x_m": [
+          -0.02,
+          0.02
+        ],
+        "body_com_y_m": [
+          -0.01,
+          0.01
+        ],
+        "body_com_z_m": [
+          -0.015,
+          0.015
+        ]
+      }
+    },
+    {
+      "name": "leg_pd",
+      "specification": {
+        "enabled": true,
+        "seed": 20261027,
+        "leg_stiffness_scale": [
+          0.8,
+          1.2
+        ],
+        "leg_damping_scale": [
+          0.8,
+          1.2
+        ]
+      }
+    },
+    {
+      "name": "wheel_pd",
+      "specification": {
+        "enabled": true,
+        "seed": 20261027,
+        "wheel_damping_scale": [
+          0.8,
+          1.2
+        ]
+      }
+    },
+    {
+      "name": "sensors_noise",
+      "specification": {
+        "enabled": true,
+        "seed": 20261027,
+        "gyro_noise_rad_s": 0.02,
+        "gravity_noise": 0.005,
+        "joint_position_noise_rad": 0.005,
+        "joint_velocity_noise_rad_s": 0.1,
+        "linear_velocity_noise_m_s": 0.02,
+        "wheel_velocity_noise_rad_s": 0.1
+      }
+    },
+    {
+      "name": "sensor_zero_bias",
+      "specification": {
+        "enabled": true,
+        "seed": 20261027,
+        "gyro_bias_rad_s": 0.01,
+        "joint_zero_bias_rad": 0.01
+      }
+    },
+    {
+      "name": "restitution",
+      "specification": {
+        "enabled": true,
+        "seed": 20261027,
+        "restitution": [
+          0.0,
+          0.15
+        ]
+      }
+    },
+    {
+      "name": "sensor_delay_5ms",
+      "specification": {
+        "enabled": true,
+        "seed": 20261027,
+        "sensor_delay_steps": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "name": "sensor_delay_10ms",
+      "specification": {
+        "enabled": true,
+        "seed": 20261027,
+        "sensor_delay_steps": [
+          2,
+          2
+        ]
+      }
+    },
+    {
+      "name": "sensor_delay_20ms",
+      "specification": {
+        "enabled": true,
+        "seed": 20261027,
+        "sensor_delay_steps": [
+          4,
+          4
+        ]
+      }
+    },
+    {
+      "name": "sensor_delay_40ms",
+      "specification": {
+        "enabled": true,
+        "seed": 20261027,
+        "sensor_delay_steps": [
+          8,
+          8
+        ]
+      }
+    },
+    {
+      "name": "action_delay_5ms",
+      "specification": {
+        "enabled": true,
+        "seed": 20261027,
+        "action_delay_steps": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "name": "action_delay_10ms",
+      "specification": {
+        "enabled": true,
+        "seed": 20261027,
+        "action_delay_steps": [
+          2,
+          2
+        ]
+      }
+    },
+    {
+      "name": "action_delay_20ms",
+      "specification": {
+        "enabled": true,
+        "seed": 20261027,
+        "action_delay_steps": [
+          4,
+          4
+        ]
+      }
+    },
+    {
+      "name": "action_delay_40ms",
+      "specification": {
+        "enabled": true,
+        "seed": 20261027,
+        "action_delay_steps": [
+          8,
+          8
+        ]
+      }
+    },
+    {
+      "name": "combined_mild",
+      "specification": {
+        "enabled": true,
+        "seed": 20261027,
+        "body_mass_offset_kg": [
+          -1.0,
+          1.0
+        ],
+        "body_inertia_scale": [
+          0.9,
+          1.1
+        ],
+        "material_static_friction": [
+          0.4,
+          0.8
+        ],
+        "dynamic_friction_fraction": [
+          0.8,
+          1.0
+        ],
+        "body_com_x_m": [
+          -0.01,
+          0.01
+        ],
+        "body_com_y_m": [
+          -0.005,
+          0.005
+        ],
+        "body_com_z_m": [
+          -0.005,
+          0.005
+        ],
+        "leg_stiffness_scale": [
+          0.9,
+          1.1
+        ],
+        "leg_damping_scale": [
+          0.9,
+          1.1
+        ],
+        "wheel_damping_scale": [
+          0.9,
+          1.1
+        ],
+        "sensor_delay_steps": [
+          0,
+          2
+        ],
+        "action_delay_steps": [
+          0,
+          2
+        ],
+        "gyro_noise_rad_s": 0.01,
+        "gravity_noise": 0.0025,
+        "joint_position_noise_rad": 0.0025,
+        "joint_velocity_noise_rad_s": 0.05,
+        "linear_velocity_noise_m_s": 0.01,
+        "wheel_velocity_noise_rad_s": 0.05
+      }
+    },
+    {
+      "name": "combined_requested_envelope",
+      "specification": {
+        "enabled": true,
+        "seed": 20261027,
+        "body_mass_offset_kg": [
+          -2.0,
+          2.0
+        ],
+        "body_inertia_scale": [
+          0.8,
+          1.2
+        ],
+        "material_static_friction": [
+          0.2,
+          1.5
+        ],
+        "dynamic_friction_fraction": [
+          0.7,
+          1.0
+        ],
+        "body_com_x_m": [
+          -0.02,
+          0.02
+        ],
+        "body_com_y_m": [
+          -0.01,
+          0.01
+        ],
+        "body_com_z_m": [
+          -0.015,
+          0.015
+        ],
+        "leg_stiffness_scale": [
+          0.8,
+          1.2
+        ],
+        "leg_damping_scale": [
+          0.8,
+          1.2
+        ],
+        "wheel_damping_scale": [
+          0.8,
+          1.2
+        ],
+        "sensor_delay_steps": [
+          0,
+          4
+        ],
+        "action_delay_steps": [
+          0,
+          4
+        ],
+        "restitution": [
+          0.0,
+          0.15
+        ],
+        "gyro_bias_rad_s": 0.01,
+        "joint_zero_bias_rad": 0.01,
+        "gyro_noise_rad_s": 0.02,
+        "gravity_noise": 0.005,
+        "joint_position_noise_rad": 0.005,
+        "joint_velocity_noise_rad_s": 0.1,
+        "linear_velocity_noise_m_s": 0.02,
+        "wheel_velocity_noise_rad_s": 0.1
+      }
+    }
+  ],
+  "per_profile_original_trials": 735,
+  "unique_numeric_commands": 219,
+  "nominal_simulation_dt_s": 0.005,
+  "prerequisite": {
+    "nominal735_all_original_and_strict10": true,
+    "independent189_all_original_and_strict10": true,
+    "all_survive": true,
+    "height_and_stability_gates_retained": true,
+    "checkpoint_identity_must_match": true
+  },
+  "randomized_parameters_independent_of_commands": true,
+  "case_specific_training_logic": false,
+  "frozen_test_profiles_are_not_training_case_selection": true,
+  "engineering_ranges_need_hardware_calibration": true,
+  "independent_sustained735_60s_still_required": true,
+  "hardware_enabled": false,
+  "policy_accepted": false,
+  "additional_required_readiness_checks": [
+    {
+      "name": "impulse_recovery_and_reset_transitions",
+      "status": "pending_native_test_implementation"
+    },
+    {
+      "name": "terrain_slope_and_uneven_ground",
+      "status": "pending_ground_relative_height_contract_then_native_tests"
+    },
+    {
+      "name": "packet_loss_jitter_and_stale_sensor",
+      "status": "pending_fault_injection_beyond_fixed_step_delay"
+    },
+    {
+      "name": "actuator_strength_and_combined_torque_limit",
+      "status": "pending_total_PD_plus_feedforward_effort_validation"
+    },
+    {
+      "name": "fresh_sustained735",
+      "status": "existing_full_scope_runner_pending_qualified_candidate"
+    },
+    {
+      "name": "mujoco_same_candidate_regression",
+      "status": "pending_current13p64kg_candidate_and_interface_binding"
+    },
+    {
+      "name": "onnx_cubeai_float32_golden_observations",
+      "status": "pending_current_accepted_candidate_export"
+    },
+    {
+      "name": "stm32h750_cubeai_flash_ram_stack_and_worst_case_timing",
+      "status": "pending_build_analysis_and_measurement_no_flashing_authorized"
+    },
+    {
+      "name": "firmware_units_zero_sign_joint_order_and_watchdog_offline",
+      "status": "existing_offline_tests_require_current_candidate_binding"
+    }
+  ]
+}

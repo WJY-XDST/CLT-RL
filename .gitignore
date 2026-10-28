@@ -9,6 +9,10 @@ __pycache__/
 .vscode/
 .~lock.*
 *.egg-info/
+/sim2real/.venv-cubeai/
+/sim2real/cubeai/artifacts/
+/sim2real/.directory_migrations/
+/sim2real/series_balance_rtos (2).zip
 
 # 本地打包和生成的机器人资产缓存
 /wheel_legged_isaaclab.zip
@@ -43,3 +47,20 @@ __pycache__/
 /sim2real/series_balance_rtos (2)/**/JLinkSettings.ini
 /sim2real/series_balance_rtos (2)/**/*.uvguix.*
 /sim2real/series_balance_rtos (2)/**/*.log
+
+# 当前独立下位机目录的编译产物
+/sim2real/series_balance_rtos/**/output/
+/sim2real/series_balance_rtos/**/Listenings/
+/sim2real/series_balance_rtos/**/*.o
+/sim2real/series_balance_rtos/**/*.d
+/sim2real/series_balance_rtos/**/*.crf
+/sim2real/series_balance_rtos/**/*.axf
+/sim2real/series_balance_rtos/**/*.hex
+/sim2real/series_balance_rtos/**/*.map
+/sim2real/series_balance_rtos/**/*.dep
+/sim2real/series_balance_rtos/**/*.lst
+/sim2real/series_balance_rtos/**/*.lnp
+/sim2real/series_balance_rtos/**/JLinkSettings.ini
+/sim2real/series_balance_rtos/**/*.uvguix.*
+/sim2real/series_balance_rtos/**/*.log
+.pytest_cache/

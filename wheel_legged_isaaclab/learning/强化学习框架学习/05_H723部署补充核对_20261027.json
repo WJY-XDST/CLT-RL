@@ -1,0 +1,855 @@
+{
+  "schema": "xyega_h723_reference_readonly_20261027_v1",
+  "checked_at": "2026-10-27T08:47:33.292037+00:00",
+  "document": "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/learning/强化学习框架学习/05_开源XYEGA部署工程与本项目对照.md",
+  "document_sha256": "f3637803dce4f528fa8029968da4ece95bf87a66a5eb148cf08dfdafdaa67070",
+  "reference_board_family": "STM32H723",
+  "reference_board_information_provenance": "user confirmation",
+  "reference_full_part_number_and_final_memory_layout_not_in_snapshot": true,
+  "user_board": "STM32H750VBT6",
+  "official_H723_Flash_bytes_by_variant": {
+    "xE": 524288,
+    "xG": 1048576
+  },
+  "official_H750VB_Flash_bytes": 131072,
+  "reference_models": [
+    {
+      "path": "pseudocode/example/onnx/jump/jump_pos0.2_0.4_p6.0_d0.5_0.2.onnx",
+      "sha256": "54c9972506a38e94a6b5de30e79ad689a7b9fd92e72640874eee1bdb4c36dc78",
+      "file_bytes": 157656,
+      "inputs": [
+        {
+          "name": "obs",
+          "dtype": "FLOAT",
+          "shape": [
+            "batch",
+            25
+          ]
+        },
+        {
+          "name": "obs_history",
+          "dtype": "FLOAT",
+          "shape": [
+            "batch",
+            125
+          ]
+        }
+      ],
+      "outputs": [
+        {
+          "name": "actions",
+          "dtype": "FLOAT",
+          "shape": [
+            "batch",
+            6
+          ]
+        }
+      ],
+      "operators": {
+        "Gemm": 7,
+        "Elu": 5,
+        "Concat": 1
+      },
+      "opset": [
+        [
+          "",
+          17
+        ]
+      ],
+      "parameter_count": 38825,
+      "parameter_bytes": 155300,
+      "initializers": [
+        {
+          "name": "encoder.0.weight",
+          "shape": [
+            128,
+            125
+          ],
+          "dtype": "float32",
+          "parameters": 16000,
+          "bytes": 64000,
+          "external": false
+        },
+        {
+          "name": "encoder.0.bias",
+          "shape": [
+            128
+          ],
+          "dtype": "float32",
+          "parameters": 128,
+          "bytes": 512,
+          "external": false
+        },
+        {
+          "name": "encoder.2.weight",
+          "shape": [
+            64,
+            128
+          ],
+          "dtype": "float32",
+          "parameters": 8192,
+          "bytes": 32768,
+          "external": false
+        },
+        {
+          "name": "encoder.2.bias",
+          "shape": [
+            64
+          ],
+          "dtype": "float32",
+          "parameters": 64,
+          "bytes": 256,
+          "external": false
+        },
+        {
+          "name": "encoder.4.weight",
+          "shape": [
+            3,
+            64
+          ],
+          "dtype": "float32",
+          "parameters": 192,
+          "bytes": 768,
+          "external": false
+        },
+        {
+          "name": "encoder.4.bias",
+          "shape": [
+            3
+          ],
+          "dtype": "float32",
+          "parameters": 3,
+          "bytes": 12,
+          "external": false
+        },
+        {
+          "name": "actor.0.weight",
+          "shape": [
+            128,
+            28
+          ],
+          "dtype": "float32",
+          "parameters": 3584,
+          "bytes": 14336,
+          "external": false
+        },
+        {
+          "name": "actor.0.bias",
+          "shape": [
+            128
+          ],
+          "dtype": "float32",
+          "parameters": 128,
+          "bytes": 512,
+          "external": false
+        },
+        {
+          "name": "actor.2.weight",
+          "shape": [
+            64,
+            128
+          ],
+          "dtype": "float32",
+          "parameters": 8192,
+          "bytes": 32768,
+          "external": false
+        },
+        {
+          "name": "actor.2.bias",
+          "shape": [
+            64
+          ],
+          "dtype": "float32",
+          "parameters": 64,
+          "bytes": 256,
+          "external": false
+        },
+        {
+          "name": "actor.4.weight",
+          "shape": [
+            32,
+            64
+          ],
+          "dtype": "float32",
+          "parameters": 2048,
+          "bytes": 8192,
+          "external": false
+        },
+        {
+          "name": "actor.4.bias",
+          "shape": [
+            32
+          ],
+          "dtype": "float32",
+          "parameters": 32,
+          "bytes": 128,
+          "external": false
+        },
+        {
+          "name": "actor.6.weight",
+          "shape": [
+            6,
+            32
+          ],
+          "dtype": "float32",
+          "parameters": 192,
+          "bytes": 768,
+          "external": false
+        },
+        {
+          "name": "actor.6.bias",
+          "shape": [
+            6
+          ],
+          "dtype": "float32",
+          "parameters": 6,
+          "bytes": 24,
+          "external": false
+        }
+      ],
+      "onnx_checker_passed": true,
+      "dense_MACs": 38400
+    },
+    {
+      "path": "pseudocode/example/onnx/pin/spin_pos0.23_0.65_p10.0_d1.0_0.1.onnx",
+      "sha256": "e5dd968f2ed859651648b44684107fa53e95318d3824b6c1692030f1fcb65a7e",
+      "file_bytes": 157656,
+      "inputs": [
+        {
+          "name": "obs",
+          "dtype": "FLOAT",
+          "shape": [
+            "batch",
+            25
+          ]
+        },
+        {
+          "name": "obs_history",
+          "dtype": "FLOAT",
+          "shape": [
+            "batch",
+            125
+          ]
+        }
+      ],
+      "outputs": [
+        {
+          "name": "actions",
+          "dtype": "FLOAT",
+          "shape": [
+            "batch",
+            6
+          ]
+        }
+      ],
+      "operators": {
+        "Gemm": 7,
+        "Elu": 5,
+        "Concat": 1
+      },
+      "opset": [
+        [
+          "",
+          17
+        ]
+      ],
+      "parameter_count": 38825,
+      "parameter_bytes": 155300,
+      "initializers": [
+        {
+          "name": "encoder.0.weight",
+          "shape": [
+            128,
+            125
+          ],
+          "dtype": "float32",
+          "parameters": 16000,
+          "bytes": 64000,
+          "external": false
+        },
+        {
+          "name": "encoder.0.bias",
+          "shape": [
+            128
+          ],
+          "dtype": "float32",
+          "parameters": 128,
+          "bytes": 512,
+          "external": false
+        },
+        {
+          "name": "encoder.2.weight",
+          "shape": [
+            64,
+            128
+          ],
+          "dtype": "float32",
+          "parameters": 8192,
+          "bytes": 32768,
+          "external": false
+        },
+        {
+          "name": "encoder.2.bias",
+          "shape": [
+            64
+          ],
+          "dtype": "float32",
+          "parameters": 64,
+          "bytes": 256,
+          "external": false
+        },
+        {
+          "name": "encoder.4.weight",
+          "shape": [
+            3,
+            64
+          ],
+          "dtype": "float32",
+          "parameters": 192,
+          "bytes": 768,
+          "external": false
+        },
+        {
+          "name": "encoder.4.bias",
+          "shape": [
+            3
+          ],
+          "dtype": "float32",
+          "parameters": 3,
+          "bytes": 12,
+          "external": false
+        },
+        {
+          "name": "actor.0.weight",
+          "shape": [
+            128,
+            28
+          ],
+          "dtype": "float32",
+          "parameters": 3584,
+          "bytes": 14336,
+          "external": false
+        },
+        {
+          "name": "actor.0.bias",
+          "shape": [
+            128
+          ],
+          "dtype": "float32",
+          "parameters": 128,
+          "bytes": 512,
+          "external": false
+        },
+        {
+          "name": "actor.2.weight",
+          "shape": [
+            64,
+            128
+          ],
+          "dtype": "float32",
+          "parameters": 8192,
+          "bytes": 32768,
+          "external": false
+        },
+        {
+          "name": "actor.2.bias",
+          "shape": [
+            64
+          ],
+          "dtype": "float32",
+          "parameters": 64,
+          "bytes": 256,
+          "external": false
+        },
+        {
+          "name": "actor.4.weight",
+          "shape": [
+            32,
+            64
+          ],
+          "dtype": "float32",
+          "parameters": 2048,
+          "bytes": 8192,
+          "external": false
+        },
+        {
+          "name": "actor.4.bias",
+          "shape": [
+            32
+          ],
+          "dtype": "float32",
+          "parameters": 32,
+          "bytes": 128,
+          "external": false
+        },
+        {
+          "name": "actor.6.weight",
+          "shape": [
+            6,
+            32
+          ],
+          "dtype": "float32",
+          "parameters": 192,
+          "bytes": 768,
+          "external": false
+        },
+        {
+          "name": "actor.6.bias",
+          "shape": [
+            6
+          ],
+          "dtype": "float32",
+          "parameters": 6,
+          "bytes": 24,
+          "external": false
+        }
+      ],
+      "onnx_checker_passed": true,
+      "dense_MACs": 38400
+    },
+    {
+      "path": "pseudocode/example/onnx/stable/stable_pos0.23_0.65_p15.0_d1.0_0.1.onnx",
+      "sha256": "37084bdc04f719297cfaf87611fe665a1c680446615450879970599fd7f4f3ea",
+      "file_bytes": 157656,
+      "inputs": [
+        {
+          "name": "obs",
+          "dtype": "FLOAT",
+          "shape": [
+            "batch",
+            25
+          ]
+        },
+        {
+          "name": "obs_history",
+          "dtype": "FLOAT",
+          "shape": [
+            "batch",
+            125
+          ]
+        }
+      ],
+      "outputs": [
+        {
+          "name": "actions",
+          "dtype": "FLOAT",
+          "shape": [
+            "batch",
+            6
+          ]
+        }
+      ],
+      "operators": {
+        "Gemm": 7,
+        "Elu": 5,
+        "Concat": 1
+      },
+      "opset": [
+        [
+          "",
+          17
+        ]
+      ],
+      "parameter_count": 38825,
+      "parameter_bytes": 155300,
+      "initializers": [
+        {
+          "name": "encoder.0.weight",
+          "shape": [
+            128,
+            125
+          ],
+          "dtype": "float32",
+          "parameters": 16000,
+          "bytes": 64000,
+          "external": false
+        },
+        {
+          "name": "encoder.0.bias",
+          "shape": [
+            128
+          ],
+          "dtype": "float32",
+          "parameters": 128,
+          "bytes": 512,
+          "external": false
+        },
+        {
+          "name": "encoder.2.weight",
+          "shape": [
+            64,
+            128
+          ],
+          "dtype": "float32",
+          "parameters": 8192,
+          "bytes": 32768,
+          "external": false
+        },
+        {
+          "name": "encoder.2.bias",
+          "shape": [
+            64
+          ],
+          "dtype": "float32",
+          "parameters": 64,
+          "bytes": 256,
+          "external": false
+        },
+        {
+          "name": "encoder.4.weight",
+          "shape": [
+            3,
+            64
+          ],
+          "dtype": "float32",
+          "parameters": 192,
+          "bytes": 768,
+          "external": false
+        },
+        {
+          "name": "encoder.4.bias",
+          "shape": [
+            3
+          ],
+          "dtype": "float32",
+          "parameters": 3,
+          "bytes": 12,
+          "external": false
+        },
+        {
+          "name": "actor.0.weight",
+          "shape": [
+            128,
+            28
+          ],
+          "dtype": "float32",
+          "parameters": 3584,
+          "bytes": 14336,
+          "external": false
+        },
+        {
+          "name": "actor.0.bias",
+          "shape": [
+            128
+          ],
+          "dtype": "float32",
+          "parameters": 128,
+          "bytes": 512,
+          "external": false
+        },
+        {
+          "name": "actor.2.weight",
+          "shape": [
+            64,
+            128
+          ],
+          "dtype": "float32",
+          "parameters": 8192,
+          "bytes": 32768,
+          "external": false
+        },
+        {
+          "name": "actor.2.bias",
+          "shape": [
+            64
+          ],
+          "dtype": "float32",
+          "parameters": 64,
+          "bytes": 256,
+          "external": false
+        },
+        {
+          "name": "actor.4.weight",
+          "shape": [
+            32,
+            64
+          ],
+          "dtype": "float32",
+          "parameters": 2048,
+          "bytes": 8192,
+          "external": false
+        },
+        {
+          "name": "actor.4.bias",
+          "shape": [
+            32
+          ],
+          "dtype": "float32",
+          "parameters": 32,
+          "bytes": 128,
+          "external": false
+        },
+        {
+          "name": "actor.6.weight",
+          "shape": [
+            6,
+            32
+          ],
+          "dtype": "float32",
+          "parameters": 192,
+          "bytes": 768,
+          "external": false
+        },
+        {
+          "name": "actor.6.bias",
+          "shape": [
+            6
+          ],
+          "dtype": "float32",
+          "parameters": 6,
+          "bytes": 24,
+          "external": false
+        }
+      ],
+      "onnx_checker_passed": true,
+      "dense_MACs": 38400
+    },
+    {
+      "path": "pseudocode/example/onnx/upstairs/upstairs_pos0.23_0.65_p15.0_d1.0_0.1.onnx",
+      "sha256": "bfd2a6f1a31c66f237bfbaa65e9809631ba4ea26cc40d6f3f7c8d0d004ebcb64",
+      "file_bytes": 157656,
+      "inputs": [
+        {
+          "name": "obs",
+          "dtype": "FLOAT",
+          "shape": [
+            "batch",
+            25
+          ]
+        },
+        {
+          "name": "obs_history",
+          "dtype": "FLOAT",
+          "shape": [
+            "batch",
+            125
+          ]
+        }
+      ],
+      "outputs": [
+        {
+          "name": "actions",
+          "dtype": "FLOAT",
+          "shape": [
+            "batch",
+            6
+          ]
+        }
+      ],
+      "operators": {
+        "Gemm": 7,
+        "Elu": 5,
+        "Concat": 1
+      },
+      "opset": [
+        [
+          "",
+          17
+        ]
+      ],
+      "parameter_count": 38825,
+      "parameter_bytes": 155300,
+      "initializers": [
+        {
+          "name": "encoder.0.weight",
+          "shape": [
+            128,
+            125
+          ],
+          "dtype": "float32",
+          "parameters": 16000,
+          "bytes": 64000,
+          "external": false
+        },
+        {
+          "name": "encoder.0.bias",
+          "shape": [
+            128
+          ],
+          "dtype": "float32",
+          "parameters": 128,
+          "bytes": 512,
+          "external": false
+        },
+        {
+          "name": "encoder.2.weight",
+          "shape": [
+            64,
+            128
+          ],
+          "dtype": "float32",
+          "parameters": 8192,
+          "bytes": 32768,
+          "external": false
+        },
+        {
+          "name": "encoder.2.bias",
+          "shape": [
+            64
+          ],
+          "dtype": "float32",
+          "parameters": 64,
+          "bytes": 256,
+          "external": false
+        },
+        {
+          "name": "encoder.4.weight",
+          "shape": [
+            3,
+            64
+          ],
+          "dtype": "float32",
+          "parameters": 192,
+          "bytes": 768,
+          "external": false
+        },
+        {
+          "name": "encoder.4.bias",
+          "shape": [
+            3
+          ],
+          "dtype": "float32",
+          "parameters": 3,
+          "bytes": 12,
+          "external": false
+        },
+        {
+          "name": "actor.0.weight",
+          "shape": [
+            128,
+            28
+          ],
+          "dtype": "float32",
+          "parameters": 3584,
+          "bytes": 14336,
+          "external": false
+        },
+        {
+          "name": "actor.0.bias",
+          "shape": [
+            128
+          ],
+          "dtype": "float32",
+          "parameters": 128,
+          "bytes": 512,
+          "external": false
+        },
+        {
+          "name": "actor.2.weight",
+          "shape": [
+            64,
+            128
+          ],
+          "dtype": "float32",
+          "parameters": 8192,
+          "bytes": 32768,
+          "external": false
+        },
+        {
+          "name": "actor.2.bias",
+          "shape": [
+            64
+          ],
+          "dtype": "float32",
+          "parameters": 64,
+          "bytes": 256,
+          "external": false
+        },
+        {
+          "name": "actor.4.weight",
+          "shape": [
+            32,
+            64
+          ],
+          "dtype": "float32",
+          "parameters": 2048,
+          "bytes": 8192,
+          "external": false
+        },
+        {
+          "name": "actor.4.bias",
+          "shape": [
+            32
+          ],
+          "dtype": "float32",
+          "parameters": 32,
+          "bytes": 128,
+          "external": false
+        },
+        {
+          "name": "actor.6.weight",
+          "shape": [
+            6,
+            32
+          ],
+          "dtype": "float32",
+          "parameters": 192,
+          "bytes": 768,
+          "external": false
+        },
+        {
+          "name": "actor.6.bias",
+          "shape": [
+            6
+          ],
+          "dtype": "float32",
+          "parameters": 6,
+          "bytes": 24,
+          "external": false
+        }
+      ],
+      "onnx_checker_passed": true,
+      "dense_MACs": 38400
+    }
+  ],
+  "all4_reference_raw_FP32_parameter_bytes": 621200,
+  "all4_reference_raw_FP32_parameter_KiB": 606.640625,
+  "current_actor_budget_evidence": "/home/aaa/studyRL/src/CLT-RL/mine_model/results/joint_pd_body_plus1p3kg_20261026/post_acceptance_deployment_preparation_20261027/actor_memory_optimization_feasibility_20261027.json",
+  "current_actor_budget_evidence_sha256": "5d1bea9a31249842f934880d1defe33639348a9a3eea59252e8945779598146b",
+  "current_actor_raw_FP32_bytes": 194840,
+  "old_firmware_ROM_bytes": 77976,
+  "old_firmware_not_rebuilt_with_AI": true,
+  "AI_generated_resources_and_board_inference_timing_not_measured": true,
+  "reference_100Hz_policy_not_transferred_to_current_50Hz_policy": true,
+  "current_single27_input_and_direct_joint_target_contract_preserved": true,
+  "source_pins": {
+    "/home/aaa/studyRL/src/XYEGA_RM2026_WheelLeg_Infatry_RLdeploy/source_code/User/Task/robot_task/robot_task.cpp": "9a3bc66f1be7d210db676f48ce19df8cccadcbde24e4a67bc13a8583654cf0c1",
+    "/home/aaa/studyRL/src/XYEGA_RM2026_WheelLeg_Infatry_RLdeploy/source_code/User/Application/chassis/chassis.cpp": "84a751e416fae561e923f15de900abb47849217bf72ec7f0ddb2f400058d3107",
+    "/home/aaa/studyRL/src/XYEGA_RM2026_WheelLeg_Infatry_RLdeploy/source_code/User/Module/rl_policy/rl_policy.cpp": "c43079a2b1489431a7344569bc765b5e5afc524470ba1a8f4f881d31e9bf2b57",
+    "/home/aaa/studyRL/src/CLT-RL/sim2real/wheelleg_deploy/schema.py": "de9bf72bf79ae4770614e675f8edb78ea2043910edffcb81c96b332824e3f1d2",
+    "/home/aaa/studyRL/src/CLT-RL/sim2real/wheelleg_deploy/targets.py": "2d8868b84760c9deceff8e8df19843686633279451ed6b06eb67d046fea3e6da",
+    "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/wheel_legged_gym_isaaclab/leg_control.py": "3b119cb25005f8cd8f086e3c5d2e9547a45da628003b5995e1633571bdf8b021",
+    "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py": "c1dd69e35d26d518f2d282c74c4fe081e789f3e8514c4865ea8604d2c3997a7e",
+    "/home/aaa/studyRL/src/XYEGA_RM2026_WheelLeg_Infatry_RLdeploy/readme.md": "a348b7fac8669ef256d1744f14388bb566a467854cecf0b50defb3b9d9d4954e",
+    "/home/aaa/studyRL/src/XYEGA_RM2026_WheelLeg_Infatry_RLdeploy/source_code/User/Application/chassis/chassis.h": "974901cf37e0172bdc44161e501d267dccffefc109c8933064c5fb03b83c9559",
+    "/home/aaa/studyRL/src/XYEGA_RM2026_WheelLeg_Infatry_RLdeploy/source_code/User/Application/chassis/chassis_uitils.h": "189816bb3415a583e992aff4e08ced280cafa6e4f97a635e31c5a2808154c81d",
+    "/home/aaa/studyRL/src/CLT-RL/sim2real/cubeai/artifacts/source7401_fp32_20261026/export_validation.json": "14fddf8de2e5d0ac5ff887fd8fa02a34691c9494dab4cfa8b10eaa64c48fe3aa",
+    "/home/aaa/studyRL/src/CLT-RL/sim2real/cubeai/series_balance_rtos3_comparison_20261026.json": "c53b4a14c6a9767c486e55c0726d7cf63f627e23fbb3886a646108d3fd7dc57a",
+    "/home/aaa/studyRL/src/CLT-RL/sim2real/series_balance_rtos (2)/series_balance_rtos/series_balance_rtos/project_h7.ioc": "5025a985295b80f754ce19d02d8d6540a060feb2fa6c68e425c9950b48d808ee",
+    "/home/aaa/studyRL/src/CLT-RL/sim2real/series_balance_rtos (2)/series_balance_rtos/series_balance_rtos/Core/Src/main.c": "ad78f070b91f97e70150b53ede9e1ebc4d10bdf8fa20bf2b259a9e1ab6de7c5d",
+    "/home/aaa/studyRL/src/CLT-RL/sim2real/series_balance_rtos (3)/series_balance_rtos/series_balance_rtos/project_h7.ioc": "df538821f735fab007961a82ba5b0f1b34556835429b255ad170fedc6df4366f",
+    "/home/aaa/studyRL/src/CLT-RL/sim2real/series_balance_rtos (3)/series_balance_rtos/series_balance_rtos/Core/Src/main.c": "84da50a1c2606445dc07595dbd584dbef7029f5c40cf6ac402baf1b2da234b7c"
+  },
+  "checks": {
+    "all16_existing_source_pins_unchanged": true,
+    "all4_models_checked_and_parameter_counts_recomputed": true,
+    "all39_code_excerpts_match_current_source": true,
+    "UTF8_no_replacement_or_pasted_HTML_indentation": true,
+    "code_fences_balanced": true,
+    "current_actor_budget_bound_to_actual_checkpoint_SHA": true,
+    "current_actor_and_firmware_budget_arithmetic": true,
+    "reference_snapshot_lacks_full_board_link_and_generated_files": true
+  },
+  "primary_reference_urls": [
+    "https://www.st.com/en/microcontrollers-microprocessors/stm32h723-733.html",
+    "https://www.st.com/resource/en/datasheet/stm32h723zg.pdf",
+    "https://www.st.com/en/microcontrollers-microprocessors/stm32h750vb.html"
+  ],
+  "firmware_or_linker_modified": false,
+  "training_or_replay_modified": false,
+  "weights_or_network_modified": false,
+  "ST_analysis_executed": false,
+  "robustness_started": false,
+  "flashed": false,
+  "hardware_enabled": false
+}

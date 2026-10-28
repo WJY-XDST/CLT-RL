@@ -1,0 +1,10 @@
+{
+  "bundle": "../bundles/selected_nx_policy",
+  "port": null,
+  "baudrate": 2000000,
+  "control_hz": 200,
+  "state_timeout_s": 0.03,
+  "duration_s": 0,
+  "log_path": null,
+  "command_override": null
+}

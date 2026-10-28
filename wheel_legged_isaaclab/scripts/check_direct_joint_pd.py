@@ -48,7 +48,8 @@ app = AppLauncher(args).app
 def main():
     import numpy as np
     import torch
-    from pxr import Gf, UsdPhysics
+    from pxr import Gf, Usd, UsdPhysics
+    from isaaclab.utils.math import quat_apply
     from rsl_rl.modules import ActorCritic
     from wheel_legged_gym_isaaclab.leg_control import LEG_ACTION_COLUMNS
     from wheel_legged_gym_isaaclab.tasks.direct.wheel_legged_vmc_flat.wheel_legged_vmc_flat_env_cfg import WheelLeggedVMCFlatEnvCfg
@@ -106,6 +107,35 @@ def main():
     rows = []
     try:
         obs, _ = env.reset()
+        initial_q = env._robot.data.joint_pos[:, env._leg_joint_ids].clone()
+        initial_target = env._joint_position_ref_applied.clone()
+        initial_reset = dict(profile=cfg.joint_reset_profile,
+            root_height_m=env._robot.data.root_pos_w[:, 2].cpu().tolist(),
+            active_actual_joint_positions_rad=initial_q.cpu().tolist(),
+            zero_action_target_joint_positions_rad=initial_target.cpu().tolist(),
+            active_joint_position_error_max_rad=float((initial_q-initial_target).abs().max()),
+            all_joint_names=list(env._robot.joint_names),
+            all_joint_positions_rad=env._robot.data.joint_pos.cpu().tolist())
+        anchors = []
+        names = list(env._robot.body_names)
+        for prim in Usd.PrimRange(env.sim.stage.GetPrimAtPath('/World/envs/env_0/Robot')):
+            if not prim.IsA(UsdPhysics.RevoluteJoint):
+                continue
+            joint = UsdPhysics.RevoluteJoint(prim)
+            world = []
+            for side in (0, 1):
+                body = getattr(joint, f'GetBody{side}Rel')().GetTargets()[0]
+                index = names.index(str(body).rsplit('/', 1)[-1])
+                local = initial_q.new_tensor(tuple(getattr(joint, f'GetLocalPos{side}Attr')().Get()))
+                position = env._robot.data.body_pos_w[0, index]
+                rotation = env._robot.data.body_quat_w[0, index]
+                world.append(position+quat_apply(rotation[None], local[None])[0])
+            anchors.append(dict(joint=prim.GetName(), gap_m=float(torch.linalg.vector_norm(world[0]-world[1]))))
+        initial_reset['joint_anchor_gaps'] = anchors
+        initial_reset['maximum_joint_anchor_gap_m'] = max(a['gap_m'] for a in anchors)
+        if cfg.joint_reset_profile == 'joint_target_nominal_v1':
+            assert initial_reset['active_joint_position_error_max_rad'] < 1.e-7
+            assert initial_reset['maximum_joint_anchor_gap_m'] < 2.e-5, initial_reset
         runner_cfg = WheelLeggedVMCFlatPPORunnerCfg()
         policy_cfg = runner_cfg.policy.to_dict()
         policy_cfg.pop('class_name')
@@ -210,6 +240,7 @@ def main():
         effort_path_ok = feedforward_error < 1e-6 and explicit_peak <= cfg.leg_effort_limit + 1e-5
         effort_path_ok = effort_path_ok and (explicit_peak > .1 if cfg.leg_joint_gravity_feedforward else explicit_peak == 0.)
         report = dict(mode=args.mode, seconds=args.seconds, num_envs=n,
+                      initial_reset=initial_reset,
                       action_order=['LB_q', 'LL_q', 'LW_speed', 'RB_q', 'RL_q', 'RW_speed'],
                       observation_shape=[n, 27], policy_output_shape=[n, 6],
                       leg_joint_ids=env._leg_joint_ids, joint_names=cfg.leg_joint_names,

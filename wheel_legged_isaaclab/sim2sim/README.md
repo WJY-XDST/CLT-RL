@@ -1,25 +1,42 @@
 # Isaac Lab -> MuJoCo sim2sim
 
-## 当前控制契约（2026-10-11）
+## 当前控制契约（2026-10-24）
 
-新模型已接入当前部署入口，使用完整训练 USD 的刚体、惯量、树关节及四个外部铰链；
+当前 MuJoCo 回放入口支持新模型，使用完整训练 USD 的刚体、惯量、树关节及四个外部铰链；
 从检查点 `params/env.yaml` 识别两种执行链：
 
 - `implicit_joint_position`：四个主动关节目标角 + 关节 PD + 单独重力前馈，轮子为目标轮速。
 - `explicit_vmc`：虚拟腿 PD + 重力前馈 + `Jᵀ[F,T]`，腿关节没有位置 PD，轮子为目标轮速。
 
 旧 `implicit_joint_reference` 的 IK 控制、训练记录和回放入口已移除；旧检查点会被拒绝。
-最终转换资产为 `mine_model/exports/mujoco_protected_stops_v2_20261004/scene_protected_contact.xml`。
-`scene.xml` 是初始软接触诊断版本。两者均保留在原文件夹，未覆盖原 URDF/USD。
+已完成新质量和解析轮胎的离线转换准备，资产为：
+
+`mine_model/exports/mujoco_measured_mass_analytic_tires_20261024_preacceptance_geometry/scene.xml`。
+
+[离线核验报告](../../mine_model/exports/mujoco_measured_mass_analytic_tires_20261024_preacceptance_geometry/offline_geometry_mass_inertia_verification.json)
+核对了 15 个刚体的质量、质心和完整惯量张量，整车约 12.34 kg；
+每侧轮子约 0.665 kg，整腿含轮子约 1.935 kg。
+21 个启用的 USD 碰撞体均保留；每个车轮包括原轮毂碰撞网格及半径 0.06 m、宽度 0.02 m 的解析圆柱轮胎。
+转换器现在处理 Cylinder 的轴向、位姿和缩放，遇到无法表示的形状或空转换会报错。
+质量校准覆盖层未单独声明单位时，只在下层资产明确为米的情况下建立临时米制场景，不改写训练 USD、不缩放几何。
+
+离线转换本身只证明几何和惯性数据一致。当前按用户要求，先用保留的7401策略进行 MuJoCo
+可靠性诊断和键盘回放；该策略尚未通过 Isaac Lab 全工况10%验收，Sim2Sim结果单独记录。
+环境随机化和最终模型验收仍保留原来的独立复验要求。
+旧的 `mine_model/exports/mujoco_protected_stops_v2_20261004/` 资产保留为历史诊断数据，不应替代新质量模型的验收资产。
 
 CAD 资产可继续使用，但加载时会按检查点重设执行器类型、增益和力矩限幅；不继承旧 MJCF 的 10 N·m 配置。
+轮端动作限幅从保存配置读取：历史检查点缺少该字段时使用 ±1，当前 ±1.25 对应最高目标轮速 18.75 rad/s；
+动作历史观测另按保存的 `obs_clip.action` 裁剪，当前仍为 ±1，与训练观测一致。
+初始化同时写入全部 14 个主动、被动关节角，保持保存的闭链姿态，
+并将腿位置驱动初始目标设为零动作参考角。
 关节 PD 与重力前馈相加后再统一限幅，不把前馈加在已限幅的执行器外面。
 接口测试检查观测、动作映射、前馈、镜像方向和合力矩限制；接口一致不等于完整 sim2sim 运动验收通过。
 
 ```bash
-# 从工程根目录运行；checkpoint 填入所需新模型检查点路径。
+# 从工程根目录运行，checkpoint 填入需要验证的检查点。
 ./sim2sim_mujoco.sh --checkpoint "$checkpoint" \
-  --mjcf mine_model/exports/mujoco_protected_stops_v2_20261004/scene_protected_contact.xml --demo
+  --mjcf mine_model/exports/mujoco_measured_mass_analytic_tires_20261024_preacceptance_geometry/scene.xml --demo
 ```
 
 新模型默认九阶段演示：站立、正反向 0.3/0.6 m/s、左右旋转 0.3 rad/s、高度 0.28/0.32 m。
@@ -29,6 +46,11 @@ MuJoCo 内部积分默认 0.1 ms，以处理薄闭链连杆和限幅驱动的小
 受保护 CAD 采用独立 CoACD 分解；接触与 PhysX 的求解边界在报告中单独说明。
 
 独立矩阵验证用 `evaluate_mine.py`；原始 CAD 核对用 `audit_stops.py`。
+`evaluate_mine.py --cases-json mine_model/config/mujoco_reliability_full_envelope_20261024.json`
+可指定当前45工况矩阵，覆盖三档完整安全高度、正反行驶、原地旋转及直行转向；
+每工况默认三个独立种子。`assessment.json`保留原始七项门槛，
+`assessment_literal10.json`额外逐项检查非零速度、偏航、高度的严格10%相对误差。
+直接关节模式的腿角参考遥测来自四个电机目标角的五连杆正运动学，与Isaac Lab一致。
 依赖 IK 固定腿长的旧限位测试已移除；几何审计和闭链正运动学测试保留。
 新车接口检查：
 
@@ -41,8 +63,18 @@ env -u PYTHONPATH -u LD_LIBRARY_PATH \
 ## MuJoCo 键盘控制
 
 GUI 回放自动启动 **MuJoCo robot keyboard commands** 控制小窗口。
+默认 W/S 速度为 ±0.8 m/s，A/D 偏航角速度为 ±0.3 rad/s。
 点击这个控制窗口再按键，不是在终端或 MuJoCo 画面窗口中输入。
 独立窗口提供松键和失焦事件，不安装全局键盘监听，也不修改训练代码。
+
+当前保留的7401模型可直接启动：
+
+```bash
+./sim2sim_keyboard_7401.sh
+```
+
+此入口使用配套的测量质量模型、直接关节目标角PD和重力前馈，保留原检查点与优化器。
+点击控制窗口后按键；MuJoCo画面窗口负责显示机器人。
 
 自己的闭链模型可按以下方式启动，替换为需要测试的检查点；
 `params/env.yaml` 和 `params/agent.yaml` 自动从同一训练目录读取：
@@ -50,14 +82,14 @@ GUI 回放自动启动 **MuJoCo robot keyboard commands** 控制小窗口。
 ```bash
 cd ~/studyRL/src/CLT-RL
 ./sim2sim_mujoco.sh --checkpoint /完整路径/model_XXXXX.pt \
-  --mjcf mine_model/exports/mujoco_protected_stops_v2_20261004/scene_protected_contact.xml \
-  --fixed-command 0 0 0.30
+  --mjcf mine_model/exports/mujoco_measured_mass_analytic_tires_20261024_preacceptance_geometry/scene.xml \
+  --fixed-command 0 0 0.30 --keyboard-speed 0.8 --keyboard-yaw-rate 0.3
 ```
 
 |按键|效果|
 |---|---|
 |按住 W / S|前进 / 后退，默认目标 `±0.8 m/s`|
-|按住 A / D|左转 / 右转，默认目标 yaw rate `±0.6 rad/s`|
+|按住 A / D|左转 / 右转，默认目标 yaw rate `±0.3 rad/s`|
 |Q / E 单击|降低 / 提高机身高度目标 5 mm|
 |Q / E 长按|以 `0.02 m/s` 连续改变高度目标|
 |松开 WASD|相应运动轴目标归零，前后命令保留原加速度斜坡|
@@ -73,7 +105,7 @@ cd ~/studyRL/src/CLT-RL
 未接管就关闭控制窗口，则仍按原固定/周期流程运行。
 
 Q/E 调整的是机身高度命令，不是直接锁定两腿长度或改变策略动作。
-目标及平滑命令限于检查点配置的 `commands.ranges_height`，自己的模型通常为 `0.28–0.32 m`。
+目标及平滑命令限于检查点配置的 `commands.ranges_height`；当前新车的完整安全范围约为 `0.22535–0.37535 m`，应以所用检查点配置为准。
 命令默认以 `0.02 m/s` 斜坡追踪目标，在 50 Hz 策略下每步最多变化 0.4 mm。
 手动模式只请求 yaw rate，不额外添加航向保持来掩盖策略残差。
 `±0.6 rad/s` 超出当前闭链模型配置的 `±0.3` 训练范围，属于探索测试；

@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "clt-wheelleg-sim2real"
+version = "0.2.0"
+description = "Jetson NX policy host and STM32 direct-joint UART contract"
+requires-python = ">=3.8"
+dependencies = ["numpy>=1.20", "pyserial>=3.5"]
+
+[project.optional-dependencies]
+serial = ["pyserial>=3.5"]
+export = ["torch>=2.1", "PyYAML>=6", "usd-core>=24"]
+
+[project.scripts]
+wheelleg-deploy = "wheelleg_deploy.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["wheelleg_deploy*"]

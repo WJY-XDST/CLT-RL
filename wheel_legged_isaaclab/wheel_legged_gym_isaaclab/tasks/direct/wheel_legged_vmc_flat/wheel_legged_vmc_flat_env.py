@@ -24,10 +24,13 @@ from wheel_legged_gym_isaaclab.leg_control import (
 )
 from wheel_legged_gym_isaaclab.mcu_hardware import gravity_feedforward, synchronize_actuator_limits
 from wheel_legged_gym_isaaclab.physics_contract import apply_force_iteration_setting
+from wheel_legged_gym_isaaclab.wheel_control import apply_wheel_action_limit, validated_wheel_action_limit
 from wheel_legged_gym_isaaclab.robot_model import validate_robot_contract
 from wheel_legged_gym_isaaclab.reward_signals import (
     action_second_difference_penalty, horizontal_velocity_error_squared, merge_step_diagnostics,
     height_tracking_kernel, wheel_action_overshoot_penalty,
+    joint_target_length_error_squared, validate_joint_target_length_reward,
+    guard_tracking_bonuses, validate_task_quality_gate,
 )
 from wheel_legged_gym_isaaclab.tracking_goal_feedback import (
     load_tracking_goal_criteria, tracking_goal_violation_penalty,
@@ -40,6 +43,7 @@ from wheel_legged_gym_isaaclab.yaw_training import (
 )
 from .wheel_legged_vmc_flat_env_cfg import WheelLeggedVMCFlatEnvCfg
 from .env_commands import resample_commands
+from wheel_legged_gym_isaaclab.joint_reset import configure_reset_pose
 
 REWARD_SCALE_FIELDS = {
     'track_lin_vel': 'tracking_lin_vel',
@@ -50,7 +54,7 @@ REWARD_SCALE_FIELDS = {
 
 REWARD_NAMES = (
     'track_lin_vel', 'track_lin_vel_enhance', 'track_lin_vel_precise',
-    'lin_vel_error_sq', 'standing_velocity', 'base_height_error_sq',
+    'lin_vel_error_sq', 'standing_velocity', 'base_height_error_sq', 'joint_target_leg_length_error_sq',
     'track_ang_vel', 'yaw_rate_error_sq', 'spin_center_velocity',
     'base_height', 'nominal_state', 'standing_leg_angle',
     'standing_wheel_tracking', 'lin_vel_z', 'ang_vel_xy',
@@ -71,19 +75,18 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
     cfg: WheelLeggedVMCFlatEnvCfg
 
     # ---- 初始化与场景 ----
-
     def __init__(
         self, cfg: WheelLeggedVMCFlatEnvCfg, render_mode: str | None = None, **kwargs
     ):
-        # configclass 的 to_dict() 将嵌套配置转为字典，供车辆契约检查；不创建机器人。
+        validated_wheel_action_limit(cfg.wheel_action_limit)
         cfg.five_bar_geometry = validate_robot_contract(cfg.to_dict())
+        configure_reset_pose(cfg)  # 完整闭链姿态；历史回放保留原 reset profile。
         # LAB 基类先创建 self.sim / self.scene，再回调本类的 _setup_scene()。
         super().__init__(cfg, render_mode, **kwargs)
 
         # single_action_space 描述「单个机器人」的动作空间；张量实际是 [N, 6]。
         self._action_dim = int(self.single_action_space.shape[0])
         self._validate_configuration()
-
         # LAB find_joints() 返回「仿真关节下标、匹配名称」，而不是电机对象。
         leg_joint_names = list(self.cfg.leg_joint_names)
         wheel_joint_names = list(self.cfg.wheel_joint_names)
@@ -306,11 +309,15 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
         # Episode events belong to this step only; a step without resets must
         # not repeat the previous step's ended episodes in RSL's rollout log.
         self.extras['log'] = {}
-        # 高斯动作可能越界；保留 raw 给饱和奖励，执行动作限制到 [-1,1]。
+        # Preserve raw Gaussian outputs; leg targets keep their unit envelope.
+        # A separately saved wheel clamp supplies transient reference headroom.
         self._raw_actions = torch.nan_to_num(
             actions, nan=0.0, posinf=1.0, neginf=-1.0
         )
         self._actions = torch.clamp(self._raw_actions, -1.0, 1.0)
+        self._actions = apply_wheel_action_limit(
+            self._actions, self._raw_actions, self.cfg.wheel_action_limit,
+        )
 
     def _apply_action(self):
         """Apply this policy's configured actuator contract.
@@ -689,7 +696,6 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
             wheel_velocity, self.cfg.wheel_radius,
             self._commands[:, 0], self._target_lin_vel_x, self._commands[:, 1],
         )
-
         base_height_error = torch.square(
             self._robot.data.root_pos_w[:, 2] - self._commands[:, 2]
         )
@@ -700,13 +706,11 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
                 self._robot.data.root_pos_w[:, 2], self._commands[:, 2],
                 self.cfg.rewards.base_height_sigma, self.cfg.rewards.base_height_relative_deadband,
             )
-
         theta_difference = torch.square(self._theta0[:, 0] - self._theta0[:, 1])
         if self.cfg.rewards.nominal_state < 0:
             r_nominal_state = theta_difference
         else:
             r_nominal_state = torch.exp(-theta_difference / 0.1)
-
         r_lin_vel_z = torch.square(root_lin_vel_b[:, 2])
         r_ang_vel_xy = torch.sum(torch.square(root_ang_vel_b[:, :2]), dim=1)
         # 小角度时投影重力 x 主要反映 pitch，y 主要反映 roll。
@@ -714,14 +718,10 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
             self.cfg.rewards.orientation_roll_multiplier
             * torch.square(proj_gravity[:, 1])
         )
-        r_dof_vel = torch.sum(
-            torch.square(joint_vel[:, self._leg_joint_ids]), dim=1
-        )
+        r_dof_vel = torch.sum(torch.square(joint_vel[:, self._leg_joint_ids]), dim=1)
         r_dof_acc = torch.sum(torch.square(joint_acc), dim=1)
         r_torques = torch.sum(torch.square(torque), dim=1)
-        r_action_rate = torch.sum(
-            torch.square(self._last_actions[:, :, 0] - self._actions), dim=1
-        )
+        r_action_rate = torch.sum(torch.square(self._last_actions[:, :, 0] - self._actions), dim=1)
         r_action_smooth = action_second_difference_penalty(
             self._actions, self._last_actions[:, :, 0], self._last_actions[:, :, 1],
             self.cfg.rewards.action_smooth_wheel_multiplier,
@@ -752,7 +752,6 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
                 minimum_leg_length_ref - leg_length_refs,
             ).square().mean(dim=1)
             r_joint_position_action_saturation = zero
-
         contact_force_norm = torch.norm(
             contact_forces[:, self._penalised_contact_ids, :], dim=-1
         )
@@ -765,7 +764,6 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
         out_of_limits = -(leg_pos - leg_pos_limits[:, :, 0]).clip(max=0.0)
         out_of_limits += (leg_pos - leg_pos_limits[:, :, 1]).clip(min=0.0)
         r_dof_pos_limits = torch.sum(out_of_limits, dim=1)
-
         # Keep each signal and its config scale in one auditable table.
         signals = {
             "track_lin_vel": r_track_lin,
@@ -774,6 +772,9 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
             "lin_vel_error_sq": lin_vel_penalty,
             "standing_velocity": r_standing_velocity,
             "base_height_error_sq": base_height_error,
+            "joint_target_leg_length_error_sq": joint_target_length_error_squared(
+                self._l0_ref_applied, self._commands[:, 2], self.cfg.rewards.leg_length_target_height_offset,
+            ) if self.cfg.leg_control_mode == DIRECT_JOINT_POSITION_MODE and self.cfg.rewards.joint_target_leg_length_error_sq else zero,
             "track_ang_vel": r_track_ang,
             "yaw_rate_error_sq": ang_vel_error,
             "spin_center_velocity": r_spin_center,
@@ -795,9 +796,12 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
             "collision": r_collision,
             "dof_pos_limits": r_dof_pos_limits,
         }
+        signals = guard_tracking_bonuses(signals, self._robot.data.root_pos_w[:, 2], self._commands[:, 2],
+                                        proj_gravity, self._tracking_goal_criteria, self.cfg.rewards.tracking_task_quality_gate_floor)
         rewards = {
             key: value * getattr(self.cfg.rewards, REWARD_SCALE_FIELDS.get(key, key)) * self.step_dt
             for key, value in signals.items()
+            if key != 'joint_target_leg_length_error_sq' or self.cfg.rewards.joint_target_leg_length_error_sq
         }
 
         # 各项负奖励单独设上限，避免姿态等平方代价过早进入通用裁剪平坦区。
@@ -806,6 +810,7 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
             "nominal_state": self.cfg.rewards.nominal_state_penalty_clip * self.step_dt,
             "orientation": self.cfg.rewards.orientation_penalty_clip * self.step_dt,
             "base_height_error_sq": self.cfg.rewards.base_height_penalty_clip * self.step_dt,
+            "joint_target_leg_length_error_sq": self.cfg.rewards.base_height_penalty_clip * self.step_dt,
             "standing_leg_angle": self.cfg.rewards.standing_leg_angle_penalty_clip * self.step_dt,
             "lin_vel_error_sq": self.cfg.rewards.lin_vel_penalty_clip * self.step_dt,
             "yaw_rate_error_sq": self.cfg.rewards.yaw_rate_penalty_clip * self.step_dt,
@@ -993,6 +998,8 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
             raise ValueError('Wheel action saturation reward must be finite and nonpositive')
         if not math.isfinite(wheel_cap) or wheel_cap <= 0 or wheel_cap < 17.*abs(wheel_scale):
             raise ValueError('Wheel action saturation cap must retain feedback throughout the bounded raw-action range')
+        validate_joint_target_length_reward(self.cfg.leg_control_mode, self.cfg.rewards.joint_target_leg_length_error_sq)
+        validate_task_quality_gate(self.cfg.rewards.tracking_task_quality_gate_floor, self.cfg.rewards.tracking_goal_component_violation or self.cfg.rewards.tracking_goal_violation)
         validate_tracking_goal_reward_config(self.cfg.rewards, self.cfg.leg_control_mode)
         if not math.isfinite(self.cfg.rewards.action_smooth_wheel_multiplier) or self.cfg.rewards.action_smooth_wheel_multiplier < 0:
             raise ValueError("Wheel smoothness multiplier must be finite and nonnegative.")
@@ -1099,7 +1106,7 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
                 transition_min, transition_max, main_min, main_max, reverse_min, reverse_max
             )
         ))
-        max_wheel_speed = self.cfg.wheel_radius * self.cfg.action_scale_vel
+        max_wheel_speed = self.cfg.wheel_radius * self.cfg.action_scale_vel * self.cfg.wheel_action_limit
         if max_command_speed > max_wheel_speed + 1.0e-6:
             raise ValueError(
                 "Linear command magnitude exceeds the ideal wheel-speed action range: "
@@ -1144,7 +1151,7 @@ class WheelLeggedVMCFlatEnv(DirectRLEnv):
         self._robot.reset(env_ids)
         super()._reset_idx(env_ids)
 
-        # .data.default_* 是初始模板；clone 后修改，避免污染其他 env 的默认状态。
+        # default_* 已按 reset profile 统一主动/被动闭链姿态；clone 不污染其他 env。
         joint_pos = self._robot.data.default_joint_pos[env_ids].clone()
         joint_vel = torch.zeros_like(joint_pos)
         # root_state 为 [位置 xyz, 四元数 wxyz, 世界线速度 xyz, 世界角速度 xyz] 共 13 维。

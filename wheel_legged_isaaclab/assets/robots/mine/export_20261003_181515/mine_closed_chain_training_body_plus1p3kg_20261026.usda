@@ -1,0 +1,21 @@
+#usda 1.0
+(
+    defaultPrim = "mine_robot"
+    metersPerUnit = 1
+    subLayers = [
+        @mine_closed_chain_training_measured_mass_analytic_tires_20261017.usda@
+    ]
+    upAxis = "Z"
+)
+
+over "mine_robot"
+{
+    over "base_link"
+    {
+        point3f physics:centerOfMass = (0.00020297569, 0.0003803905, -0.0083576385)
+        float3 physics:diagonalInertia = (0.12646303, 0.18122488, 0.09674154)
+        float physics:mass = 9.77
+        quatf physics:principalAxes = (0.44117507, 0.45142746, 0.55781627, 0.53890514)
+    }
+}
+

@@ -1,0 +1,12 @@
+{
+  "actual_ppo_updates_per_block": 200,
+  "acceptance_file": "tracking_acceptance_20pct.json",
+  "historical_acceptance_file": "tracking_acceptance.json",
+  "authority": "explicit_user_instruction",
+  "review_interval_instruction": "改成200轮短训一次",
+  "acceptance_instruction": "误差放宽到20%",
+  "stationary_first": true,
+  "preserve_full_checkpoint_and_optimizer": true,
+  "independent_replay_after_each_block": true,
+  "no_total_training_update_limit": true
+}

@@ -1,0 +1,25 @@
+{
+  "checked_at": "2026-10-27T08:47:33.292037+00:00",
+  "errors": [],
+  "source_excerpts_verified": 39,
+  "source_pins_verified": 16,
+  "UTF8_and_code_fences_valid": true,
+  "all_relative_file_links_exist": true,
+  "document_sha256": "f3637803dce4f528fa8029968da4ece95bf87a66a5eb148cf08dfdafdaa67070",
+  "H723_supplement": "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/learning/强化学习框架学习/05_H723部署补充核对_20261027.json",
+  "H723_supplement_sha256": "a03a728e62c3c59477bafba4a0cb48670ae2cb3c73158f9a0f3fabc0c65f77e6",
+  "firmware_modified": false,
+  "hardware_enabled": false,
+  "previous_20261026_verification_preserved": {
+    "checked_at": "2026-10-26T06:11:01.089775+00:00",
+    "errors": [],
+    "source_excerpts_verified": 39,
+    "source_pins_verified": 16,
+    "UTF8_and_code_fences_valid": true,
+    "document_sha256": "2ac1460311a51725f66981dd8656e84318778dace20566633536f89d3b8eb3ba",
+    "firmware_modified": false,
+    "hardware_enabled": false,
+    "CRC_version_explanation_rechecked_against_official_release_notes": true
+  },
+  "scope": "Current source excerpts, original file pins, four ONNX models, current actor storage budget, H723/H750 storage comparison. No firmware build or hardware test."
+}

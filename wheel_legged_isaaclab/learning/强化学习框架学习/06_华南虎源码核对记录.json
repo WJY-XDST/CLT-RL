@@ -1,0 +1,1094 @@
+{
+  "scope": "pinned-source static audit, C++ layout/CRC and POSIX pseudo-terminal only",
+  "hardware_opened": false,
+  "simulator_launched": false,
+  "policy_motion_validated": false,
+  "repositories": {
+    "train": {
+      "commit": "1a26356d6f591734d4f6f666f5cead1a6925da67",
+      "remote": "https://github.com/scutrobotlab/wheeled-legged_RL.git"
+    },
+    "deploy": {
+      "commit": "dd367bf78c7e393d811595edeb4affe253156c95",
+      "remote": "https://github.com/scutrobotlab/wheelbipe_ros2_sim2sim.git"
+    }
+  },
+  "checks": {
+    "delay_sampling": {
+      "configuration": {
+        "observation": [
+          1,
+          4
+        ],
+        "action": [
+          1,
+          3
+        ]
+      },
+      "torch_randint_upper_exclusive": true,
+      "observation_sampled_steps": [
+        1,
+        2,
+        3
+      ],
+      "action_sampled_steps": [
+        1,
+        2
+      ],
+      "base_physics_dt_s": 0.005,
+      "observation_nominal_buffer_lags_ms": [
+        5,
+        10,
+        15
+      ],
+      "action_nominal_buffer_lags_ms": [
+        5,
+        10
+      ],
+      "note": "Configured buffer lags only; excludes sampling phase, scheduling and actuator dynamics."
+    },
+    "compiled_wire_layout_and_crc": {
+      "command_bytes": 158,
+      "state_bytes": 143,
+      "test_vector": "123456789",
+      "crc_hex": "3d7b",
+      "initial": "ffff",
+      "xor_right_shift_polynomial": "8005",
+      "python_and_cpp_equal": true,
+      "not_assumed_to_be_modbus_crc": true
+    },
+    "wire_serialization": {
+      "115200": {
+        "state_ms": 12.413194444444443,
+        "command_ms": 13.715277777777777,
+        "causal_state_plus_command_ms": 26.12847222222222,
+        "at_500Hz_state_one_direction_load": 6.206597222222222,
+        "at_500Hz_command_one_direction_load": 6.857638888888889,
+        "note": "8N1 theoretical serialization, full duplex directions reported separately; not measured round-trip."
+      },
+      "921600": {
+        "state_ms": 1.5516493055555554,
+        "command_ms": 1.714409722222222,
+        "causal_state_plus_command_ms": 3.2660590277777777,
+        "at_500Hz_state_one_direction_load": 0.7758246527777778,
+        "at_500Hz_command_one_direction_load": 0.8572048611111112,
+        "note": "8N1 theoretical serialization, full duplex directions reported separately; not measured round-trip."
+      },
+      "2000000": {
+        "state_ms": 0.7150000000000001,
+        "command_ms": 0.79,
+        "causal_state_plus_command_ms": 1.5050000000000001,
+        "at_500Hz_state_one_direction_load": 0.3575,
+        "at_500Hz_command_one_direction_load": 0.395,
+        "note": "8N1 theoretical serialization, full duplex directions reported separately; not measured round-trip."
+      }
+    },
+    "pseudo_terminal_actual_uart_c": {
+      "tx_bytes": 158,
+      "rx_bytes": 143,
+      "bidirectional_byte_identity": true,
+      "actual_uart_hardware": false,
+      "parser_or_motion_validation": false
+    },
+    "nx_installation": {
+      "check_env_x86_only": true,
+      "bootstrap_downloads_linux_x64_ort": true,
+      "no_jetson_execution_claimed": true
+    },
+    "deployment_normal_mode": {
+      "obs35_action6_shape_checks": true,
+      "mode_tail": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "actual_model_inference_not_run": true
+    }
+  },
+  "source_files": [
+    {
+      "repository": "train",
+      "path": "scripts/list_envs.py",
+      "sha256": "0bf54637957f4ea003038c61ae4a0780b873e8adc5f8684b39680614b55355fc",
+      "bytes": 1966
+    },
+    {
+      "repository": "train",
+      "path": "scripts/view_robot.py",
+      "sha256": "1389d16e889c16849e906c9b9918bd7eea6757abb377e207f544446fa7a2c17f",
+      "bytes": 8549
+    },
+    {
+      "repository": "train",
+      "path": "scripts/rsl_rl/play.py",
+      "sha256": "4758dae3a80046068e05aa6a9afe78100e5c595963c0521a0de586e8c29b479b",
+      "bytes": 47951
+    },
+    {
+      "repository": "train",
+      "path": "scripts/rsl_rl/cli_args.py",
+      "sha256": "4787ddbe8797acfaa6f13b903a13394cc978a67ce7eb4b71e95baae8aaa833f8",
+      "bytes": 5978
+    },
+    {
+      "repository": "train",
+      "path": "scripts/rsl_rl/train.py",
+      "sha256": "74a3c5f67b365d8bee00b6a38f32e2657704e3f68edf678da9d3c1e1d63a25a1",
+      "bytes": 11754
+    },
+    {
+      "repository": "train",
+      "path": "scripts/rsl_rl/keyboard_controller.py",
+      "sha256": "3919ddcb27dba10d98b8da6a248725c73f71ef61490d4986577db16d36a9ee8a",
+      "bytes": 16975
+    },
+    {
+      "repository": "train",
+      "path": "scripts/utils/export_velocity_trace_html.py",
+      "sha256": "92b5020a2603349788d479b25837ae7391d2c5a764fa414119c7078d1d1f63c2",
+      "bytes": 2274
+    },
+    {
+      "repository": "train",
+      "path": "scripts/utils/realtime_plotter.py",
+      "sha256": "9a2a4dc6a677152bac09e41a587e0fda19b5d7b073bcb401ac17a52ec0f0e9c4",
+      "bytes": 9635
+    },
+    {
+      "repository": "train",
+      "path": "scripts/utils/velocity_trace_html.py",
+      "sha256": "9cd9773a1be6b02b7e210f94f75e61881aa7da96c01e0e02fe18bdd7afa967e3",
+      "bytes": 19839
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_rl/setup.py",
+      "sha256": "8bf6fcbe3616f7027483b1809e9c7d1ae23db79e8248d14507cd13066941917e",
+      "bytes": 855
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_rl/agent_rl/__init__.py",
+      "sha256": "b7bcf8022296037675b2b304423615fd7f479dcad7aeda43dfc615179ac8c3f9",
+      "bytes": 442
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_rl/agent_rl/rsl_rl/__init__.py",
+      "sha256": "eca880a726873a075dc37aba1c4da3bfa8f7a19df45ed963964e864b48c6bfcc",
+      "bytes": 169
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_rl/agent_rl/rsl_rl/algorithms/ppo_him.py",
+      "sha256": "f3522a22ef8353c408f251ad85ea5df3ec68047afce180827d12473f3f5f1c75",
+      "bytes": 8696
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_rl/agent_rl/rsl_rl/algorithms/ppo_dreamwaq.py",
+      "sha256": "586edd868b4ed962c0d08b0be188c47fc2dc2eba37a1a05a981756b80bad4726",
+      "bytes": 15448
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_rl/agent_rl/rsl_rl/algorithms/np3o.py",
+      "sha256": "1cbb9a1faaf6b53e5b1689ade797d19168a6b703dee6c3fb1755a0eb075edbff",
+      "bytes": 16730
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_rl/agent_rl/rsl_rl/algorithms/__init__.py",
+      "sha256": "89485d71e1f56c2db4e93db4d9e9a36614fedb047dd8510449a6f585dcfaeba7",
+      "bytes": 134
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_rl/agent_rl/rsl_rl/storage/rollout_storage.py",
+      "sha256": "bbf38e70fb52c3cbeb93ab70971067d23b278bf5ab21dc2af001efd051a01a98",
+      "bytes": 29757
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_rl/agent_rl/rsl_rl/storage/__init__.py",
+      "sha256": "7be2c6951b43ebc7cef21f51c5f7c187258a54bfd07597db5c07c423d4883c13",
+      "bytes": 180
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_rl/agent_rl/rsl_rl/runners/on_policy_runner_dreamwaq.py",
+      "sha256": "d102ee2014f80865cb10cf4bd8f5aecb48eba39c41c8309ba31838290e90bcfa",
+      "bytes": 11575
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_rl/agent_rl/rsl_rl/runners/on_constraint_policy_runner.py",
+      "sha256": "176b8d89782bba25b028e5c1586b9ee782e36c780971e078e05e723e253f4ced",
+      "bytes": 19939
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_rl/agent_rl/rsl_rl/runners/__init__.py",
+      "sha256": "057830e04da36bec30b2a1b7b8ed3a12c679c41ff95f53ece12f877048242214",
+      "bytes": 282
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_rl/agent_rl/rsl_rl/runners/on_policy_runner_him.py",
+      "sha256": "fd17e67df264e7be73f4022c2a94998d1e85f5023d650619b6b1cc483c108d7d",
+      "bytes": 11757
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_rl/agent_rl/rsl_rl/modules/actor_critic_ext.py",
+      "sha256": "26a3124c4362ac382a0eea73e9e315af27c8f8643b84fea2a710936b707b70cf",
+      "bytes": 2881
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_rl/agent_rl/rsl_rl/modules/him_estimator.py",
+      "sha256": "41e0caf2807cd0de4f33f5e19097671c8aba4524a42fc5009ff4330af33e9e2e",
+      "bytes": 5963
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_rl/agent_rl/rsl_rl/modules/actor_critic_him.py",
+      "sha256": "b7ce8459d0fd29339e758530aa90a41a4cc35d3be135acb6c5037a7290e952ba",
+      "bytes": 7365
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_rl/agent_rl/rsl_rl/modules/actor_critic_balowtwins.py",
+      "sha256": "ad86d121c031506f8b8d1bc0d307d3a07f97b2bdc4339a4ba9e7b147662ec94e",
+      "bytes": 12503
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_rl/agent_rl/rsl_rl/modules/actor_critic_dreamwaq.py",
+      "sha256": "49d81a9a9e333d136c5cad78b4bc453d5198698abacb1b34b16405adc9104a37",
+      "bytes": 11403
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_rl/agent_rl/rsl_rl/modules/__init__.py",
+      "sha256": "767d7afff9b689ceab1561fddf73ccb679c78d0ca52aa267389abdb14a985622",
+      "bytes": 321
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_rl/agent_rl/rsl_rl/modules/policy/legged_policy.py",
+      "sha256": "77ea6f0c8265589254943bccc4092537c967b945eba8acd56b19e24c9428e339",
+      "bytes": 25768
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_rl/agent_rl/rsl_rl/modules/policy/deploy_policy.py",
+      "sha256": "7926006926a3e776c14fa0c9ce4b085be140e3d2505f8ca8099e9277d142804f",
+      "bytes": 12656
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_rl/agent_rl/rsl_rl/modules/policy/base.py",
+      "sha256": "498c83dd23e65075c21068409801a93b9daf62a029766c0a5e66085f370428ec",
+      "bytes": 8962
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_rl/agent_rl/rsl_rl/modules/policy/__init__.py",
+      "sha256": "7857144594b2b540f297ab51e82e750625fb96682fdd4d7569d73dd3c165d8fc",
+      "bytes": 516
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_rl/agent_rl/rsl_rl/modules/nn/vqvae.py",
+      "sha256": "fc1fc4dcb3cff848de5276313ff9f94935acbc92278e6e4bbc788bc472e3d75c",
+      "bytes": 3033
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_rl/agent_rl/rsl_rl/modules/nn/cnn.py",
+      "sha256": "0bfd3b0b14eff7fcc9d6e3e66281e300dcbb1aca31512022424b9fd2049ac3ec",
+      "bytes": 4414
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_rl/agent_rl/rsl_rl/modules/nn/mlp.py",
+      "sha256": "079cf953655f7cbec8382cd314d9a3453301292c96a09158f0634749fc6c7ede",
+      "bytes": 2757
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_rl/agent_rl/rsl_rl/modules/nn/__init__.py",
+      "sha256": "083819b2119faa66b459ac90dcdd8eefd996003e660deaa168bd00e35fba4d78",
+      "bytes": 438
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_rl/agent_rl/rsl_rl/modules/nn/normalizer.py",
+      "sha256": "ca9043184da4e94943b06da753047c84c452f31e2fa98a2640d35f152202604b",
+      "bytes": 2130
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_rl/agent_rl/rsl_rl/env/vec_env.py",
+      "sha256": "b2f296afb167aaeb81d1c5e10620ffefe7a67cfb701746b5505ad081a2016b82",
+      "bytes": 3969
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_rl/agent_rl/rsl_rl/env/vecenv_wrapper.py",
+      "sha256": "380ce45525152e443053c771faa4ac7603c8848634a917a386b9649ce384bd81",
+      "bytes": 8836
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_rl/agent_rl/rsl_rl/env/__init__.py",
+      "sha256": "f24806eccbe49e1f5fd13c4276f8be06313d8e490cc0554381c1eade8c5fcf67",
+      "bytes": 301
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_rl/agent_rl/rsl_rl/utils/utils.py",
+      "sha256": "712865e3d0b033c509c26da5fdabc07d614cea71c891e36e2d4cb58391b0d099",
+      "bytes": 6899
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_rl/agent_rl/rsl_rl/utils/exporter_normal.py",
+      "sha256": "a52471c6b60d1ab896a0e3e9d0e44e1c98fd1547af29ab5ab2c791ef6f10fa9d",
+      "bytes": 8444
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_rl/agent_rl/rsl_rl/utils/scheduler.py",
+      "sha256": "e032bc5506ad315fa29d6f27c078e191d0d3e5eb295841ed9a0a4561aed608b9",
+      "bytes": 783
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_rl/agent_rl/rsl_rl/utils/exporter.py",
+      "sha256": "e52b3c143eab1f7eaf99093ea8d2602faf5cc6ff579cf0de8d7400c491c9da45",
+      "bytes": 2662
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_rl/agent_rl/rsl_rl/utils/__init__.py",
+      "sha256": "8eddddf7de055a233eef0ca71aa0ad9325232e79f1428757a5888b6be8274813",
+      "bytes": 209
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_rl/agent_rl/rsl_rl/utils/wandb_utils.py",
+      "sha256": "3b2c6113ecf6b519a9fffecf0ee59b81aaa27a72697c1c2e69a7f78e2e456451",
+      "bytes": 543
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_world/agent_world/assets/wheelbipe_V14_2.py",
+      "sha256": "fc5b24a73f2251d0ac977dfaa8bfb55d7074e3ca9ce6477cf0cdabd3a118f521",
+      "bytes": 6307
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_world/agent_world/assets/wheelbipe25_v3_reduce_spring.py",
+      "sha256": "36a9d4e938954fbebaedd5e968505c2a40907f94befd287e47ee8ceff77dacd5",
+      "bytes": 3216
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_world/agent_world/assets/wheelbipe_V13.py",
+      "sha256": "0b42982779eb3d6add715cb427d7503a7b30811eeed9ae4911d946168e566f3d",
+      "bytes": 15010
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_world/agent_world/assets/wheelbipe_V14.py",
+      "sha256": "30456c1c76f19a254a5c3a7553cba675867f919261d62b42a40fe9587706d718",
+      "bytes": 8515
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_world/agent_world/assets/wheelbipe25_v3.py",
+      "sha256": "1de29fe6913b905d3ff5dbcedffa5c44446df68777545a2052fc42c60c39478f",
+      "bytes": 8584
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_world/agent_world/actuators/m3508_actuator.py",
+      "sha256": "59ae730d1a1a98836302e33c19804e40189e11c52fdb6069cf469156510f0ae7",
+      "bytes": 7812
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_world/agent_world/actuators/learned_velocity_actuator_cfg.py",
+      "sha256": "5c75f480c8d00ca7767810479a3fe224fade259b93a50781a13918261e022928",
+      "bytes": 2189
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_world/agent_world/actuators/__init__.py",
+      "sha256": "947b1837c7ead20d121d2e57f1de1d4f53c8288be87f35d9c3914c3440fad331",
+      "bytes": 894
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_world/agent_world/actuators/learned_velocity_actuator.py",
+      "sha256": "2830341ac8b8eba5574099317579f3d2d95fc745ea77bb57ef8572d92d3a53ac",
+      "bytes": 7082
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_world/agent_world/actuators/diff_vel_actuator.py",
+      "sha256": "841bd56dc7af170b07d2fd0fbe032a0b298fec489ee7a55a31dcaa32931e999e",
+      "bytes": 5261
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_tasks/setup.py",
+      "sha256": "e7317d00502e0dc05929d16455ddba8dff7af07b8874e2f1ca25391847b47537",
+      "bytes": 1048
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_tasks/agent_tasks/__init__.py",
+      "sha256": "e01caeba3b1be5dce6c445ac69df1251bfa731df49e407a6c27b47dd5f46064c",
+      "bytes": 673
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_tasks/agent_tasks/manager/__init__.py",
+      "sha256": "662599052ece1a28e2238add3e82e8f99704a8cc5a346bcf6ee64709ebcefd41",
+      "bytes": 398
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_tasks/agent_tasks/manager/mdp/__init__.py",
+      "sha256": "b973b493d1fe8f07e333978ffd8455300837ea0f19b4c2c5ae98bf7237f2043c",
+      "bytes": 887
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_tasks/agent_tasks/manager/mdp/terrain/terrain_command_manager.py",
+      "sha256": "fa8c1d1baba967cee1f07a1dbd5ec6c81ce0403003a5e87c0398a46d9369cd0d",
+      "bytes": 36600
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_tasks/agent_tasks/manager/mdp/terrain/terrain_cmd_bias.py",
+      "sha256": "05063d85b1d8c469a9750869a02469cadbc5e123bef84f53805b87ada9e6c5e6",
+      "bytes": 12653
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_tasks/agent_tasks/manager/mdp/terrain/__init__.py",
+      "sha256": "f73aaeeb531d309eb7644e4fa4550d699540d65ccb2082aed1ec17b9198360ea",
+      "bytes": 808
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_tasks/agent_tasks/manager/mdp/terrain/terrain_task_manager.py",
+      "sha256": "321182d04d65e6f88f7be16c168abcd52ff93e9256704ac10db143f268440522",
+      "bytes": 7459
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_tasks/agent_tasks/manager/mdp/state_machine/manager.py",
+      "sha256": "cc335d05bb891a5e2a6cdd97f5945bf5799791a87946bc21b234fa1bed8f1306",
+      "bytes": 5892
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_tasks/agent_tasks/manager/mdp/state_machine/base.py",
+      "sha256": "c0e08e3f4c59a176adb1378f1976887348da40f8ad4a9748892bdfadf1855701",
+      "bytes": 2743
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_tasks/agent_tasks/manager/mdp/state_machine/__init__.py",
+      "sha256": "d86a85e33d6f01d2a23698766f8be50545c7a12e40cf91b8a4757301eeb61545",
+      "bytes": 587
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_tasks/agent_tasks/manager/mdp/isaaclab/events.py",
+      "sha256": "cca3ea5d10f3b3cf00f13f6b0d1f8b96e836e04355a5965de951bcd84d6e0bd0",
+      "bytes": 36608
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_tasks/agent_tasks/manager/mdp/isaaclab/curriculums.py",
+      "sha256": "dea2403b93477b9ec2257e0628775de084f5e9034a4a6e4e6850f9fdbdc38e95",
+      "bytes": 57701
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_tasks/agent_tasks/manager/mdp/isaaclab/terrains.py",
+      "sha256": "b7554813116bc032dad333b11add50344bb2f70b6979b0473cbac9b714711dc6",
+      "bytes": 33134
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_tasks/agent_tasks/manager/mdp/isaaclab/observations.py",
+      "sha256": "662599052ece1a28e2238add3e82e8f99704a8cc5a346bcf6ee64709ebcefd41",
+      "bytes": 398
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_tasks/agent_tasks/manager/mdp/isaaclab/terrains_ref.py",
+      "sha256": "7fa21e408768f8ce884b01180f7313c46c919349e4306525ac2f5ede0b3f3c0c",
+      "bytes": 22497
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_tasks/agent_tasks/manager/mdp/isaaclab/rewards.py",
+      "sha256": "662599052ece1a28e2238add3e82e8f99704a8cc5a346bcf6ee64709ebcefd41",
+      "bytes": 398
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_tasks/agent_tasks/manager/mdp/isaaclab/commands.py",
+      "sha256": "a09834ccfae197c968915b43cbe71e4a52a401faa36531e40793f051411b0a07",
+      "bytes": 27826
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_tasks/agent_tasks/manager/mdp/isaaclab/__init__.py",
+      "sha256": "75862490fb86aebdec3625769dcfc3bfd2cf9e2975351478523eae34586e0deb",
+      "bytes": 613
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_tasks/agent_tasks/direct/__init__.py",
+      "sha256": "662599052ece1a28e2238add3e82e8f99704a8cc5a346bcf6ee64709ebcefd41",
+      "bytes": 398
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_tasks/agent_tasks/direct/wheelbipe/README.md",
+      "sha256": "3a4820c806fa8851a39e937fd10d1f6b94563b192adf57e3e535dd4ff1843746",
+      "bytes": 1991
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_tasks/agent_tasks/direct/wheelbipe/__init__.py",
+      "sha256": "662599052ece1a28e2238add3e82e8f99704a8cc5a346bcf6ee64709ebcefd41",
+      "bytes": 398
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_tasks/agent_tasks/direct/wheelbipe/agents/rsl_rl_ppo_cfg.py",
+      "sha256": "fbfe7b45a043241275fce6529bc3fcc6a63bddfb93919e2d10f8bd159eeff9c4",
+      "bytes": 10340
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_tasks/agent_tasks/direct/wheelbipe/agents/__init__.py",
+      "sha256": "3eae39794b895840341ba681ff38d5419ae8f8e47e4d4e91e53c033131438dbb",
+      "bytes": 426
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_tasks/agent_tasks/direct/wheelbipe/wheelbipe_V14/env.py",
+      "sha256": "71388264b7db94d02bd2c906eae0387bbe5175504187b97575c09894faf58853",
+      "bytes": 58228
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_tasks/agent_tasks/direct/wheelbipe/wheelbipe_V14/cfg_utils.py",
+      "sha256": "60dbc341079a3a26bd57a94bb5cfbbe740efa565652b18f926e765de7a782d69",
+      "bytes": 32591
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_tasks/agent_tasks/direct/wheelbipe/wheelbipe_V14/env_cfg.py",
+      "sha256": "e287a0dda7124dda6526a9a6f351f00d2ac0e1774ad390b9e2eebf077b9efc93",
+      "bytes": 91634
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_tasks/agent_tasks/direct/wheelbipe/wheelbipe_V14/__init__.py",
+      "sha256": "2b66f56d7936d0b478169fa37e7f52486d6e46bc158f04b8d93079be6d03bd46",
+      "bytes": 5755
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_tasks/agent_tasks/direct/wheelbipe/wheelbipe25_v3/env.py",
+      "sha256": "9959c7fae6eff8591d655a18c29986f2c184c13f4905361b6c722efefbad12bc",
+      "bytes": 297750
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_tasks/agent_tasks/direct/wheelbipe/wheelbipe25_v3/env_cfg.py",
+      "sha256": "f2f2ca817b1f9d6c8a3ffc91dc1407853813ab1ab6fe6560e8670be3c2170887",
+      "bytes": 21796
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_tasks/agent_tasks/direct/wheelbipe/wheelbipe25_v3/__init__.py",
+      "sha256": "1cc91d1bc4c70c8709d115089bfe280f5709e844dc698c2640b1086e7d284058",
+      "bytes": 397
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_tasks/agent_tasks/direct/wheelbipe/state_machines/stair.py",
+      "sha256": "1e9cd3e7c981b439464801e2792f2cce5e55c84cd93e7406fa81c2267edc5d31",
+      "bytes": 24722
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_tasks/agent_tasks/direct/wheelbipe/state_machines/step_up.py",
+      "sha256": "40d6fd96ad5f9d8c712fde54371cde594549cd66a25b604c325ee2385fafe111",
+      "bytes": 8218
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_tasks/agent_tasks/direct/wheelbipe/state_machines/jump_takeoff.py",
+      "sha256": "136580c912d8e1f62514bf331a4b793b6fae25d1570657648984ecb7b4017d68",
+      "bytes": 58446
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_tasks/agent_tasks/direct/wheelbipe/state_machines/manager.py",
+      "sha256": "1216733e317b268087b585ca3bcd7df52ef523c8ba5d860e79b3fc58c37246cd",
+      "bytes": 5657
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_tasks/agent_tasks/direct/wheelbipe/state_machines/base.py",
+      "sha256": "f8fc9776125190087fe9239133afd0c7e3e21908c8dde96c791956fe6a80c251",
+      "bytes": 572
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_tasks/agent_tasks/direct/wheelbipe/state_machines/airborne.py",
+      "sha256": "12dc18fa8237253872b81d7e2da8f84c63e2c7bcef17868ff397a67811fb3f5b",
+      "bytes": 67757
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_tasks/agent_tasks/direct/wheelbipe/state_machines/__init__.py",
+      "sha256": "66a0cdbc7aa204963265d64b41617ae37969f974c3547bcee1f1796ad301763d",
+      "bytes": 898
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_tasks/agent_tasks/direct/wheelbipe/wheelbipe_V13/env.py",
+      "sha256": "f3170e5454813df6f5ba8e46990660b61f673f158a90155529651827fed40507",
+      "bytes": 15927
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_tasks/agent_tasks/direct/wheelbipe/wheelbipe_V13/env_cfg.py",
+      "sha256": "4f883d0f6599639d939519bd15519fa02cc588323a17770dd6796ef96d7c0f44",
+      "bytes": 26773
+    },
+    {
+      "repository": "train",
+      "path": "source/agent_tasks/agent_tasks/direct/wheelbipe/wheelbipe_V13/__init__.py",
+      "sha256": "1cc91d1bc4c70c8709d115089bfe280f5709e844dc698c2640b1086e7d284058",
+      "bytes": 397
+    },
+    {
+      "repository": "deploy",
+      "path": "README.md",
+      "sha256": "af8dd2b5f361980e87ded0f4a857b1bda1b465d08f6bb3a04b5100bb6979d660",
+      "bytes": 4723
+    },
+    {
+      "repository": "deploy",
+      "path": "DEPLOY.md",
+      "sha256": "88a90d9aa4c6bd9eca36755c73bd1c5cf3f0d6d63952f21eb9697c11e8ef1313",
+      "bytes": 8070
+    },
+    {
+      "repository": "deploy",
+      "path": "PARAMETERS.md",
+      "sha256": "be23f6569021088910ded15a9cdcb6581eb1aa9e21b77b54a4902a9d46ebce70",
+      "bytes": 11345
+    },
+    {
+      "repository": "deploy",
+      "path": "THIRD_PARTY_NOTICES.md",
+      "sha256": "5c2ce6d2548e8ce1f6e64ea96fe735f6e4892c9816c5d9503530e99cea4f07b1",
+      "bytes": 3941
+    },
+    {
+      "repository": "deploy",
+      "path": "scripts/build.sh",
+      "sha256": "db935d83b907d7dbbff9569c736f4451567a31cf9a257ad197eb6abd11c5787c",
+      "bytes": 1097
+    },
+    {
+      "repository": "deploy",
+      "path": "scripts/demo.sh",
+      "sha256": "b95f3d20eeb7386da21727bb4f697960ae0c531148d095ab4ee71c2d92751a9a",
+      "bytes": 2805
+    },
+    {
+      "repository": "deploy",
+      "path": "scripts/bootstrap.sh",
+      "sha256": "6c487b0cb7d78f1ac0eb90130359d819dd935fd7d9e358971443e2b484a57f33",
+      "bytes": 6125
+    },
+    {
+      "repository": "deploy",
+      "path": "scripts/check_xbox.sh",
+      "sha256": "269ec8d3e9238b80ea23ffa9604c7d8c7d20942483c875c8f7258de69fd4ac9a",
+      "bytes": 983
+    },
+    {
+      "repository": "deploy",
+      "path": "scripts/check_env.sh",
+      "sha256": "c2923496ee4884a8c0cfcf1acbcaf0935ede391c6cbbb472a9d5325c05e07e35",
+      "bytes": 2322
+    },
+    {
+      "repository": "deploy",
+      "path": "scripts/check_real.sh",
+      "sha256": "25b157d93167751943e2220e6938553761f7187bb13fb794e8c0d9472391001e",
+      "bytes": 1209
+    },
+    {
+      "repository": "deploy",
+      "path": "src/middlewares/template_middleware/launch/template_bring_up.launch.py",
+      "sha256": "b3945fd2e703f2d8f05d4a95b7ace1e947f9acedace8f526287c1cdbd789ecd1",
+      "bytes": 14043
+    },
+    {
+      "repository": "deploy",
+      "path": "src/middlewares/template_middleware/config/wheelbipe_V14.yaml",
+      "sha256": "bde629c435e21ea311622cededffd2f1c0aac2a6ea597995c6de376980e6d463",
+      "bytes": 926
+    },
+    {
+      "repository": "deploy",
+      "path": "src/controllers/template_ros2_controller/policy/ASSET_LICENSE.md",
+      "sha256": "4a6082606c56562d57af9104f0f7c985e5cf97625fa55c462e8be86763caa046",
+      "bytes": 1678
+    },
+    {
+      "repository": "deploy",
+      "path": "src/controllers/template_ros2_controller/src/template_ros2_controller.cpp",
+      "sha256": "fcbcc118d1827e2a908c43931690fdca9324768aed09596ad5c4ac9ec6d787b2",
+      "bytes": 42649
+    },
+    {
+      "repository": "deploy",
+      "path": "src/controllers/template_ros2_controller/src/onnxruntime/onnxruntime_inference.cpp",
+      "sha256": "cdd5610f8d5247ff1f6065797dfe4cd2644d44ccdac69249c621474a5feb58b9",
+      "bytes": 7461
+    },
+    {
+      "repository": "deploy",
+      "path": "src/controllers/template_ros2_controller/src/fsm/state_machine.cpp",
+      "sha256": "6c8aadd42d994af84fb39b7d0a0d87bae1a96d22ac9d4f9a0b90c1dc81fea803",
+      "bytes": 10706
+    },
+    {
+      "repository": "deploy",
+      "path": "src/controllers/template_ros2_controller/src/fsm/state_base.cpp",
+      "sha256": "b1ada7d055c612cd6b79ad8ab2044f08125ddbf897465de16cb8c7e255e7e0e1",
+      "bytes": 447
+    },
+    {
+      "repository": "deploy",
+      "path": "src/controllers/template_ros2_controller/src/fsm/states/state_init.cpp",
+      "sha256": "2efaf074219922c9edef3db9beeaf94c7ded43864b983c648e5d90aa1d34aa34",
+      "bytes": 1055
+    },
+    {
+      "repository": "deploy",
+      "path": "src/controllers/template_ros2_controller/src/fsm/states/state_rl.cpp",
+      "sha256": "6e1c4a4da3abe0a815cbc82e94c57dd0ecf1319e60811b0fd7218641c8bf3d80",
+      "bytes": 18936
+    },
+    {
+      "repository": "deploy",
+      "path": "src/controllers/template_ros2_controller/src/fsm/states/state_prepare.cpp",
+      "sha256": "9282420dd8df4188e2aad3fe9d3df127f479d2daf2905ef68c6f0a8a208f839b",
+      "bytes": 2622
+    },
+    {
+      "repository": "deploy",
+      "path": "src/controllers/template_ros2_controller/src/fsm/states/state_idle.cpp",
+      "sha256": "6c073785131f90d097cd95608a38b45eb42f776bed3b7cafa7c1bca544a09cb4",
+      "bytes": 1256
+    },
+    {
+      "repository": "deploy",
+      "path": "src/controllers/template_ros2_controller/src/utils/noise_generator.cpp",
+      "sha256": "92e032226e87b71e8beeac6296af11fd7b9612f5379a48a4f016d2c782e98e28",
+      "bytes": 1031
+    },
+    {
+      "repository": "deploy",
+      "path": "src/controllers/template_ros2_controller/src/robot_state/robot_state.cpp",
+      "sha256": "6226cff08e0e6f4541eea0a172afb5d232e72f2d9c0396f5626d211923c5ed99",
+      "bytes": 942
+    },
+    {
+      "repository": "deploy",
+      "path": "src/controllers/template_ros2_controller/include/onnxruntime/onnxruntime_inference.hpp",
+      "sha256": "379153ab407cd233ce9f129e450d4c98686be62cd3111ab25aef9ce0f7fe4e21",
+      "bytes": 2027
+    },
+    {
+      "repository": "deploy",
+      "path": "src/controllers/template_ros2_controller/include/fsm/state_machine.hpp",
+      "sha256": "5afd4ff844d060bff4d52c9b61faf153332a05f030dd0bfdce78f7de585feec1",
+      "bytes": 5913
+    },
+    {
+      "repository": "deploy",
+      "path": "src/controllers/template_ros2_controller/include/fsm/state_base.hpp",
+      "sha256": "ac72a86974b3cacb5bc3ddb6a76f6765c28418e980a533e7388feb05af002a59",
+      "bytes": 1127
+    },
+    {
+      "repository": "deploy",
+      "path": "src/controllers/template_ros2_controller/include/fsm/states/state_prepare.hpp",
+      "sha256": "b3f4043b300b0e1798b5e97cc11b60222fa72571433afb85e30f2df3397d50ae",
+      "bytes": 1198
+    },
+    {
+      "repository": "deploy",
+      "path": "src/controllers/template_ros2_controller/include/fsm/states/state_idle.hpp",
+      "sha256": "9711e055e9c3dea5e26b8f4f681d8cf90d7e6a4fefaeda6dee0224b61fa20ef9",
+      "bytes": 919
+    },
+    {
+      "repository": "deploy",
+      "path": "src/controllers/template_ros2_controller/include/fsm/states/state_init.hpp",
+      "sha256": "554a249cf452b1ab9dede52bc4767e3d8516a3d0287b94e6b5bc0574b0586b37",
+      "bytes": 922
+    },
+    {
+      "repository": "deploy",
+      "path": "src/controllers/template_ros2_controller/include/fsm/states/state_rl.hpp",
+      "sha256": "6f64dba57838782c0cd063b58bc14a74ef94e4ca685062056a404b97c5aaee6d",
+      "bytes": 5348
+    },
+    {
+      "repository": "deploy",
+      "path": "src/controllers/template_ros2_controller/include/template_ros2_controller/template_ros2_controller.hpp",
+      "sha256": "b3f4f49e7b16928c2797991897aba89897997428dc5446eb417c1ab69cc533b4",
+      "bytes": 6314
+    },
+    {
+      "repository": "deploy",
+      "path": "src/controllers/template_ros2_controller/include/utils/cppTypes.h",
+      "sha256": "4b3f605d217025eb25092e3fdb7513aa92f3019c91dbc1d1a67373635ba1538c",
+      "bytes": 1737
+    },
+    {
+      "repository": "deploy",
+      "path": "src/controllers/template_ros2_controller/include/utils/noise_generator.hpp",
+      "sha256": "adefa5675bf19133101d7efbd191e3c31a343b89e583db62b3ab1846515f524e",
+      "bytes": 2219
+    },
+    {
+      "repository": "deploy",
+      "path": "src/controllers/template_ros2_controller/include/utils/MathUtilities.h",
+      "sha256": "613af703fad117949901e4eab0913f9eb5b2cccb87ee68470a10fbe87259178a",
+      "bytes": 2349
+    },
+    {
+      "repository": "deploy",
+      "path": "src/controllers/template_ros2_controller/include/utils/orientation_tools.h",
+      "sha256": "636e530afc1366d0f99d657bfddaaae1568badee757cb51af771d3f6615dc121",
+      "bytes": 13187
+    },
+    {
+      "repository": "deploy",
+      "path": "src/controllers/template_ros2_controller/include/utils/delay_buffer.hpp",
+      "sha256": "5002187b505fa505fb4ac9de9748e64ae3af2742db68cb7ecee28e41980b3816",
+      "bytes": 2750
+    },
+    {
+      "repository": "deploy",
+      "path": "src/controllers/template_ros2_controller/include/robot_state/robot_state.hpp",
+      "sha256": "6a9f5673ecd746e3c27ba2264a50329e3fcf9ceddce964b257f1cb020e8765a5",
+      "bytes": 2557
+    },
+    {
+      "repository": "deploy",
+      "path": "src/controllers/template_ros2_controller/config/template_ros2_controller_parameters.yaml",
+      "sha256": "594ef592b30b584739b1abd77246671ff67d15f4e195ffb712dac2b666920e20",
+      "bytes": 10736
+    },
+    {
+      "repository": "deploy",
+      "path": "src/tools/keyboard_teleop/launch/keyboard_teleop.launch.py",
+      "sha256": "71d7fb398f148e1b7c0279fceebcca705859a1f16822825f34f4aa855fd01f33",
+      "bytes": 2084
+    },
+    {
+      "repository": "deploy",
+      "path": "src/tools/keyboard_teleop/src/keyboard_teleop_node.cpp",
+      "sha256": "5461cd146aab0acb32b757f6e4f40edb052e47d90a1fe835684b8802f47966e3",
+      "bytes": 22762
+    },
+    {
+      "repository": "deploy",
+      "path": "src/tools/keyboard_teleop/config/keyboard_teleop_params.yaml",
+      "sha256": "3b2dc8d1199b891f77bf72b2276f8a98fdaca03110dc923c067e36e76ec7dfa4",
+      "bytes": 1756
+    },
+    {
+      "repository": "deploy",
+      "path": "src/tools/xbox_teleop/launch/xbox_teleop.launch.py",
+      "sha256": "35531f026958a525b215ee404cab65647685eeac6c8cee7380f9ede0725f1a67",
+      "bytes": 1491
+    },
+    {
+      "repository": "deploy",
+      "path": "src/tools/xbox_teleop/src/xbox_teleop_node.cpp",
+      "sha256": "3e21eece960119868a931067a09a25e36e70b3248f3f9b58060c8c377e021a3b",
+      "bytes": 23699
+    },
+    {
+      "repository": "deploy",
+      "path": "src/tools/xbox_teleop/config/xbox_teleop_params.yaml",
+      "sha256": "addd0db4a9070deff66abd9011d798a689b2dbc6e707429d5bfc254a65c88bf6",
+      "bytes": 1449
+    },
+    {
+      "repository": "deploy",
+      "path": "src/resources/robot_descriptions/wheelbipeV14_2/meshes/ASSET_LICENSE.md",
+      "sha256": "db86c52c3da09618fa4a0bdfdb4b3b2f8273cd8aa4c537eeb36a25c40827343d",
+      "bytes": 1310
+    },
+    {
+      "repository": "deploy",
+      "path": "src/resources/robot_descriptions/wheelbipe_V14/xacro/robot_sim.xacro",
+      "sha256": "4718cbbf1fcafd062997c8d7528d8d8b6adcdcf113c97a5820c2cf881309aed8",
+      "bytes": 372
+    },
+    {
+      "repository": "deploy",
+      "path": "src/resources/robot_descriptions/wheelbipe_V14/xacro/ros2control.xacro",
+      "sha256": "261092ea185e1c4a79bb587d8bc291f0a6ceaeb8d5e43a488e1fda2647b5e078",
+      "bytes": 11333
+    },
+    {
+      "repository": "deploy",
+      "path": "src/resources/robot_descriptions/wheelbipe_V14/xacro/description.xacro",
+      "sha256": "426da1e118e0b62c231a6f702c8ee242993bda952bfa189bce26c0c2d0c6e20b",
+      "bytes": 24119
+    },
+    {
+      "repository": "deploy",
+      "path": "src/resources/robot_descriptions/wheelbipe_V14/xacro/robot_real.xacro",
+      "sha256": "6dd96de0cbe3ac6d7ba77166e6ef8f117ec95b38925c149fc7ffa712db8397ee",
+      "bytes": 796
+    },
+    {
+      "repository": "deploy",
+      "path": "src/interfaces/real_bridge/src/real_uart.c",
+      "sha256": "696ded05a2fa9931194e54fe0deeb830ba98d3a389cb2e76733d3adc581a0dd0",
+      "bytes": 2153
+    },
+    {
+      "repository": "deploy",
+      "path": "src/interfaces/real_bridge/src/real_bridge.cpp",
+      "sha256": "31d289f99e02e3797a44f773808b8b9a31f176b3085dc412309231bd1a300b08",
+      "bytes": 17088
+    },
+    {
+      "repository": "deploy",
+      "path": "src/interfaces/real_bridge/include/real_bridge/real_msg.hpp",
+      "sha256": "bfba0b5f52cbd7bcb407c406a716d120c03324e1c82441184fd812c540edd1f7",
+      "bytes": 2342
+    },
+    {
+      "repository": "deploy",
+      "path": "src/interfaces/real_bridge/include/real_bridge/real_uart.h",
+      "sha256": "b771c38863d2aa1191deda34191d9a2104032dd09155e8ffa216574c69230757",
+      "bytes": 337
+    },
+    {
+      "repository": "deploy",
+      "path": "src/interfaces/real_bridge/include/real_bridge/real_bridge.hpp",
+      "sha256": "fad7c35c6c27eb9c7e447c3ecef609e47f2b3b854b7f81bfb83a489c0ac1d5b1",
+      "bytes": 2879
+    },
+    {
+      "repository": "deploy",
+      "path": "src/interfaces/mujoco_bridge/launch/mujoco_bridge.launch.py",
+      "sha256": "a8b62a1b5b3d2f593319e25d3d4aca314807f8f6df1b0b1a15e82cf15e710aeb",
+      "bytes": 4699
+    },
+    {
+      "repository": "deploy",
+      "path": "src/interfaces/mujoco_bridge/src/mujoco_ros2_control.cpp",
+      "sha256": "2df7d2036a3a3f411c2cb46dfb49c8631fc872557b0d7af2b380058a908b93f7",
+      "bytes": 18623
+    },
+    {
+      "repository": "deploy",
+      "path": "src/interfaces/mujoco_bridge/src/mujoco_system.cpp",
+      "sha256": "d42fccfcce7e5ff774292922cfee4b2f3b7bcb03c9b33341f61fc0f8beb0d0bb",
+      "bytes": 38265
+    },
+    {
+      "repository": "deploy",
+      "path": "src/interfaces/mujoco_bridge/src/mujoco_ros2_control_node.cpp",
+      "sha256": "4e1679b2cdda76b6b1b67c06ecfbf201cf6b6f0cbaed893871d1d4050442ffaf",
+      "bytes": 7315
+    },
+    {
+      "repository": "deploy",
+      "path": "src/interfaces/mujoco_bridge/src/mujoco_rendering.cpp",
+      "sha256": "6813892cb5f4ef2bfe1430737d8107e741739caf661df8ef8aea14ec748adc55",
+      "bytes": 10480
+    },
+    {
+      "repository": "deploy",
+      "path": "src/interfaces/mujoco_bridge/include/mujoco_ros2_control/mujoco_rendering.hpp",
+      "sha256": "25adf37de79736e20d2392e7cc42d1044107cfc92028dbc9852fd2e3c37252cc",
+      "bytes": 3249
+    },
+    {
+      "repository": "deploy",
+      "path": "src/interfaces/mujoco_bridge/include/mujoco_ros2_control/mujoco_system_interface.hpp",
+      "sha256": "ca7b3026a32478d798f5fba6c175399e8674215cbe60306e70f3552f4c3601e1",
+      "bytes": 1872
+    },
+    {
+      "repository": "deploy",
+      "path": "src/interfaces/mujoco_bridge/include/mujoco_ros2_control/mujoco_ros2_control.hpp",
+      "sha256": "9bdebd399ddb5dc71adc54f9f36cda3840a9acc84865ccf5c0b898f9e7f76be3",
+      "bytes": 3520
+    },
+    {
+      "repository": "deploy",
+      "path": "src/interfaces/mujoco_bridge/include/mujoco_ros2_control/mujoco_system.hpp",
+      "sha256": "69f1b2352f97b94ecf3584bdc051a63f8542269ae92f8f5b948f3dbc03eeb023",
+      "bytes": 6693
+    },
+    {
+      "repository": "deploy",
+      "path": ".github/pull_request_template.md",
+      "sha256": "5695b1fc0db77806d75750e93953eed24b16622168e0dfa88bf71c03d7b109be",
+      "bytes": 706
+    }
+  ],
+  "recorded_at": "2026-10-27T19:56:06.965209+08:00",
+  "article_url": "https://bbs.robomaster.com/article/1942489",
+  "article_html_sha256": "8ed5a7fc8f75c9c2ec497e01b5ea3969707cfd84dea0c5e6b6a1d9dbc73d768a",
+  "analysis_file": "06_华南虎轮足训练与上位机部署开源分析.md",
+  "analysis_sha256": "a94ea718d5f1047a6dc6764b34c46b0d1ebf3bc4b412063452264e56dfea00e0",
+  "current_user_constraints": {
+    "upper_computer": "Jetson NX",
+    "lower_computer": "STM32H750VBT6; series_balance_rtos (2) outer project",
+    "gas_spring_feedforward_on_upper_computer": false,
+    "create_serial_runtime_before_robustness": true,
+    "analysis_does_not_certify_hardware": true
+  },
+  "feishu_documents_full_text_obtained": false,
+  "no_training_or_motor_parameters_changed_by_analysis": true
+}

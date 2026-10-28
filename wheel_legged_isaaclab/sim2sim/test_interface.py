@@ -5,7 +5,7 @@ import os
 from pathlib import Path
 from types import SimpleNamespace
 
-from core import PROJECT, FIVE_BAR, LEG_CONTROL, ROBOT, load_config
+from core import PROJECT, FIVE_BAR, LEG_CONTROL, WHEEL_CONTROL, ROBOT, load_config
 import torch
 
 
@@ -19,7 +19,7 @@ def vehicle_fixture():
     checkpoint = Path(checkpoint)
     folder = checkpoint.parent / 'params' if (checkpoint.parent / 'params').is_dir() else checkpoint.parent
     cfg = load_config(folder / 'env.yaml')
-    mjcf = Path(os.environ.get('MINE_SIM2SIM_MJCF', PROJECT.parent / 'mine_model/exports/mujoco_protected_stops_v2_20261004/scene_protected_contact.xml'))
+    mjcf = Path(os.environ.get('MINE_SIM2SIM_MJCF', PROJECT.parent / 'mine_model/exports/mujoco_measured_mass_analytic_tires_20261024_preacceptance_geometry/scene.xml'))
     return checkpoint, cfg, mjcf
 
 
@@ -31,7 +31,7 @@ def reference_class():
     # Extract simulator-independent methods from the real source, avoiding Kit startup.
     source = PROJECT / "wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py"
     original = next(node for node in ast.parse(source.read_text()).body if isinstance(node, ast.ClassDef))
-    methods = {"_get_wheel_vel_forward_positive", "_apply_action", "_update_forward_kinematics",
+    methods = {"_get_wheel_vel_forward_positive", "_pre_physics_step", "_apply_action", "_update_forward_kinematics",
                "_vmc", "_sanitize_observation", "_get_observations",
                "_get_heading_frame_horizontal_velocity", "_modify_leg_references",
                "_get_leg_force_bias", "_get_gravity_feedforward", "_get_leg_observation",
@@ -54,6 +54,7 @@ def reference_class():
     scope = {"torch": torch, "quat_apply": quat_apply,
              "five_bar_state": FIVE_BAR.five_bar_state, "five_bar_torques": FIVE_BAR.five_bar_torques,
              "joint_position_targets": LEG_CONTROL.joint_position_targets,
+             "apply_wheel_action_limit": WHEEL_CONTROL.apply_wheel_action_limit,
              "LEG_ACTION_COLUMNS": LEG_CONTROL.LEG_ACTION_COLUMNS,
              "DIRECT_JOINT_POSITION_MODE": LEG_CONTROL.DIRECT_JOINT_POSITION_MODE,
              "gravity_feedforward": ROBOT._hardware.gravity_feedforward}

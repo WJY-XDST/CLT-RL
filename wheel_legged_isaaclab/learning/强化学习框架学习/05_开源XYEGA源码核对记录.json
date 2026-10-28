@@ -1,0 +1,372 @@
+{
+  "schema": "xyega_application_flow_source_analysis_v1",
+  "checked_at": "2026-10-26T05:55:14.490736+00:00",
+  "analysis_document": "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/learning/强化学习框架学习/05_开源XYEGA部署工程与本项目对照.md",
+  "source_root": "/home/aaa/studyRL/src/XYEGA_RM2026_WheelLeg_Infatry_RLdeploy",
+  "source_pins": {
+    "/home/aaa/studyRL/src/XYEGA_RM2026_WheelLeg_Infatry_RLdeploy/source_code/User/Task/robot_task/robot_task.cpp": "9a3bc66f1be7d210db676f48ce19df8cccadcbde24e4a67bc13a8583654cf0c1",
+    "/home/aaa/studyRL/src/XYEGA_RM2026_WheelLeg_Infatry_RLdeploy/source_code/User/Application/chassis/chassis.cpp": "84a751e416fae561e923f15de900abb47849217bf72ec7f0ddb2f400058d3107",
+    "/home/aaa/studyRL/src/XYEGA_RM2026_WheelLeg_Infatry_RLdeploy/source_code/User/Module/rl_policy/rl_policy.cpp": "c43079a2b1489431a7344569bc765b5e5afc524470ba1a8f4f881d31e9bf2b57",
+    "/home/aaa/studyRL/src/CLT-RL/sim2real/wheelleg_deploy/schema.py": "de9bf72bf79ae4770614e675f8edb78ea2043910edffcb81c96b332824e3f1d2",
+    "/home/aaa/studyRL/src/CLT-RL/sim2real/wheelleg_deploy/targets.py": "2d8868b84760c9deceff8e8df19843686633279451ed6b06eb67d046fea3e6da",
+    "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/wheel_legged_gym_isaaclab/leg_control.py": "3b119cb25005f8cd8f086e3c5d2e9547a45da628003b5995e1633571bdf8b021",
+    "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py": "c1dd69e35d26d518f2d282c74c4fe081e789f3e8514c4865ea8604d2c3997a7e",
+    "/home/aaa/studyRL/src/XYEGA_RM2026_WheelLeg_Infatry_RLdeploy/readme.md": "a348b7fac8669ef256d1744f14388bb566a467854cecf0b50defb3b9d9d4954e",
+    "/home/aaa/studyRL/src/XYEGA_RM2026_WheelLeg_Infatry_RLdeploy/source_code/User/Application/chassis/chassis.h": "974901cf37e0172bdc44161e501d267dccffefc109c8933064c5fb03b83c9559",
+    "/home/aaa/studyRL/src/XYEGA_RM2026_WheelLeg_Infatry_RLdeploy/source_code/User/Application/chassis/chassis_uitils.h": "189816bb3415a583e992aff4e08ced280cafa6e4f97a635e31c5a2808154c81d",
+    "/home/aaa/studyRL/src/CLT-RL/sim2real/cubeai/artifacts/source7401_fp32_20261026/export_validation.json": "14fddf8de2e5d0ac5ff887fd8fa02a34691c9494dab4cfa8b10eaa64c48fe3aa",
+    "/home/aaa/studyRL/src/CLT-RL/sim2real/cubeai/series_balance_rtos3_comparison_20261026.json": "c53b4a14c6a9767c486e55c0726d7cf63f627e23fbb3886a646108d3fd7dc57a",
+    "/home/aaa/studyRL/src/CLT-RL/sim2real/series_balance_rtos (2)/series_balance_rtos/series_balance_rtos/project_h7.ioc": "5025a985295b80f754ce19d02d8d6540a060feb2fa6c68e425c9950b48d808ee",
+    "/home/aaa/studyRL/src/CLT-RL/sim2real/series_balance_rtos (2)/series_balance_rtos/series_balance_rtos/Core/Src/main.c": "ad78f070b91f97e70150b53ede9e1ebc4d10bdf8fa20bf2b259a9e1ab6de7c5d",
+    "/home/aaa/studyRL/src/CLT-RL/sim2real/series_balance_rtos (3)/series_balance_rtos/series_balance_rtos/project_h7.ioc": "df538821f735fab007961a82ba5b0f1b34556835429b255ad170fedc6df4366f",
+    "/home/aaa/studyRL/src/CLT-RL/sim2real/series_balance_rtos (3)/series_balance_rtos/series_balance_rtos/Core/Src/main.c": "84da50a1c2606445dc07595dbd584dbef7029f5c40cf6ac402baf1b2da234b7c"
+  },
+  "excerpts": [
+    {
+      "path": "/home/aaa/studyRL/src/XYEGA_RM2026_WheelLeg_Infatry_RLdeploy/source_code/User/Task/robot_task/robot_task.cpp",
+      "first_line": 15,
+      "last_line": 37
+    },
+    {
+      "path": "/home/aaa/studyRL/src/XYEGA_RM2026_WheelLeg_Infatry_RLdeploy/source_code/User/Application/chassis/chassis.cpp",
+      "first_line": 1198,
+      "last_line": 1200
+    },
+    {
+      "path": "/home/aaa/studyRL/src/XYEGA_RM2026_WheelLeg_Infatry_RLdeploy/source_code/User/Module/rl_policy/rl_policy.cpp",
+      "first_line": 208,
+      "last_line": 219
+    },
+    {
+      "path": "/home/aaa/studyRL/src/XYEGA_RM2026_WheelLeg_Infatry_RLdeploy/source_code/User/Module/rl_policy/rl_policy.cpp",
+      "first_line": 24,
+      "last_line": 39
+    },
+    {
+      "path": "/home/aaa/studyRL/src/XYEGA_RM2026_WheelLeg_Infatry_RLdeploy/source_code/User/Module/rl_policy/rl_policy.cpp",
+      "first_line": 53,
+      "last_line": 84
+    },
+    {
+      "path": "/home/aaa/studyRL/src/XYEGA_RM2026_WheelLeg_Infatry_RLdeploy/source_code/User/Application/chassis/chassis.cpp",
+      "first_line": 501,
+      "last_line": 511
+    },
+    {
+      "path": "/home/aaa/studyRL/src/XYEGA_RM2026_WheelLeg_Infatry_RLdeploy/source_code/User/Application/chassis/chassis.cpp",
+      "first_line": 517,
+      "last_line": 526
+    },
+    {
+      "path": "/home/aaa/studyRL/src/XYEGA_RM2026_WheelLeg_Infatry_RLdeploy/source_code/User/Application/chassis/chassis.cpp",
+      "first_line": 560,
+      "last_line": 568
+    },
+    {
+      "path": "/home/aaa/studyRL/src/XYEGA_RM2026_WheelLeg_Infatry_RLdeploy/source_code/User/Application/chassis/chassis.cpp",
+      "first_line": 1686,
+      "last_line": 1700
+    },
+    {
+      "path": "/home/aaa/studyRL/src/XYEGA_RM2026_WheelLeg_Infatry_RLdeploy/source_code/User/Application/chassis/chassis.cpp",
+      "first_line": 1704,
+      "last_line": 1729
+    },
+    {
+      "path": "/home/aaa/studyRL/src/XYEGA_RM2026_WheelLeg_Infatry_RLdeploy/source_code/User/Application/chassis/chassis.cpp",
+      "first_line": 1538,
+      "last_line": 1567
+    },
+    {
+      "path": "/home/aaa/studyRL/src/XYEGA_RM2026_WheelLeg_Infatry_RLdeploy/source_code/User/Application/chassis/chassis.cpp",
+      "first_line": 1570,
+      "last_line": 1592
+    },
+    {
+      "path": "/home/aaa/studyRL/src/XYEGA_RM2026_WheelLeg_Infatry_RLdeploy/source_code/User/Application/chassis/chassis.cpp",
+      "first_line": 1595,
+      "last_line": 1618
+    },
+    {
+      "path": "/home/aaa/studyRL/src/XYEGA_RM2026_WheelLeg_Infatry_RLdeploy/source_code/User/Application/chassis/chassis.cpp",
+      "first_line": 1742,
+      "last_line": 1752
+    },
+    {
+      "path": "/home/aaa/studyRL/src/XYEGA_RM2026_WheelLeg_Infatry_RLdeploy/source_code/User/Application/chassis/chassis.cpp",
+      "first_line": 1757,
+      "last_line": 1780
+    },
+    {
+      "path": "/home/aaa/studyRL/src/XYEGA_RM2026_WheelLeg_Infatry_RLdeploy/source_code/User/Application/chassis/chassis.cpp",
+      "first_line": 1784,
+      "last_line": 1801
+    },
+    {
+      "path": "/home/aaa/studyRL/src/XYEGA_RM2026_WheelLeg_Infatry_RLdeploy/source_code/User/Application/chassis/chassis.cpp",
+      "first_line": 1990,
+      "last_line": 1997
+    },
+    {
+      "path": "/home/aaa/studyRL/src/XYEGA_RM2026_WheelLeg_Infatry_RLdeploy/source_code/User/Application/chassis/chassis.cpp",
+      "first_line": 2049,
+      "last_line": 2093
+    },
+    {
+      "path": "/home/aaa/studyRL/src/XYEGA_RM2026_WheelLeg_Infatry_RLdeploy/source_code/User/Application/chassis/chassis.cpp",
+      "first_line": 2095,
+      "last_line": 2125
+    },
+    {
+      "path": "/home/aaa/studyRL/src/XYEGA_RM2026_WheelLeg_Infatry_RLdeploy/source_code/User/Application/chassis/chassis.cpp",
+      "first_line": 2127,
+      "last_line": 2158
+    },
+    {
+      "path": "/home/aaa/studyRL/src/XYEGA_RM2026_WheelLeg_Infatry_RLdeploy/source_code/User/Module/rl_policy/rl_policy.cpp",
+      "first_line": 221,
+      "last_line": 249
+    },
+    {
+      "path": "/home/aaa/studyRL/src/XYEGA_RM2026_WheelLeg_Infatry_RLdeploy/source_code/User/Module/rl_policy/rl_policy.cpp",
+      "first_line": 268,
+      "last_line": 276
+    },
+    {
+      "path": "/home/aaa/studyRL/src/XYEGA_RM2026_WheelLeg_Infatry_RLdeploy/source_code/User/Module/rl_policy/rl_policy.cpp",
+      "first_line": 298,
+      "last_line": 314
+    },
+    {
+      "path": "/home/aaa/studyRL/src/XYEGA_RM2026_WheelLeg_Infatry_RLdeploy/source_code/User/Application/chassis/chassis.cpp",
+      "first_line": 2161,
+      "last_line": 2183
+    },
+    {
+      "path": "/home/aaa/studyRL/src/XYEGA_RM2026_WheelLeg_Infatry_RLdeploy/source_code/User/Application/chassis/chassis.cpp",
+      "first_line": 2220,
+      "last_line": 2235
+    },
+    {
+      "path": "/home/aaa/studyRL/src/XYEGA_RM2026_WheelLeg_Infatry_RLdeploy/source_code/User/Application/chassis/chassis.cpp",
+      "first_line": 2245,
+      "last_line": 2259
+    },
+    {
+      "path": "/home/aaa/studyRL/src/XYEGA_RM2026_WheelLeg_Infatry_RLdeploy/source_code/User/Application/chassis/chassis.cpp",
+      "first_line": 2272,
+      "last_line": 2275
+    },
+    {
+      "path": "/home/aaa/studyRL/src/XYEGA_RM2026_WheelLeg_Infatry_RLdeploy/source_code/User/Application/chassis/chassis.cpp",
+      "first_line": 2294,
+      "last_line": 2297
+    },
+    {
+      "path": "/home/aaa/studyRL/src/XYEGA_RM2026_WheelLeg_Infatry_RLdeploy/source_code/User/Application/chassis/chassis.cpp",
+      "first_line": 2301,
+      "last_line": 2318
+    },
+    {
+      "path": "/home/aaa/studyRL/src/XYEGA_RM2026_WheelLeg_Infatry_RLdeploy/source_code/User/Application/chassis/chassis.cpp",
+      "first_line": 1411,
+      "last_line": 1416
+    },
+    {
+      "path": "/home/aaa/studyRL/src/XYEGA_RM2026_WheelLeg_Infatry_RLdeploy/source_code/User/Application/chassis/chassis.cpp",
+      "first_line": 1454,
+      "last_line": 1458
+    },
+    {
+      "path": "/home/aaa/studyRL/src/XYEGA_RM2026_WheelLeg_Infatry_RLdeploy/source_code/User/Application/chassis/chassis.cpp",
+      "first_line": 1514,
+      "last_line": 1517
+    },
+    {
+      "path": "/home/aaa/studyRL/src/XYEGA_RM2026_WheelLeg_Infatry_RLdeploy/source_code/User/Application/chassis/chassis.cpp",
+      "first_line": 857,
+      "last_line": 884
+    },
+    {
+      "path": "/home/aaa/studyRL/src/XYEGA_RM2026_WheelLeg_Infatry_RLdeploy/source_code/User/Application/chassis/chassis.cpp",
+      "first_line": 896,
+      "last_line": 908
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/sim2real/wheelleg_deploy/schema.py",
+      "first_line": 7,
+      "last_line": 18
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/sim2real/wheelleg_deploy/targets.py",
+      "first_line": 20,
+      "last_line": 24
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/sim2real/wheelleg_deploy/targets.py",
+      "first_line": 27,
+      "last_line": 46
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/wheel_legged_gym_isaaclab/leg_control.py",
+      "first_line": 40,
+      "last_line": 51
+    },
+    {
+      "path": "/home/aaa/studyRL/src/CLT-RL/wheel_legged_isaaclab/wheel_legged_gym_isaaclab/tasks/direct/wheel_legged_vmc_flat/wheel_legged_vmc_flat_env.py",
+      "first_line": 411,
+      "last_line": 432
+    }
+  ],
+  "onnx_models": [
+    {
+      "path": "/home/aaa/studyRL/src/XYEGA_RM2026_WheelLeg_Infatry_RLdeploy/pseudocode/example/onnx/jump/jump_pos0.2_0.4_p6.0_d0.5_0.2.onnx",
+      "sha256": "54c9972506a38e94a6b5de30e79ad689a7b9fd92e72640874eee1bdb4c36dc78",
+      "file_bytes": 157656,
+      "parameters": 38825,
+      "raw_fp32_weight_bytes": 155300,
+      "dense_MACs": 38400,
+      "inputs": {
+        "obs": [
+          "batch",
+          25
+        ],
+        "obs_history": [
+          "batch",
+          125
+        ]
+      },
+      "outputs": {
+        "actions": [
+          "batch",
+          6
+        ]
+      },
+      "operators": {
+        "Gemm": 7,
+        "Elu": 5,
+        "Concat": 1
+      },
+      "opset": [
+        {
+          "domain": "",
+          "version": 17
+        }
+      ],
+      "onnx_checker_passed": true
+    },
+    {
+      "path": "/home/aaa/studyRL/src/XYEGA_RM2026_WheelLeg_Infatry_RLdeploy/pseudocode/example/onnx/pin/spin_pos0.23_0.65_p10.0_d1.0_0.1.onnx",
+      "sha256": "e5dd968f2ed859651648b44684107fa53e95318d3824b6c1692030f1fcb65a7e",
+      "file_bytes": 157656,
+      "parameters": 38825,
+      "raw_fp32_weight_bytes": 155300,
+      "dense_MACs": 38400,
+      "inputs": {
+        "obs": [
+          "batch",
+          25
+        ],
+        "obs_history": [
+          "batch",
+          125
+        ]
+      },
+      "outputs": {
+        "actions": [
+          "batch",
+          6
+        ]
+      },
+      "operators": {
+        "Gemm": 7,
+        "Elu": 5,
+        "Concat": 1
+      },
+      "opset": [
+        {
+          "domain": "",
+          "version": 17
+        }
+      ],
+      "onnx_checker_passed": true
+    },
+    {
+      "path": "/home/aaa/studyRL/src/XYEGA_RM2026_WheelLeg_Infatry_RLdeploy/pseudocode/example/onnx/stable/stable_pos0.23_0.65_p15.0_d1.0_0.1.onnx",
+      "sha256": "37084bdc04f719297cfaf87611fe665a1c680446615450879970599fd7f4f3ea",
+      "file_bytes": 157656,
+      "parameters": 38825,
+      "raw_fp32_weight_bytes": 155300,
+      "dense_MACs": 38400,
+      "inputs": {
+        "obs": [
+          "batch",
+          25
+        ],
+        "obs_history": [
+          "batch",
+          125
+        ]
+      },
+      "outputs": {
+        "actions": [
+          "batch",
+          6
+        ]
+      },
+      "operators": {
+        "Gemm": 7,
+        "Elu": 5,
+        "Concat": 1
+      },
+      "opset": [
+        {
+          "domain": "",
+          "version": 17
+        }
+      ],
+      "onnx_checker_passed": true
+    },
+    {
+      "path": "/home/aaa/studyRL/src/XYEGA_RM2026_WheelLeg_Infatry_RLdeploy/pseudocode/example/onnx/upstairs/upstairs_pos0.23_0.65_p15.0_d1.0_0.1.onnx",
+      "sha256": "bfd2a6f1a31c66f237bfbaa65e9809631ba4ea26cc40d6f3f7c8d0d004ebcb64",
+      "file_bytes": 157656,
+      "parameters": 38825,
+      "raw_fp32_weight_bytes": 155300,
+      "dense_MACs": 38400,
+      "inputs": {
+        "obs": [
+          "batch",
+          25
+        ],
+        "obs_history": [
+          "batch",
+          125
+        ]
+      },
+      "outputs": {
+        "actions": [
+          "batch",
+          6
+        ]
+      },
+      "operators": {
+        "Gemm": 7,
+        "Elu": 5,
+        "Concat": 1
+      },
+      "opset": [
+        {
+          "domain": "",
+          "version": 17
+        }
+      ],
+      "onnx_checker_passed": true
+    }
+  ],
+  "scope": "read-only source/model analysis; repository documentation only",
+  "firmware_modified": false,
+  "hardware_enabled": false,
+  "clock_change_origin": "unknown; user reports no manual HSE change",
+  "training_and_robustness_not_modified_by_document_builder": true
+}

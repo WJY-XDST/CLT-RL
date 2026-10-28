@@ -27,7 +27,9 @@ class McuHardwareTests(unittest.TestCase):
         self.assertEqual(hw.GRAVITY_COMPENSATION_MASS_PER_LEG, 6.17)
         self.assertEqual(hw.GRAVITY_FORCE, hw.NOMINAL_VEHICLE_MASS_KG * hw.GRAVITY / 2.)
         self.assertNotEqual(hw.GRAVITY_COMPENSATION_MASS_PER_LEG, MODEL['supported_mass_kg'] / 2.)
-        root = Path(__file__).resolve().parents[2] / hw.MCU_SOURCE
+        # The frozen calibration's MCU_SOURCE records its historical origin.
+        # Audit the actual firmware in the current workspace layout.
+        root = Path(__file__).resolve().parents[2] / 'sim2real/series_balance_rtos'
         firmware = (root / 'control/torque.c').read_text(errors='replace')
         self.assertRegex(firmware, r'float\s+M1\s*=\s*6\.17\s*;')
 
@@ -38,7 +40,7 @@ class McuHardwareTests(unittest.TestCase):
             self.assertIsNone(hw.MCU_LIMIT_EVIDENCE[key]['value'])
 
     def test_firmware_evidence_matches_the_active_outer_build(self):
-        root = Path(__file__).resolve().parents[2] / hw.MCU_SOURCE
+        root = Path(__file__).resolve().parents[2] / 'sim2real/series_balance_rtos'
         project = (root / 'MDK-ARM/project_h7.uvprojx').read_text(errors='replace')
         for source in ('torque.c', 'vmc.c', 'LK_motor.c', 'wheel.c'):
             self.assertIn(source, project)

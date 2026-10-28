@@ -1,9 +1,9 @@
 {
   "version": "20261003_181515",
   "usd": "export_20261003_181515/mine_closed_chain.usd",
-  "training_usd": "export_20261003_181515/mine_closed_chain_training_measured_volume_mass_20261014.usda",
-  "wheel_mass_calibration": "export_20261003_181515/mine_closed_chain_training_measured_volume_mass_20261014.json",
+  "training_usd": "export_20261003_181515/mine_closed_chain_training_body_plus1p3kg_20261026.usda",
+  "wheel_mass_calibration": "export_20261003_181515/mine_closed_chain_training_body_plus1p3kg_20261026.json",
   "metadata": "export_20261003_181515/model.json",
   "source_export": "/home/aaa/studyRL/src/CLT-RL/mine_model/exports/export_20261003_181515",
-  "assembly_mass_calibration": "export_20261003_181515/mine_closed_chain_training_measured_volume_mass_20261014.json"
+  "assembly_mass_calibration": "export_20261003_181515/mine_closed_chain_training_body_plus1p3kg_20261026.json"
 }

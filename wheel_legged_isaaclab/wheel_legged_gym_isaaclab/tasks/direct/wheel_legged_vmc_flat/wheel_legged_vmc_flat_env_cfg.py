@@ -15,12 +15,17 @@ from isaaclab.sim import SimulationCfg
 from isaaclab.terrains import TerrainImporterCfg
 from isaaclab.utils import configclass
 
-from wheel_legged_gym_isaaclab.robot_model import ASSETS, MANIFEST, MODEL, MAPPED_FIVE_BAR
+from wheel_legged_gym_isaaclab.robot_model import ASSETS, MANIFEST, MODEL, MAPPED_FIVE_BAR, GRAVITY_FORCE
 from wheel_legged_gym_isaaclab.height_commands import SAFE_BASE_HEIGHT_RANGE_M
+from wheel_legged_gym_isaaclab.joint_reset import (
+    DEFAULT_JOINT_OFFSETS, NOMINAL_JOINT_RESET, closed_chain_reset_pose,
+)
 from wheel_legged_gym_isaaclab.mcu_hardware import (
     HARDWARE_PROFILE, LEG_EFFORT_LIMIT, WHEEL_EFFORT_LIMIT, WHEEL_RADIUS,
-    GRAVITY_FORCE, GRAVITY_FORCE_LIMIT, GRAVITY_ANGLE_BIAS,
+    GRAVITY_FORCE_LIMIT, GRAVITY_ANGLE_BIAS,
 )
+
+_DIRECT_NOMINAL_RESET = closed_chain_reset_pose(DEFAULT_JOINT_OFFSETS, MAPPED_FIVE_BAR)
 
 
 @configclass
@@ -77,11 +82,16 @@ class CommandsCfg:
     yaw_start_steps = 48000
     yaw_ramp_steps = 48000
     grouped_training = True
-    # 固定保留前 25% 环境练习零速站立，其他环境轮换运动任务。
+    # 速度阶段固定保留前 25% 环境练习站立；静止阶段全部环境为零速度。
     fixed_standing_groups = True
     grouped_low_speed_fraction = 1.0 / 3.0  # within each moving group, remaining samples cover main range
     # CAD 限位块腿长 0.19～0.34 m，含至少 10 mm 余量；机体直立时换算。
     ranges_height: tuple[float, float] = SAFE_BASE_HEIGHT_RANGE_M
+    # 显式解耦：完整高度可从首轮开启，不必跳过站立/速度/转向课程。
+    full_height_range_from_start = True
+    # 静止姿态和全高度复验通过后，由每 100 次更新的审查逐档放开。
+    # 仅缩放训练的线速度/转向命令，不缩放高度，不改变固定命令验收。
+    training_motion_scale: float = 0.0
     height_expansion_from: tuple[float, float] | None = None
     height_expansion_start_steps = 0
     height_expansion_ramp_steps = 48000
@@ -107,6 +117,7 @@ class RewardsCfg:
     lin_vel_error_lateral_multiplier = 1.0
     standing_velocity = 0.0
     base_height_error_sq = 0.0
+    joint_target_leg_length_error_sq = 0.0  # opt-in FK decision cost; never changes joint targets
     tracking_ang_vel = 1.0
     yaw_rate_error_sq = -1.0
     spin_center_velocity = 0.0
@@ -135,6 +146,7 @@ class RewardsCfg:
     # Restore feedback on simultaneous failures hidden by the worst-error term.
     tracking_goal_component_violation = 0.0
     tracking_goal_component_penalty_clip = 200.0
+    tracking_task_quality_gate_floor = 1.0  # 1 disables; an opt-in floor never removes motion learning
     collision = -1.0
     dof_pos_limits = -1.0
     # One-time cost for unsafe termination, not a per-second reward scale.
@@ -234,7 +246,11 @@ class WheelLeggedVMCFlatEnvCfg(DirectRLEnvCfg):
     wheel_radius: float = WHEEL_RADIUS
     wheel_track_width: float = MODEL['wheel_track_width']
     action_scale_vel: float = 15.0
-    # 下位机 M1=6.17 kg：整车名义质量 12.34 kg 的一半，每腿基础力 60.5277 N。
+    # Reference clamp is separate from scale and the motor's rated speed.
+    # Historical checkpoints omitted this field and used a unit clamp.
+    wheel_action_limit: float = 1.0
+    # 使用当前质量校准的整车重力的一半；新增 1.3 kg 后为 13.64*9.81/2=66.9042 N。
+    # 下位机旧版的 12.34 kg、每腿 60.5277 N 仅作为历史参考保留在 mcu_hardware.py。
     feedforward_force: float = GRAVITY_FORCE
     hardware_profile: str | None = HARDWARE_PROFILE
     feedforward_mode = 'mcu_pitch_compensated'
@@ -250,7 +266,10 @@ class WheelLeggedVMCFlatEnvCfg(DirectRLEnvCfg):
     leg_joint_stiffness: float = 300.0
     leg_joint_damping: float = 3.0
     # Direct-joint mode: normalized columns 0/1/3/4 map to LB/LL/RB/RL.
-    leg_joint_position_offset: tuple[float, float, float, float] = (-0.0707452938, -0.0336936327, 0.0707452938, 0.0336936327)
+    leg_joint_position_offset: tuple[float, float, float, float] = DEFAULT_JOINT_OFFSETS
+    # Zero action and the actual reset pose agree, including passive loop joints.
+    # Historical checkpoints explicitly retain cad_zero_v0 during replay.
+    joint_reset_profile: str = NOMINAL_JOINT_RESET
     leg_joint_position_scale: tuple[float, float, float, float] = (0.3, 0.3, 0.3, 0.3)
     leg_joint_target_limit_margin = 0.01  # [rad] inside articulation hard stops
     # Direct motor-position mode: optional J^T [gravity force, 0] only.
@@ -275,8 +294,8 @@ class WheelLeggedVMCFlatEnvCfg(DirectRLEnvCfg):
             ),
         ),
         init_state=ArticulationCfg.InitialStateCfg(
-            pos=(0., 0., MODEL["nominal_root_height"]),
-            joint_pos={".*": 0.}, joint_vel={".*": 0.},
+            pos=(0., 0., _DIRECT_NOMINAL_RESET['root_height_m']),
+            joint_pos=dict(_DIRECT_NOMINAL_RESET['joint_positions']), joint_vel={".*": 0.},
         ),
         actuators={
             "legs": ImplicitActuatorCfg(

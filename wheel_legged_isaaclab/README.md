@@ -54,6 +54,6 @@ play 优先选择最近优化任务已评估并保留的最佳关节角检查点
 关节角对照训练日志位于 `IsaacLab/logs/rsl_rl/mine_wheel_legged_joint_pd_flat/`；
 VMC 实验日志位于 `IsaacLab/logs/rsl_rl/mine_wheel_legged_vmc_flat/`。
 
-详见 [工程代码框架与阅读指南](learning/工程代码框架全解析_20261012.md)、
+详见 [工程代码框架与阅读指南](learning/强化学习框架学习/README.md)、
 [MuJoCo 接口说明](sim2sim/README.md)。
 历史报告用于溯源，不作为当前车辆数据或控制模式的默认来源。

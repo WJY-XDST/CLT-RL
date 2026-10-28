@@ -8,6 +8,7 @@
 import torch
 from wheel_legged_gym_isaaclab.yaw_training import sample_grouped_motion
 from wheel_legged_gym_isaaclab.height_commands import training_height_bounds
+from wheel_legged_gym_isaaclab.motion_curriculum import scale_training_motion
 
 
 def resample_commands(self, env_ids):
@@ -62,6 +63,7 @@ def resample_commands(self, env_ids):
             phase=self.common_step_counter // max(1, int(self.cfg.commands.resampling_time / self.step_dt)),
             dedicated_standing_count=self._dedicated_standing_count,
         )
+        speed, yaw = scale_training_motion(speed, yaw, self.cfg.commands)
         self._commands[env_ids, 0] = speed
         self._commands[env_ids, 1] = yaw
     self._target_lin_vel_x[env_ids] = self._commands[env_ids, 0]

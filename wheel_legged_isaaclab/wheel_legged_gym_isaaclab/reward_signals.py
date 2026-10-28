@@ -4,6 +4,64 @@ import math
 DIRECT_JOINT_REWARD_PROFILE = 'joint_pd_balance_v1'
 
 
+def task_tracking_quality(height, command_height, gravity, criteria, floor):
+    """Motion bonus quality, not acceptance or a command/action override.
+
+    Full bonuses remain inside half of the ORIGINAL height/body tolerances.
+    Smooth degradation outside does not zero motion learning: floor >= .05.
+    """
+    if height.ndim != 1 or command_height.shape != height.shape or gravity.shape != (*height.shape,3):
+        raise ValueError('Expected one height/command and three gravity coordinates per environment')
+    if type(floor) not in (int,float) or not math.isfinite(floor) or not .05 <= floor <= 1.:
+        raise ValueError('Motion quality floor must remain finite in [.05,1]')
+    relative, body_deg = criteria['relative_error'], criteria['body_p95_deg']
+    if not all(math.isfinite(v) and v>0 for v in (relative,body_deg)):
+        raise ValueError('Quality guard requires the original positive tracking criteria')
+    height_ratio = (height-command_height).abs()/(relative*command_height.abs().clamp_min(.001))
+    pitch = gravity[:,0].clamp(-1.,1.).asin().abs()
+    roll = (-gravity[:,1]).atan2(-gravity[:,2]).abs()
+    body_ratio = pitch.maximum(roll)/math.radians(body_deg)
+    height_excess = (height_ratio-.5).clamp_min(0.)
+    body_excess = (body_ratio-.5).clamp_min(0.)
+    return floor+(1.-floor)/((1.+height_excess.square())*(1.+body_excess.square()))
+
+
+def guard_tracking_bonuses(signals, height, command_height, gravity, criteria, floor):
+    if floor == 1.:
+        return signals  # exact historical reduction/order, not even an extra multiply
+    quality = task_tracking_quality(height,command_height,gravity,criteria,floor)
+    return {key:value*quality if key in ('track_lin_vel','track_ang_vel') else value
+            for key,value in signals.items()}
+
+
+def validate_task_quality_gate(floor, has_criteria):
+    if (type(floor) not in (int,float) or not math.isfinite(floor) or not .05<=floor<=1.
+            or (floor<1. and not has_criteria)):
+        raise ValueError('A nonzero-floor motion quality guard requires original tracking criteria')
+
+
+def joint_target_length_error_squared(length_reference, height_command, height_offset):
+    """Score direct motor-target FK against the requested upright leg length.
+
+    This is a training reward, not IK or an action/height controller. The two
+    sides are scored separately before averaging: an overlong leg cannot
+    cancel an underlength leg. Do not apply the legacy VMC 0.32 m cap.
+    """
+    if (length_reference.ndim != 2 or length_reference.shape[-1] != 2
+            or height_command.shape != length_reference.shape[:1]
+            or not math.isfinite(height_offset)):
+        raise ValueError('Expected two applied FK lengths, one height command and a finite offset')
+    target = height_command[:, None] + height_offset
+    return (length_reference-target).square().mean(-1)
+
+
+def validate_joint_target_length_reward(mode, coefficient):
+    if (type(coefficient) not in (int, float) or not math.isfinite(coefficient)
+            or not -1000. <= coefficient <= 0.
+            or (coefficient != 0. and mode != 'implicit_joint_position')):
+        raise ValueError('Joint-target length reward requires direct joint PD and a finite scale in [-1000,0]')
+
+
 def height_tracking_kernel(height, target, sigma, relative_deadband=0.0):
     """Do not trade failed motion tracking for already adequate height precision.
 

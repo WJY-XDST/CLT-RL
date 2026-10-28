@@ -1,0 +1,13 @@
+{
+  "actual_ppo_updates_per_block": 200,
+  "acceptance_file": "tracking_acceptance.json",
+  "previous_stage_acceptance_file": "tracking_acceptance_20pct.json",
+  "authority": "explicit_user_instruction",
+  "acceptance_instruction": "就这么持续优化，保证误差能否降到10%",
+  "motion_instruction": "之后便可以渐渐引入速度",
+  "stationary_first": true,
+  "motion_requires_static_all_metrics_and_independent_sustained_pass": true,
+  "preserve_full_checkpoint_and_optimizer": true,
+  "independent_replay_after_each_block": true,
+  "no_total_training_update_limit": true
+}

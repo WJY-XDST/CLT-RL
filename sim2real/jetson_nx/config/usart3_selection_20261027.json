@@ -1,0 +1,44 @@
+{
+  "uart": "USART3",
+  "tx": "PD8",
+  "rx": "PD9",
+  "dma_rx": "DMA2_Stream4",
+  "dma_tx": "DMA2_Stream5",
+  "baudrate": 2000000,
+  "data_bits": 8,
+  "parity": "none",
+  "stop_bits": 1,
+  "flow_control": "none",
+  "source_kernel_clock_hz": 120000000,
+  "oversampling": 16,
+  "computed_brr": 60,
+  "nominal_baud_error_percent": 0.0,
+  "status_frame_bytes": 212,
+  "torque_frame_bytes": 88,
+  "suggested_control_hz": 200,
+  "policy_hz": 50,
+  "combined_wire_time_ms": 1.5,
+  "hardware_tested": false,
+  "changes": {
+    "Core/Src/usart.c": {
+      "before_sha256": "c58779758edef144213e3ba39c6cd7a4682f1b889a1515f6a91888bc7e91b898",
+      "after_sha256": "2e56266d1d0067b82543be11dfb35e9fab54b3635688d2b1d76c83a168dab6c3",
+      "change": "USART3 baudrate 115200 -> 2000000"
+    },
+    "project_h7.ioc": {
+      "before_sha256": "5025a985295b80f754ce19d02d8d6540a060feb2fa6c68e425c9950b48d808ee",
+      "after_sha256": "f4ba25d6e98a9f9d5e211825620640bdedebf37ca47e7a37daf2a12e73180228",
+      "change": "Persist USART3 2000000 baud in CubeMX configuration"
+    }
+  },
+  "final_source_sha256": {
+    "project_h7.ioc": "f4ba25d6e98a9f9d5e211825620640bdedebf37ca47e7a37daf2a12e73180228",
+    "Core/Src/usart.c": "c5f16405a2a4b6000cd80eeb097e6c43717e7ebc2174c27a4f3cbe2bea3e6293",
+    "MDK-ARM/project_h7.uvprojx": "f213cbf45d6e643ad441604fe4559f235b95037f10f6406e8f0acf5cd01c4e27",
+    "control/rl_host.c": "c43fa375f43a0adce13de03a001560ba16426f3c4059c61819de3bcbab80bef8",
+    "control/rl_host.h": "c51bd7b36b27c3ac0cc7735c1c182518f9172367ea92705b19c92fcb0f488be2"
+  },
+  "event_delegation": "USART3-only HAL receive-to-idle and error callbacks",
+  "actual_motor_task_switched": false,
+  "auto_motor_enable": false
+}

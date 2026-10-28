@@ -99,6 +99,24 @@ def audit(directory):
     if 'base_height_error_sq' in rewards:
         discrepancies['base_height_error_sq'] = float(np.max(abs(
             dt*quadratic_height_reward(data['height_m'])-recorded_reward('base_height_error_sq'))))
+    if rewards.get('joint_target_leg_length_error_sq',0.):
+        desired_length = data['height_cmd_m']+rewards['leg_length_target_height_offset']
+        target_error = np.mean((length_ref-desired_length[:,None])**2,axis=1)
+        expected = dt*np.maximum(rewards['joint_target_leg_length_error_sq']*target_error,
+                                 -rewards['base_height_penalty_clip'])
+        discrepancies['joint_target_leg_length_error_sq'] = float(np.max(
+            abs(expected-recorded_reward('joint_target_leg_length_error_sq'))))
+    if rewards.get('tracking_task_quality_gate_floor',1.) < 1.:
+        floor = rewards['tracking_task_quality_gate_floor']
+        h = abs(data['height_m']-data['height_cmd_m'])/(fraction*abs(data['height_cmd_m']))
+        b = np.maximum(abs(data['pitch_rad']),abs(data['roll_rad']))/np.deg2rad(criteria['body_p95_deg'])
+        quality = floor+(1.-floor)/((1.+np.maximum(h-.5,0.)**2)*(1.+np.maximum(b-.5,0.)**2))
+        lin = np.exp(-(data['speed_m_s']-data['speed_cmd_m_s'])**2/rewards['tracking_sigma'])
+        yaw = np.exp(-(data['yaw_rate_rad_s']-data['yaw_cmd_rad_s'])**2/rewards['tracking_sigma_ang'])
+        discrepancies['quality_guarded_track_lin_vel'] = float(np.max(abs(
+            dt*quality*rewards['tracking_lin_vel']*lin-recorded_reward('track_lin_vel'))))
+        discrepancies['quality_guarded_track_ang_vel'] = float(np.max(abs(
+            dt*quality*rewards['tracking_ang_vel']*yaw-recorded_reward('track_ang_vel'))))
     if max(discrepancies.values()) > 1.e-5:
         raise ValueError('Independent reward formulas disagree with actual environment telemetry: '+str(discrepancies))
 

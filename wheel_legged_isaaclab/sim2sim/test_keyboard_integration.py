@@ -98,7 +98,7 @@ class KeyboardIntegrationTests(unittest.TestCase):
             self.assertEqual(float(rows[0]['cmd_x_target']), .4)
             self.assertEqual(float(rows[1]['cmd_x_target']), .8)
             self.assertEqual(float(rows[2]['cmd_x_target']), 0.)
-            self.assertEqual(float(rows[3]['cmd_yaw']), .6)
+            self.assertEqual(float(rows[3]['cmd_yaw']), .3)
             self.assertEqual(float(rows[4]['cmd_yaw']), 0.)  # No implicit heading hold.
             for row in rows[5:]:
                 self.assertEqual(row['command_source'], 'keyboard')
